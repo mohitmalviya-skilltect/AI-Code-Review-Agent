@@ -8,8 +8,9 @@ from app.services.git_service import (
 
 from app.services.review_service import (
     prepare_review_files,
-    create_review_context,
+    generate_code_review,
 )
+
 
 router = APIRouter()
 
@@ -76,7 +77,9 @@ async def github_webhook(request: Request):
 
             except Exception as error:
 
-                print(f"Failed to fetch {file_path}: {error}")
+                print(
+                    f"Failed to fetch {file_path}: {error}"
+                )
 
     # -----------------------------------------
     # 3. Prepare files for review
@@ -92,21 +95,46 @@ async def github_webhook(request: Request):
         print(f"File: {file.path}")
 
     # -----------------------------------------
-    # 4. Create review context
+    # 4. Generate AI review
     # -----------------------------------------
 
-    review_context = create_review_context(review_files)
+    if review_files:
 
-    print("=" * 60)
-    print("REVIEW CONTEXT")
-    print("=" * 60)
+        print("=" * 60)
+        print("GENERATING AI CODE REVIEW")
+        print("=" * 60)
 
-    print(review_context)
+        try:
+
+            ai_review = generate_code_review(
+                review_files
+            )
+
+            print("=" * 60)
+            print("AI CODE REVIEW")
+            print("=" * 60)
+
+            print(ai_review)
+
+        except Exception as error:
+
+            print("=" * 60)
+            print("AI REVIEW FAILED")
+            print("=" * 60)
+
+            print(error)
+
+            ai_review = "AI review failed."
+
+    else:
+
+        ai_review = "No reviewable files found."
 
     return {
         "status": "success",
-        "message": "Files prepared for code review",
+        "message": "Code review completed",
         "changed_files": changed_files,
         "reviewable_files": reviewable_files,
         "files_fetched": list(file_contents.keys()),
+        "ai_review": ai_review,
     }

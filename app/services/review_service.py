@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from app.services.llm_service import review_code
+
 
 @dataclass
 class ReviewFile:
@@ -11,7 +13,9 @@ class ReviewFile:
     content: str
 
 
-def prepare_review_files(file_contents: dict[str, str]) -> list[ReviewFile]:
+def prepare_review_files(
+    file_contents: dict[str, str],
+) -> list[ReviewFile]:
     """
     Convert fetched GitHub files into ReviewFile objects.
     """
@@ -29,9 +33,11 @@ def prepare_review_files(file_contents: dict[str, str]) -> list[ReviewFile]:
     return review_files
 
 
-def create_review_context(review_files: list[ReviewFile]) -> str:
+def create_review_context(
+    review_files: list[ReviewFile],
+) -> str:
     """
-    Create formatted context that can later be sent to an LLM.
+    Create formatted context for the LLM.
     """
 
     sections = []
@@ -39,11 +45,26 @@ def create_review_context(review_files: list[ReviewFile]) -> str:
     for file in review_files:
         section = (
             f"FILE: {file.path}\n\n"
-            f"```text\n"
+            "```text\n"
             f"{file.content}\n"
-            f"```\n"
+            "```\n"
         )
 
         sections.append(section)
 
     return "\n\n".join(sections)
+
+
+def generate_code_review(
+    review_files: list[ReviewFile],
+) -> str:
+    """
+    Generate an AI code review for the provided files.
+    """
+
+    if not review_files:
+        return "No files available for review."
+
+    review_context = create_review_context(review_files)
+
+    return review_code(review_context)
