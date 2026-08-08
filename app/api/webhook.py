@@ -6,6 +6,11 @@ from app.services.git_service import (
     get_file_content,
 )
 
+from app.services.review_service import (
+    prepare_review_files,
+    create_review_context,
+)
+
 router = APIRouter()
 
 
@@ -18,7 +23,6 @@ async def github_webhook(request: Request):
     print("GitHub Webhook Received")
     print("=" * 60)
 
-    # Get repository information
     repository = payload.get("repository", {})
 
     owner = repository.get("owner", {}).get("login")
@@ -26,10 +30,12 @@ async def github_webhook(request: Request):
 
     print(f"Repository: {owner}/{repository_name}")
 
-    # Get changed files
+    # -----------------------------------------
+    # 1. Find changed files
+    # -----------------------------------------
+
     changed_files = get_changed_files(payload)
 
-    # Filter files that should be reviewed
     reviewable_files = filter_reviewable_files(changed_files)
 
     print("Changed files:")
@@ -38,12 +44,14 @@ async def github_webhook(request: Request):
     print("Files to review:")
     print(reviewable_files)
 
-    # Get file contents
+    # -----------------------------------------
+    # 2. Fetch file contents
+    # -----------------------------------------
+
     file_contents = {}
 
     if payload.get("commits"):
 
-        # Get the latest commit from this push
         commit_sha = payload["commits"][-1]["id"]
 
         print(f"Commit SHA: {commit_sha}")
@@ -65,15 +73,39 @@ async def github_webhook(request: Request):
                 file_contents[file_path] = content
 
                 print(f"Successfully fetched: {file_path}")
-                print(content)
 
             except Exception as error:
 
                 print(f"Failed to fetch {file_path}: {error}")
 
+    # -----------------------------------------
+    # 3. Prepare files for review
+    # -----------------------------------------
+
+    review_files = prepare_review_files(file_contents)
+
+    print("=" * 60)
+    print("FILES READY FOR REVIEW")
+    print("=" * 60)
+
+    for file in review_files:
+        print(f"File: {file.path}")
+
+    # -----------------------------------------
+    # 4. Create review context
+    # -----------------------------------------
+
+    review_context = create_review_context(review_files)
+
+    print("=" * 60)
+    print("REVIEW CONTEXT")
+    print("=" * 60)
+
+    print(review_context)
+
     return {
         "status": "success",
-        "message": "GitHub webhook received successfully",
+        "message": "Files prepared for code review",
         "changed_files": changed_files,
         "reviewable_files": reviewable_files,
         "files_fetched": list(file_contents.keys()),
