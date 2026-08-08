@@ -12,7 +12,7 @@ app = FastAPI(
 @app.get("/")
 def home():
     return {
-        "message": "AI Code Review Agent is running!"
+         "message": "AI Code Review Agent is running successfully!"
     }
 
 app.include_router(webhook_router)
