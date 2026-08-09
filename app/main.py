@@ -18,3 +18,5 @@ def home():
 app.include_router(webhook_router)
 
 # Testing review service
+def divide_numbers(a, b):
+    return a / b
