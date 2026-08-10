@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request
+from app.services.github_service import post_commit_review
 
 from app.services.git_service import (
     get_changed_files,
@@ -116,6 +117,27 @@ async def github_webhook(request: Request):
 
             print(ai_review)
 
+             # -----------------------------------------
+            # Post review to GitHub
+            # -----------------------------------------
+
+            commit_sha = payload["commits"][-1]["id"]
+
+            github_response = post_commit_review(
+                owner=owner,
+                repository=repository_name,
+                commit_sha=commit_sha,
+                review=ai_review,
+            )
+
+            print("=" * 60)
+            print("REVIEW POSTED TO GITHUB")
+            print("=" * 60)
+
+            print(
+                github_response.get("html_url")
+            )
+
         except Exception as error:
 
             print("=" * 60)
@@ -124,11 +146,17 @@ async def github_webhook(request: Request):
 
             print(error)
 
-            ai_review = "AI review failed."
+            ai_review = {
+            "summary": "AI review failed.",
+            "issues": [],
+        }
 
     else:
 
-        ai_review = "No reviewable files found."
+        ai_review = {
+        "summary": "No reviewable files found.",
+        "issues": [],
+    }
 
     return {
         "status": "success",

@@ -16,13 +16,11 @@ class ReviewFile:
 def prepare_review_files(
     file_contents: dict[str, str],
 ) -> list[ReviewFile]:
-    """
-    Convert fetched GitHub files into ReviewFile objects.
-    """
 
     review_files = []
 
     for file_path, content in file_contents.items():
+
         review_file = ReviewFile(
             path=file_path,
             content=content,
@@ -36,13 +34,11 @@ def prepare_review_files(
 def create_review_context(
     review_files: list[ReviewFile],
 ) -> str:
-    """
-    Create formatted context for the LLM.
-    """
 
     sections = []
 
     for file in review_files:
+
         section = (
             f"FILE: {file.path}\n\n"
             "```text\n"
@@ -57,14 +53,17 @@ def create_review_context(
 
 def generate_code_review(
     review_files: list[ReviewFile],
-) -> str:
-    """
-    Generate an AI code review for the provided files.
-    """
+) -> dict:
 
     if not review_files:
-        return "No files available for review."
 
-    review_context = create_review_context(review_files)
+        return {
+            "summary": "No files available for review.",
+            "issues": [],
+        }
+
+    review_context = create_review_context(
+        review_files
+    )
 
     return review_code(review_context)

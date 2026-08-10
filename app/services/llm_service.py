@@ -1,4 +1,5 @@
 import os
+import json
 
 from dotenv import load_dotenv
 from google import genai
@@ -16,15 +17,15 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 
 
-def review_code(review_context: str) -> str:
+def review_code(review_context: str) -> dict:
     """
-    Send code to Gemini and return the code review.
+    Send code to Gemini and return a structured code review.
     """
 
     prompt = f"""
 You are an expert software code reviewer.
 
-Review the following code carefully.
+Review the following source code carefully.
 
 Look for:
 
@@ -36,15 +37,33 @@ Look for:
 6. Error handling problems
 7. Potential improvements
 
-For every important issue, explain:
+Return ONLY valid JSON.
 
-- Severity
-- File
-- Problem
-- Why it is a problem
-- Suggested fix
+Use exactly this structure:
 
-If the code is good, mention the good practices you found.
+{{
+    "summary": "Short overall summary",
+    "issues": [
+        {{
+            "file": "path/to/file.py",
+            "severity": "critical|high|medium|low",
+            "category": "bug|security|performance|quality|maintainability",
+            "line": 1,
+            "problem": "Explain the problem",
+            "suggestion": "Explain how to fix it"
+        }}
+    ]
+}}
+
+Rules:
+
+- Do not use Markdown.
+- Do not add text before or after the JSON.
+- If there are no issues, return an empty issues array.
+- The line number should be the approximate line where the issue occurs.
+- Only report meaningful issues.
+- Do not invent problems.
+- Review every file provided.
 
 Code to review:
 
@@ -56,4 +75,23 @@ Code to review:
         contents=prompt,
     )
 
-    return response.text or ""
+    response_text = response.text or ""
+
+    # Remove Markdown code fences if Gemini adds them.
+    response_text = response_text.strip()
+
+    if response_text.startswith("```"):
+        response_text = response_text.replace("```json", "")
+        response_text = response_text.replace("```", "")
+        response_text = response_text.strip()
+
+    try:
+        return json.loads(response_text)
+
+    except json.JSONDecodeError:
+
+        return {
+            "summary": "Gemini returned an invalid JSON response.",
+            "issues": [],
+            "raw_response": response_text,
+        }
