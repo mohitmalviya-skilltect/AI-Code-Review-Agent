@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request
+
 from app.services.github_service import post_commit_review
 
 from app.services.git_service import (
@@ -38,7 +39,9 @@ async def github_webhook(request: Request):
 
     changed_files = get_changed_files(payload)
 
-    reviewable_files = filter_reviewable_files(changed_files)
+    reviewable_files = filter_reviewable_files(
+        changed_files
+    )
 
     print("Changed files:")
     print(changed_files)
@@ -92,27 +95,26 @@ async def github_webhook(request: Request):
 
             print(error)
 
-
-         # 3. TEMPORARY RETURN
-    return {
-        "status": "success",
-        "message": "Commit diff fetched successfully",
-        "changed_files": changed_files,
-        "reviewable_files": reviewable_files,
-        "commit_diff": file_diffs,
-    }
-
     # -----------------------------------------
     # 3. Prepare files for review
     # -----------------------------------------
 
-    review_files = prepare_review_files(file_contents)
+    reviewable_diffs = [
+        file
+        for file in file_diffs
+        if file["path"] in reviewable_files
+    ]
+
+    review_files = prepare_review_files(
+        reviewable_diffs
+    )
 
     print("=" * 60)
     print("FILES READY FOR REVIEW")
     print("=" * 60)
 
     for file in review_files:
+
         print(f"File: {file.path}")
 
     # -----------------------------------------
@@ -137,8 +139,8 @@ async def github_webhook(request: Request):
 
             print(ai_review)
 
-             # -----------------------------------------
-            # Post review to GitHub
+            # -----------------------------------------
+            # 5. Post review to GitHub
             # -----------------------------------------
 
             commit_sha = payload["commits"][-1]["id"]
@@ -167,22 +169,29 @@ async def github_webhook(request: Request):
             print(error)
 
             ai_review = {
-            "summary": "AI review failed.",
-            "issues": [],
-        }
+                "summary": "AI review failed.",
+                "issues": [],
+            }
 
     else:
 
         ai_review = {
-        "summary": "No reviewable files found.",
-        "issues": [],
-    }
+            "summary": "No reviewable files found.",
+            "issues": [],
+        }
+
+    # -----------------------------------------
+    # 6. Return webhook response
+    # -----------------------------------------
 
     return {
         "status": "success",
         "message": "Code review completed",
         "changed_files": changed_files,
         "reviewable_files": reviewable_files,
-        "files_fetched": list(file_contents.keys()),
+        "files_reviewed": [
+            file.path
+            for file in review_files
+        ],
         "ai_review": ai_review,
     }

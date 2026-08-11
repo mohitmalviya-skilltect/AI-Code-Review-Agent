@@ -10,20 +10,20 @@ class ReviewFile:
     """
 
     path: str
-    content: str
+    diff: str
 
 
 def prepare_review_files(
-    file_contents: dict[str, str],
+    file_diffs: list[dict],
 ) -> list[ReviewFile]:
 
     review_files = []
 
-    for file_path, content in file_contents.items():
+    for file in file_diffs:
 
         review_file = ReviewFile(
-            path=file_path,
-            content=content,
+            path=file["path"],
+            diff=file.get("patch", ""),
         )
 
         review_files.append(review_file)
@@ -41,9 +41,9 @@ def create_review_context(
 
         section = (
             f"FILE: {file.path}\n\n"
-            "```text\n"
-            f"{file.content}\n"
-            "```\n"
+            f"STATUS: modified\n\n"
+            "DIFF:\n"
+            f"{file.diff}\n"
         )
 
         sections.append(section)

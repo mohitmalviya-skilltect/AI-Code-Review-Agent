@@ -18,5 +18,5 @@ def home():
 app.include_router(webhook_router)
 
 # Testing review service
-def multiply_numbers(a, b):
+def add_numbers(a, b):
     return a * b
