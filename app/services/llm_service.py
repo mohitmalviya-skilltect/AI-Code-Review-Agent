@@ -91,7 +91,7 @@ Code to review:
         response_text = response_text.strip()
 
     try:
-        return json.loads(response_text)
+        review_data = json.loads(response_text)
 
         validated_review = ReviewResponse.model_validate(review_data)
 
