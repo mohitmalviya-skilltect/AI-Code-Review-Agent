@@ -34,7 +34,7 @@ SUPPORTED_EXTENSIONS = {
 
 SPECIAL_FILES = {
     "Dockerfile",
-    "DockerFile"
+    "DockerFile",
     "Makefile",
 }
 
