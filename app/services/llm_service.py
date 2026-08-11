@@ -170,11 +170,12 @@ Code to review:
         print("=" * 60)
         print("INVALID JSON FROM GEMINI")
         print("=" * 60)
-        print(response_text)
+        print("RAW GEMINI RESPONSE:")
+        print(repr(response_text))
         print("=" * 60)
 
         return {
-            "summary": "Gemini returned an invalid JSON response.",
+            "summary": "AI review failed because Gemini returned an invalid response.",
             "issues": [],
             "review_failed": True,
         }
