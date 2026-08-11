@@ -25,26 +25,87 @@ def review_code(review_context: str) -> dict:
     """
 
     prompt = f"""
-You are an expert software code reviewer.
+Perform a comprehensive code review.
 
-Review the following source code carefully.
+Review the changes systematically across ALL applicable categories:
 
-IMPORTANT:
-- Review ONLY the changes shown in the diff.
-- Do not report issues in unchanged code.
-- Use the diff to identify the approximate changed line where the issue occurs.
+Determine the file type from the file extension or filename and apply relevant specialized checks.
+
+For Python files:
+- Logic and runtime errors
+- Exception handling
+- Security issues
+- Performance
+- Maintainability
+- Python best practices
+
+For TypeScript/JavaScript files:
+- Type safety
+- Runtime errors
+- Async/await issues
+- Security
+- Performance
+- Maintainability
+
+For Terraform files:
+- Publicly exposed resources
+- IAM and permission issues
+- Missing encryption
+- Insecure network rules
+- Hardcoded secrets
+- Unsafe defaults
+- Resource configuration issues
+- Terraform best practices
+
+For Dockerfiles:
+- Running as root
+- Hardcoded secrets
+- Untrusted or unpinned base images
+- Unnecessary packages
+- Image size optimization
+- Layer optimization
+- Missing cleanup
+- Docker security best practices
+
+For JSON/YAML configuration:
+- Invalid or risky configuration
+- Hardcoded secrets
+- Security-sensitive settings
+- Incorrect or suspicious values
+- Maintainability issues
+
+For shell scripts:
+- Unsafe commands
+- Missing error handling
+- Injection risks
+- Permission issues
+- Reliability problems
+
+Only apply specialized checks that are relevant to the detected file type.
+
+IMPORTANT REVIEW RULES:
+
+- Review ALL changed lines.
+- Do not stop after finding the first issue.
+- Identify every meaningful issue you can confidently find.
+- Check each applicable review category before producing the final response.
+- Do not report duplicate issues.
+- Do not invent or speculate about problems.
+- Do not report issues unrelated to the changed code.
+- Prefer specific, actionable suggestions.
+- If a category has no issues, continue checking the remaining categories.
 
 Look for:
 
 1. Bugs and logical errors
 2. Security vulnerabilities
 3. Performance problems
-4. Bad coding practices
-5. Maintainability issues
-6. Error handling problems
-7. Potential improvements
-8. Review only changed lines
-9. Do not report unrelated issues from unchanged code
+4. Code quality and maintainability
+5. Error handling
+6. Best practices
+7. Configuration issues
+8. Dependency issues
+9. Reliability issues
 
 Return ONLY valid JSON.
 
