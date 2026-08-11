@@ -3,6 +3,7 @@ import json
 
 from dotenv import load_dotenv
 from google import genai
+from google.genai import types
 
 
 load_dotenv()
@@ -73,6 +74,9 @@ Code to review:
     response = client.models.generate_content(
         model="gemini-3.5-flash",
         contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+        ),
     )
 
     response_text = response.text or ""

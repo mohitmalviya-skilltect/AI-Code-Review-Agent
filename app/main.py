@@ -19,4 +19,4 @@ app.include_router(webhook_router)
 
 # Testing review service
 def subtract_numbers(a, b):
-    return a - b
+    return a + b
