@@ -4,7 +4,7 @@ from app.services.github_service import post_commit_review
 from app.services.git_service import (
     get_changed_files,
     filter_reviewable_files,
-    get_file_content,
+    get_commit_diff,
 )
 
 from app.services.review_service import (
@@ -47,10 +47,10 @@ async def github_webhook(request: Request):
     print(reviewable_files)
 
     # -----------------------------------------
-    # 2. Fetch file contents
+    # 2. Fetch commit diff
     # -----------------------------------------
 
-    file_contents = {}
+    file_diffs = []
 
     if payload.get("commits"):
 
@@ -58,29 +58,49 @@ async def github_webhook(request: Request):
 
         print(f"Commit SHA: {commit_sha}")
 
-        for file_path in reviewable_files:
+        try:
+
+            file_diffs = get_commit_diff(
+                owner=owner,
+                repository=repository_name,
+                commit_sha=commit_sha,
+            )
 
             print("=" * 60)
-            print(f"Fetching file: {file_path}")
+            print("COMMIT DIFF")
+            print("=" * 60)
 
-            try:
+            for file in file_diffs:
 
-                content = get_file_content(
-                    owner=owner,
-                    repository=repository_name,
-                    file_path=file_path,
-                    commit_sha=commit_sha,
-                )
+                file_path = file["path"]
+                status = file["status"]
+                patch = file["patch"]
 
-                file_contents[file_path] = content
+                if file_path in reviewable_files:
 
-                print(f"Successfully fetched: {file_path}")
+                    print(f"File: {file_path}")
+                    print(f"Status: {status}")
+                    print("Patch:")
+                    print(patch)
+                    print("=" * 60)
 
-            except Exception as error:
+        except Exception as error:
 
-                print(
-                    f"Failed to fetch {file_path}: {error}"
-                )
+            print("=" * 60)
+            print("FAILED TO FETCH COMMIT DIFF")
+            print("=" * 60)
+
+            print(error)
+
+
+         # 3. TEMPORARY RETURN
+    return {
+        "status": "success",
+        "message": "Commit diff fetched successfully",
+        "changed_files": changed_files,
+        "reviewable_files": reviewable_files,
+        "commit_diff": file_diffs,
+    }
 
     # -----------------------------------------
     # 3. Prepare files for review

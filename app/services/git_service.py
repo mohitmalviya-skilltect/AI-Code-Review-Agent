@@ -39,10 +39,6 @@ SPECIAL_FILES = {
 
 
 def get_changed_files(payload: dict[str, Any]) -> list[str]:
-    """
-    Extract added and modified files from a GitHub push payload.
-    """
-
     changed_files = []
 
     for commit in payload.get("commits", []):
@@ -53,10 +49,6 @@ def get_changed_files(payload: dict[str, Any]) -> list[str]:
 
 
 def filter_reviewable_files(files: list[str]) -> list[str]:
-    """
-    Return only files that are relevant for code review.
-    """
-
     reviewable_files = []
 
     for file in files:
@@ -69,15 +61,44 @@ def filter_reviewable_files(files: list[str]) -> list[str]:
     return reviewable_files
 
 
+# commit difference function
+def get_commit_diff(
+    owner: str,
+    repository: str,
+    commit_sha: str,
+) -> list[dict]:
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{owner}/{repository}/commits/{commit_sha}"
+    )
+
+    response = requests.get(url)
+
+    response.raise_for_status()
+
+    data = response.json()
+
+    changed_files = []
+
+    for file in data.get("files", []):
+        changed_files.append(
+            {
+                "path": file["filename"],
+                "status": file["status"],
+                "patch": file.get("patch", ""),
+            }
+        )
+
+    return changed_files
+
+
 def get_file_content(
     owner: str,
     repository: str,
     file_path: str,
     commit_sha: str,
 ) -> str:
-    """
-    Fetch a file's content from GitHub at a specific commit.
-    """
 
     url = (
         f"https://api.github.com/repos/"
