@@ -3,7 +3,7 @@ def calculate_total(price, tax_rate)
     total = price + (price * tax_rate)
     return total
 
-item_price = 200
+item_price = 400
 tax = 0.10
 
 # 2. Trying to print the total
