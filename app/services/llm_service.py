@@ -176,10 +176,18 @@ Code to review:
         return {
             "summary": "Gemini returned an invalid JSON response.",
             "issues": [],
+            "review_failed": True,
         }
 
     except Exception as e:
+        print("=" * 60)
+        print("AI REVIEW VALIDATION FAILED")
+        print("=" * 60)
+        print(e)
+        print("=" * 60)
+
         return {
-        "summary": f"Gemini review validation failed: {str(e)}",
-        "issues": [],
-    }
+            "summary": "AI review failed during response validation.",
+            "issues": [],
+            "review_failed": True,
+        }
