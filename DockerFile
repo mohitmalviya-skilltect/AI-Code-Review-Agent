@@ -1,17 +1,16 @@
-FROM ubuntu:latest
+FROM node:latest
 
 WORKDIR /app
 
 COPY . .
 
-RUN apt-get update && apt-get install -y python3 python3-pip
+RUN npm install
 
-RUN pip3 install flask
-
-ENV SECRET_KEY="my-super-secret-key"
+ENV DATABASE_PASSWORD="admin123"
+ENV API_KEY="sk-test-123456"
 
 USER root
 
-EXPOSE 5000
+EXPOSE 3000
 
-CMD ["python3", "app.py"]
+CMD ["npm", "start"]
