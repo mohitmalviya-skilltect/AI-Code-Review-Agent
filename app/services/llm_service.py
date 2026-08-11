@@ -167,6 +167,11 @@ Code to review:
 
 
     except json.JSONDecodeError:
+        print("=" * 60)
+        print("INVALID JSON FROM GEMINI")
+        print("=" * 60)
+        print(response_text)
+        print("=" * 60)
 
         return {
             "summary": "Gemini returned an invalid JSON response.",

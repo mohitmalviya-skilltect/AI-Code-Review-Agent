@@ -9,7 +9,7 @@ RUN npm install
 ENV DATABASE_PASSWORD="admin123"
 ENV API_KEY="sk-test-123456"
 
-USER root
+USER node
 
 EXPOSE 3000
 
