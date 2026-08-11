@@ -9,7 +9,6 @@ load_dotenv()
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
-
 if not GITHUB_TOKEN:
     raise ValueError("GITHUB_TOKEN is not set in the .env file")
 
@@ -45,17 +44,42 @@ def post_commit_review(
         [],
     )
 
+    review_failed = review.get(
+        "review_failed",
+        False,
+    )
+
     comment_lines = []
 
-    comment_lines.append("## 🤖 AI Code Review")
+    comment_lines.append("## AI Code Review")
     comment_lines.append("")
     comment_lines.append("### Summary")
     comment_lines.append(summary)
     comment_lines.append("")
 
-    if issues:
+    # -----------------------------------------
+    # Handle AI review result
+    # -----------------------------------------
 
-        comment_lines.append("### Issues Found")
+    if review_failed:
+
+        comment_lines.append(
+            "### ⚠️ AI Review Failed"
+        )
+
+        comment_lines.append("")
+
+        comment_lines.append(
+            "The AI reviewer could not complete "
+            "the code review successfully."
+        )
+
+    elif issues:
+
+        comment_lines.append(
+            "### Issues Found"
+        )
+
         comment_lines.append("")
 
         for index, issue in enumerate(
@@ -127,6 +151,7 @@ def post_commit_review(
         )
 
     comment_lines.append("")
+
     comment_lines.append(
         "_Review generated automatically by "
         "AI Code Review Agent._"
