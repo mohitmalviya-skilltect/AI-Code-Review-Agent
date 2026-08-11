@@ -93,6 +93,70 @@ def get_commit_diff(
 
     return changed_files
 
+def get_changed_line_numbers(
+    patch: str,
+) -> set[int]:
+    """
+    Extract the new-file line numbers that were
+    actually changed in a GitHub diff patch.
+    """
+
+    changed_lines = set()
+
+    current_line = None
+
+    for line in patch.splitlines():
+
+        # Example:
+        # @@ -10,3 +10,5 @@
+        if line.startswith("@@"):
+
+            parts = line.split(" ")
+
+            new_file_range = None
+
+            for part in parts:
+
+                if part.startswith("+"):
+                    new_file_range = part
+                    break
+
+            if new_file_range:
+
+                new_file_range = new_file_range.split(",")[0]
+
+                current_line = int(
+                    new_file_range[1:]
+                )
+
+            continue
+
+        if current_line is None:
+            continue
+
+        # Added line
+        if line.startswith("+"):
+
+            changed_lines.add(
+                current_line
+            )
+
+            current_line += 1
+
+        # Deleted line
+        elif line.startswith("-"):
+
+            # Deleted lines don't exist on the
+            # new side of the diff.
+            continue
+
+        # Context line
+        else:
+
+            current_line += 1
+
+    return changed_lines
+
 
 def get_file_content(
     owner: str,

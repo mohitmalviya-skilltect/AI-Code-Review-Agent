@@ -1,27 +1,24 @@
-# 1. This script manages a simple user profile setup
-def greet_user(username):
-print("Welcome to the platform, " + username)
+# 1. This script calculates a shopping total with tax
+def calculate_total(price, tax_rate)
+    total = price + (price * tax_rate)
+    return total
 
-# 2. Ask user for age and convert to number
-age_input = input("Enter your age: ")
-user_age = int(age_input)
+item_price = 100
+tax = 0.05
 
-# 3. Check if user is old enough
-if user_age >= 18:
-    is_adult = True
-else
-    is_adult = False
+# 2. Trying to print the total
+final_bill = calculate_total(item_price, tax)
+print("Your total is: " + final_bill)
 
-# 4. Try to print status using un-matching quotes
-if is_adult:
-    print('Access granted")
-else:
-    print("Access denied')
+# 3. Check if the customer gets a discount
+if item_price = 100:
+    print("You get a 10% discount!")
 
-# 5. Loop through a list of starting items
-items = ["badge", "coins", "map"]
-for item in items:
-    print("Added item: " + items)
+# 4. Loop to print a thank you message 5 times
+count = 0
+while count < 5
+    print("Thank you for shopping!")
+    count += 1
 
-# 6. Try to add a bonus item to the list
-items.add("sword")
+# 5. Intentional typo in a variable name
+print(f"Goodbye from {store_name}!")
