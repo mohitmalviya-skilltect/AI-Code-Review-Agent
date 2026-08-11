@@ -4,6 +4,7 @@ import json
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from app.models.schemas import ReviewResponse
 
 
 load_dotenv()
@@ -92,10 +93,20 @@ Code to review:
     try:
         return json.loads(response_text)
 
+        validated_review = ReviewResponse.model_validate(review_data)
+
+        return validated_review.model_dump()
+
+
     except json.JSONDecodeError:
 
         return {
             "summary": "Gemini returned an invalid JSON response.",
             "issues": [],
-            "raw_response": response_text,
         }
+
+    except Exception as e:
+        return {
+        "summary": f"Gemini review validation failed: {str(e)}",
+        "issues": [],
+    }
