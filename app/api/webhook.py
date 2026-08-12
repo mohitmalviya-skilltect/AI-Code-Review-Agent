@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, BackgroundTasks
 
 from app.services.github_service import post_commit_review
 
@@ -7,7 +7,6 @@ from app.services.git_service import (
     filter_reviewable_files,
     get_commit_diff,
     get_changed_line_numbers,
-
 )
 
 from app.services.review_service import (
@@ -15,14 +14,14 @@ from app.services.review_service import (
     generate_code_review,
 )
 
-
 router = APIRouter()
 
 
-@router.post("/webhook")
-async def github_webhook(request: Request):
+# =========================================================
+# Background review processing
+# =========================================================
 
-    payload = await request.json()
+def process_github_review(payload: dict):
 
     print("=" * 60)
     print("GitHub Webhook Received")
@@ -35,9 +34,9 @@ async def github_webhook(request: Request):
 
     print(f"Repository: {owner}/{repository_name}")
 
-    # -----------------------------------------
+    # =====================================================
     # 1. Find changed files
-    # -----------------------------------------
+    # =====================================================
 
     changed_files = get_changed_files(payload)
 
@@ -51,9 +50,9 @@ async def github_webhook(request: Request):
     print("Files to review:")
     print(reviewable_files)
 
-    # -----------------------------------------
+    # =====================================================
     # 2. Fetch commit diff
-    # -----------------------------------------
+    # =====================================================
 
     file_diffs = []
 
@@ -79,16 +78,7 @@ async def github_webhook(request: Request):
 
                 file_path = file["path"]
                 status = file["status"]
-                patch = file["patch"]
-
-                changed_lines = get_changed_line_numbers(
-                    patch
-                )
-
-                print(
-                    f"Changed lines in {file_path}: "
-                    f"{changed_lines}"
-                )
+                patch = file.get("patch", "")
 
                 if file_path in reviewable_files:
 
@@ -96,6 +86,25 @@ async def github_webhook(request: Request):
                     print(f"Status: {status}")
                     print("Patch:")
                     print(patch)
+
+                    # -------------------------------------
+                    # Find changed lines
+                    # -------------------------------------
+
+                    if patch:
+
+                        changed_lines = (
+                            get_changed_line_numbers(
+                                patch
+                            )
+                        )
+
+                        print(
+                            f"Changed lines in "
+                            f"{file_path}: "
+                            f"{changed_lines}"
+                        )
+
                     print("=" * 60)
 
         except Exception as error:
@@ -106,18 +115,18 @@ async def github_webhook(request: Request):
 
             print(error)
 
-    # -----------------------------------------
-    # 3. Prepare files for review
-    # -----------------------------------------
+            return
 
-    reviewable_diffs = [
-        file
-        for file in file_diffs
-        if file["path"] in reviewable_files
-    ]
+    # =====================================================
+    # 3. Prepare files for review
+    # =====================================================
 
     review_files = prepare_review_files(
-        reviewable_diffs
+        [
+            file
+            for file in file_diffs
+            if file["path"] in reviewable_files
+        ]
     )
 
     print("=" * 60)
@@ -125,84 +134,86 @@ async def github_webhook(request: Request):
     print("=" * 60)
 
     for file in review_files:
-
         print(f"File: {file.path}")
 
-    # -----------------------------------------
+    # =====================================================
     # 4. Generate AI review
-    # -----------------------------------------
+    # =====================================================
 
-    if review_files:
+    if not review_files:
+
+        print("No reviewable files found.")
+
+        return
+
+    print("=" * 60)
+    print("GENERATING AI CODE REVIEW")
+    print("=" * 60)
+
+    try:
+
+        ai_review = generate_code_review(
+            review_files
+        )
 
         print("=" * 60)
-        print("GENERATING AI CODE REVIEW")
+        print("AI CODE REVIEW")
         print("=" * 60)
 
-        try:
+        print(ai_review)
 
-            ai_review = generate_code_review(
-                review_files
+        # =================================================
+        # 5. Post review to GitHub
+        # =================================================
+
+        commit_sha = payload["commits"][-1]["id"]
+
+        github_response = post_commit_review(
+            owner=owner,
+            repository=repository_name,
+            commit_sha=commit_sha,
+            review=ai_review,
+        )
+
+        print("=" * 60)
+        print("REVIEW POSTED TO GITHUB")
+        print("=" * 60)
+
+        print(
+            github_response.get(
+                "html_url"
             )
+        )
 
-            print("=" * 60)
-            print("AI CODE REVIEW")
-            print("=" * 60)
+    except Exception as error:
 
-            print(ai_review)
+        print("=" * 60)
+        print("AI REVIEW FAILED")
+        print("=" * 60)
 
-            # -----------------------------------------
-            # 5. Post review to GitHub
-            # -----------------------------------------
+        print(error)
 
-            commit_sha = payload["commits"][-1]["id"]
 
-            github_response = post_commit_review(
-                owner=owner,
-                repository=repository_name,
-                commit_sha=commit_sha,
-                review=ai_review,
-            )
+# =========================================================
+# Webhook endpoint
+# =========================================================
 
-            print("=" * 60)
-            print("REVIEW POSTED TO GITHUB")
-            print("=" * 60)
+@router.post("/webhook")
+async def github_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+):
 
-            print(
-                github_response.get("html_url")
-            )
+    payload = await request.json()
 
-        except Exception as error:
+    # Start review in background
+    background_tasks.add_task(
+        process_github_review,
+        payload,
+    )
 
-            print("=" * 60)
-            print("AI REVIEW FAILED")
-            print("=" * 60)
-
-            print(error)
-
-            ai_review = {
-                "summary": "AI review failed.",
-                "issues": [],
-            }
-
-    else:
-
-        ai_review = {
-            "summary": "No reviewable files found.",
-            "issues": [],
-        }
-
-    # -----------------------------------------
-    # 6. Return webhook response
-    # -----------------------------------------
-
+    # Return immediately to GitHub
     return {
-        "status": "success",
-        "message": "Code review completed",
-        "changed_files": changed_files,
-        "reviewable_files": reviewable_files,
-        "files_reviewed": [
-            file.path
-            for file in review_files
-        ],
-        "ai_review": ai_review,
+        "status": "accepted",
+        "message": "Webhook received. Code review started.",
     }
