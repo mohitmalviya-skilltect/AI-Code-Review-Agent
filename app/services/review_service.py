@@ -61,6 +61,7 @@ def generate_code_review(
         }
 
     all_issues = []
+    failed_files = []
 
     for file in review_files:
 
@@ -78,6 +79,21 @@ def generate_code_review(
                 review_context
             )
 
+            print(f"Review result for {file.path}:")
+            print(review_result)
+
+            # Check if AI review failed
+            if review_result.get(
+                "review_failed",
+                False,
+            ):
+
+                failed_files.append(
+                    file.path
+                )
+
+                continue
+
             issues = review_result.get(
                 "issues",
                 [],
@@ -93,6 +109,28 @@ def generate_code_review(
                 f"Failed to review {file.path}: "
                 f"{error}"
             )
+
+            failed_files.append(
+                file.path
+            )
+
+    # -----------------------------------------
+    # Final review result
+    # -----------------------------------------
+
+    if failed_files:
+
+        return {
+            "summary": (
+                f"AI reviewed "
+                f"{len(review_files)} file(s), "
+                f"but failed to review: "
+                f"{', '.join(failed_files)}"
+            ),
+            "issues": all_issues,
+            "review_failed": True,
+            "failed_files": failed_files,
+        }
 
     return {
         "summary": (
