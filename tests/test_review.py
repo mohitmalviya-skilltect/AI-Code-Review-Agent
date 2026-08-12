@@ -5,4 +5,4 @@ def calculate_average(numbers)
     average = total / len(numbers)
     print("The average is: " + average)
     return Avg
-result = calculate_average([])
+result = calculate_average([]
