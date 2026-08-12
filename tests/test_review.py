@@ -4,6 +4,6 @@ def calculate_average(numbers)
         total += numbers[i]
     average = total / len(numbers)
     print("The average is: " + average)
-    return Average
+    return Avg
 
 result = calculate_average([])
