@@ -136,23 +136,16 @@ def get_changed_line_numbers(
 
         # Added line
         if line.startswith("+"):
-
-            changed_lines.add(
-                current_line
-            )
-
+            changed_lines.add(current_line)
             current_line += 1
 
-        # Deleted line
         elif line.startswith("-"):
-
-            # Deleted lines don't exist on the
-            # new side of the diff.
             continue
 
-        # Context line
-        else:
+        elif line.startswith("\\"):
+            continue
 
+        else:
             current_line += 1
 
     return changed_lines

@@ -1,24 +1,9 @@
-# 1. This script calculates a shopping total with tax
-def calculate_total(price, tax_rate)
-    total = price + (price * tax_rate)
-    return total
+def calculate_average(numbers)
+    total = 0
+    for i in range(len(numbers) + 1):
+        total += numbers[i]
+    average = total / len(numbers)
+    print("The average is: " + average)
+    return Average
 
-item_price = 800
-tax = 0.07
-
-# 2. Trying to print the total
-final_bill = calculate_total(item_price, tax)
-print("Your total is: " + final_bill)
-
-# 3. Check if the customer gets a discount
-if item_price = 100:
-    print("You get a 10% discount!")
-
-# 4. Loop to print a thank you message 5 times
-count = 0
-while count < 5
-    print("Thank you for shopping!")
-    count += 1
-
-# 5. Intentional typo in a variable name
-print(f"Goodbye from {store_name}!")
+result = calculate_average([])

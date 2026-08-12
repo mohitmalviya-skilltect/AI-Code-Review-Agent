@@ -6,7 +6,7 @@ from app.services.git_service import (
     get_changed_files,
     filter_reviewable_files,
     get_commit_diff,
-    #get_changed_line_numbers,
+    get_changed_line_numbers,
 
 )
 
@@ -80,6 +80,15 @@ async def github_webhook(request: Request):
                 file_path = file["path"]
                 status = file["status"]
                 patch = file["patch"]
+
+                changed_lines = get_changed_line_numbers(
+                    patch
+                )
+
+                print(
+                    f"Changed lines in {file_path}: "
+                    f"{changed_lines}"
+                )
 
                 if file_path in reviewable_files:
 
