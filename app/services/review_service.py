@@ -50,20 +50,54 @@ def create_review_context(
 
     return "\n\n".join(sections)
 
-
 def generate_code_review(
     review_files: list[ReviewFile],
 ) -> dict:
 
     if not review_files:
-
         return {
             "summary": "No files available for review.",
             "issues": [],
         }
 
-    review_context = create_review_context(
-        review_files
-    )
+    all_issues = []
 
-    return review_code(review_context)
+    for file in review_files:
+
+        print("=" * 60)
+        print(f"REVIEWING FILE: {file.path}")
+        print("=" * 60)
+
+        review_context = create_review_context(
+            [file]
+        )
+
+        try:
+
+            review_result = review_code(
+                review_context
+            )
+
+            issues = review_result.get(
+                "issues",
+                [],
+            )
+
+            all_issues.extend(
+                issues
+            )
+
+        except Exception as error:
+
+            print(
+                f"Failed to review {file.path}: "
+                f"{error}"
+            )
+
+    return {
+        "summary": (
+            f"AI reviewed "
+            f"{len(review_files)} file(s)."
+        ),
+        "issues": all_issues,
+    }
