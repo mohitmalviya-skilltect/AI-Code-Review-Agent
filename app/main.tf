@@ -7,7 +7,7 @@ terraform {
   }
 }
 
-provider "random" {}
+provider "random" 
 
 # Generates a random cute pet name
 resource "random_pet" "server_name" {
