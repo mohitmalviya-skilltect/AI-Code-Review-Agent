@@ -38,5 +38,5 @@ output "random_suffix" {
   
 output "generated_password" {
   value     = random_password.secret.result
-  sensitive = tru
+  sensitive = tr
 }
