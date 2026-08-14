@@ -174,3 +174,50 @@ def post_commit_review(
     response.raise_for_status()
 
     return response.json()
+
+
+# =========================================================
+# Post line-level comment
+# =========================================================
+
+def post_line_comment(
+    owner: str,
+    repository: str,
+    commit_sha: str,
+    file_path: str,
+    line: int,
+    comment_body: str,
+) -> dict:
+    """
+    Post an AI review comment directly on a changed
+    line in a GitHub commit.
+    """
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{owner}/{repository}/commits/"
+        f"{commit_sha}/comments"
+    )
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "X-GitHub-Api-Version": "2026-03-10",
+    }
+
+    payload = {
+        "body": comment_body,
+        "path": file_path,
+        "line": line,
+        "side": "RIGHT",
+    }
+
+    response = requests.post(
+        url,
+        headers=headers,
+        json=payload,
+    )
+
+    response.raise_for_status()
+
+    return response.json()

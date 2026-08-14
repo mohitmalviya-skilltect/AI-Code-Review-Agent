@@ -97,36 +97,45 @@ def get_changed_line_numbers(
     patch: str,
 ) -> set[int]:
     """
-    Extract the new-file line numbers that were
-    actually changed in a GitHub diff patch.
+    Extract new-file line numbers that were
+    added or modified in a GitHub diff patch.
     """
 
     changed_lines = set()
-
     current_line = None
 
     for line in patch.splitlines():
 
         # Example:
-        # @@ -10,3 +10,5 @@
+        # @@ -4,5 +4,5 @@
         if line.startswith("@@"):
 
-            parts = line.split(" ")
+            parts = line.split()
 
-            new_file_range = None
+            new_range = None
 
             for part in parts:
 
                 if part.startswith("+"):
-                    new_file_range = part
+                    new_range = part
                     break
 
-            if new_file_range:
+            if new_range:
 
-                new_file_range = new_file_range.split(",")[0]
+                new_range = new_range[1:]
+
+                if "," in new_range:
+
+                    start_line = new_range.split(
+                        ","
+                    )[0]
+
+                else:
+
+                    start_line = new_range
 
                 current_line = int(
-                    new_file_range[1:]
+                    start_line
                 )
 
             continue
@@ -134,22 +143,45 @@ def get_changed_line_numbers(
         if current_line is None:
             continue
 
+        # -----------------------------------------
         # Added line
+        # -----------------------------------------
+
         if line.startswith("+"):
-            changed_lines.add(current_line)
+
+            changed_lines.add(
+                current_line
+            )
+
             current_line += 1
 
+        # -----------------------------------------
+        # Deleted line
+        # -----------------------------------------
+
         elif line.startswith("-"):
+
+            # Deleted lines exist only on the
+            # old side of the diff.
             continue
+
+        # -----------------------------------------
+        # Git diff metadata
+        # -----------------------------------------
 
         elif line.startswith("\\"):
+
             continue
 
+        # -----------------------------------------
+        # Context line
+        # -----------------------------------------
+
         else:
+
             current_line += 1
 
     return changed_lines
-
 
 def get_file_content(
     owner: str,

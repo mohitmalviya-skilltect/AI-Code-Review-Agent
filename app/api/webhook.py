@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Request, BackgroundTasks
 
-from app.services.github_service import post_commit_review
+from app.services.github_service import (
+    post_commit_review,
+    post_line_comment,
+)
 
 from app.services.git_service import (
     get_changed_files,
@@ -163,10 +166,173 @@ def process_github_review(payload: dict):
         print(ai_review)
 
         # =================================================
-        # 5. Post review to GitHub
+        # 5. Get commit SHA
         # =================================================
 
         commit_sha = payload["commits"][-1]["id"]
+
+        # =================================================
+        # 6. Build changed-line mapping
+        # =================================================
+
+        changed_lines_by_file = {}
+
+        for file in file_diffs:
+
+            file_path = file["path"]
+
+            if file_path not in reviewable_files:
+                continue
+
+            patch = file.get("patch", "")
+
+            if not patch:
+                continue
+
+            changed_lines = get_changed_line_numbers(
+                patch
+            )
+
+            changed_lines_by_file[file_path] = (
+                changed_lines
+            )
+
+        print("=" * 60)
+        print("CHANGED LINE MAPPING")
+        print("=" * 60)
+
+        print(changed_lines_by_file)
+
+        # =================================================
+        # 7. Post line-level comments
+        # =================================================
+
+        if not ai_review.get(
+            "review_failed",
+            False,
+        ):
+
+            print("=" * 60)
+            print("POSTING LINE-LEVEL COMMENTS")
+            print("=" * 60)
+
+            for issue in ai_review.get(
+                "issues",
+                [],
+            ):
+
+                file_path = issue.get(
+                    "file"
+                )
+
+                line = issue.get(
+                    "line"
+                )
+
+                if not file_path:
+                    print(
+                        "Skipping issue because "
+                        "file is missing."
+                    )
+                    continue
+
+                if not isinstance(
+                    line,
+                    int,
+                ):
+
+                    print(
+                        f"Skipping line comment for "
+                        f"{file_path}: invalid line "
+                        f"{line}"
+                    )
+
+                    continue
+
+                changed_lines = (
+                    changed_lines_by_file.get(
+                        file_path,
+                        set(),
+                    )
+                )
+
+                # -----------------------------------------
+                # Make sure the AI issue is on a changed
+                # line before posting a line comment.
+                # -----------------------------------------
+
+                if line not in changed_lines:
+
+                    print(
+                        f"Skipping line comment for "
+                        f"{file_path}:{line} "
+                        f"(line not in diff)"
+                    )
+
+                    continue
+
+                severity = issue.get(
+                    "severity",
+                    "unknown",
+                )
+
+                category = issue.get(
+                    "category",
+                    "unknown",
+                )
+
+                problem = issue.get(
+                    "problem",
+                    "No problem description.",
+                )
+
+                suggestion = issue.get(
+                    "suggestion",
+                    "No suggestion provided.",
+                )
+
+                line_comment = (
+                    "## 🤖 AI Code Review\n\n"
+                    f"**Severity:** "
+                    f"{severity.upper()}\n\n"
+                    f"**Category:** {category}\n\n"
+                    f"**Problem:** {problem}\n\n"
+                    f"**Suggestion:** {suggestion}"
+                )
+
+                try:
+
+                    line_response = post_line_comment(
+                        owner=owner,
+                        repository=repository_name,
+                        commit_sha=commit_sha,
+                        file_path=file_path,
+                        line=line,
+                        comment_body=line_comment,
+                    )
+
+                    print(
+                        f"Line comment posted: "
+                        f"{file_path}:{line}"
+                    )
+
+                    print(
+                        line_response.get(
+                            "html_url"
+                        )
+                    )
+
+                except Exception as error:
+
+                    print(
+                        f"Failed to post line comment "
+                        f"for {file_path}:{line}: "
+                        f"{error}"
+                    )
+
+        # =================================================
+        # 8. Post overall commit review
+        # =================================================
 
         github_response = post_commit_review(
             owner=owner,
