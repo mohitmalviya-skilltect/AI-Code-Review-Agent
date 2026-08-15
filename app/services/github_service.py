@@ -307,3 +307,41 @@ def post_line_comment(
         print("=" * 60)
 
         raise error
+
+# =========================================================
+# Get Pull Request Files
+# =========================================================
+
+def get_pull_request_files(
+    owner: str,
+    repository: str,
+    pull_request_number: int,
+) -> list[dict]:
+    """
+    Get files changed in a GitHub Pull Request.
+    """
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{owner}/{repository}/pulls/"
+        f"{pull_request_number}/files"
+    )
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "X-GitHub-Api-Version": "2026-03-10",
+    }
+
+    response = requests.get(
+        url,
+        headers=headers,
+        params={
+            "per_page": 100,
+        },
+        timeout=15,
+    )
+
+    response.raise_for_status()
+
+    return response.json()
