@@ -1,8 +1,11 @@
-def calculate_average(numbers)
+def calculate_average(numbers):
     total = 0
-    for i in range(len(numbers) + 1):
-        total + numbers[i]
+
+    for i in range(len(numbers)):
+        total += numbers[i]
+
     average = total / len(numbers)
-    print("The average is: " + average)
-    return Avg
-result = calculate_average([])
+
+    print("Average:", average)
+
+    return avg
