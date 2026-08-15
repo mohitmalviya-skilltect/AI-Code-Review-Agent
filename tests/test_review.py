@@ -8,4 +8,4 @@ def calculate_average(numbers):
 
     print("Average:", average)
 
-    return avg
+    return average
