@@ -3,6 +3,7 @@ from fastapi import APIRouter, Request, BackgroundTasks
 from app.services.github_service import (
     post_commit_review,
     post_line_comment,
+    get_commit_comments,
 )
 
 from app.services.git_service import (
@@ -21,7 +22,79 @@ router = APIRouter()
 
 
 # =========================================================
-# Background review processing
+# Process Github Event
+# =========================================================
+
+def process_github_event(
+    payload: dict,
+    event_type: str,
+):
+
+    if event_type == "push":
+
+        print("=" * 60)
+        print("PROCESSING PUSH EVENT")
+        print("=" * 60)
+
+        process_github_review(
+            payload
+        )
+
+    elif event_type == "pull_request":
+
+        print("=" * 60)
+        print("PROCESSING PULL REQUEST EVENT")
+        print("=" * 60)
+
+        process_pull_request_review(
+            payload
+        )
+
+    else:
+
+        print("=" * 60)
+        print(
+            f"IGNORING EVENT: {event_type}"
+        )
+        print("=" * 60)
+
+
+# =========================================================
+# Temporary Pull Request Review Function
+# =========================================================
+
+def process_pull_request_review(
+    payload: dict,
+):
+
+    print("=" * 60)
+    print("PULL REQUEST REVIEW")
+    print("=" * 60)
+
+    pull_request = payload.get(
+        "pull_request",
+        {},
+    )
+
+    pr_number = pull_request.get(
+        "number"
+    )
+
+    title = pull_request.get(
+        "title"
+    )
+
+    print(f"PR Number: {pr_number}")
+    print(f"PR Title: {title}")
+
+    print(
+        "Pull request review logic "
+        "will be implemented next."
+    )
+
+
+# =========================================================
+# Process Github Review
 # =========================================================
 
 def process_github_review(payload: dict):
@@ -30,18 +103,34 @@ def process_github_review(payload: dict):
     print("GitHub Webhook Received")
     print("=" * 60)
 
-    repository = payload.get("repository", {})
+    repository = payload.get(
+        "repository",
+        {},
+    )
 
-    owner = repository.get("owner", {}).get("login")
-    repository_name = repository.get("name")
+    owner = repository.get(
+        "owner",
+        {},
+    ).get(
+        "login"
+    )
 
-    print(f"Repository: {owner}/{repository_name}")
+    repository_name = repository.get(
+        "name"
+    )
+
+    print(
+        f"Repository: "
+        f"{owner}/{repository_name}"
+    )
 
     # =====================================================
     # 1. Find changed files
     # =====================================================
 
-    changed_files = get_changed_files(payload)
+    changed_files = get_changed_files(
+        payload
+    )
 
     reviewable_files = filter_reviewable_files(
         changed_files
@@ -63,7 +152,9 @@ def process_github_review(payload: dict):
 
         commit_sha = payload["commits"][-1]["id"]
 
-        print(f"Commit SHA: {commit_sha}")
+        print(
+            f"Commit SHA: {commit_sha}"
+        )
 
         try:
 
@@ -81,12 +172,21 @@ def process_github_review(payload: dict):
 
                 file_path = file["path"]
                 status = file["status"]
-                patch = file.get("patch", "")
+                patch = file.get(
+                    "patch",
+                    "",
+                )
 
                 if file_path in reviewable_files:
 
-                    print(f"File: {file_path}")
-                    print(f"Status: {status}")
+                    print(
+                        f"File: {file_path}"
+                    )
+
+                    print(
+                        f"Status: {status}"
+                    )
+
                     print("Patch:")
                     print(patch)
 
@@ -108,12 +208,16 @@ def process_github_review(payload: dict):
                             f"{changed_lines}"
                         )
 
-                    print("=" * 60)
+                    print(
+                        "=" * 60
+                    )
 
         except Exception as error:
 
             print("=" * 60)
-            print("FAILED TO FETCH COMMIT DIFF")
+            print(
+                "FAILED TO FETCH COMMIT DIFF"
+            )
             print("=" * 60)
 
             print(error)
@@ -137,7 +241,10 @@ def process_github_review(payload: dict):
     print("=" * 60)
 
     for file in review_files:
-        print(f"File: {file.path}")
+
+        print(
+            f"File: {file.path}"
+        )
 
     # =====================================================
     # 4. Generate AI review
@@ -145,7 +252,9 @@ def process_github_review(payload: dict):
 
     if not review_files:
 
-        print("No reviewable files found.")
+        print(
+            "No reviewable files found."
+        )
 
         return
 
@@ -184,27 +293,68 @@ def process_github_review(payload: dict):
             if file_path not in reviewable_files:
                 continue
 
-            patch = file.get("patch", "")
+            patch = file.get(
+                "patch",
+                "",
+            )
 
             if not patch:
                 continue
 
-            changed_lines = get_changed_line_numbers(
-                patch
+            changed_lines = (
+                get_changed_line_numbers(
+                    patch
+                )
             )
 
-            changed_lines_by_file[file_path] = (
-                changed_lines
-            )
+            changed_lines_by_file[
+                file_path
+            ] = changed_lines
 
         print("=" * 60)
         print("CHANGED LINE MAPPING")
         print("=" * 60)
 
-        print(changed_lines_by_file)
+        print(
+            changed_lines_by_file
+        )
 
         # =================================================
-        # 7. Post line-level comments
+        # 7. Get existing GitHub comments
+        # =================================================
+
+        print("=" * 60)
+        print("CHECKING EXISTING GITHUB COMMENTS")
+        print("=" * 60)
+
+        try:
+
+            existing_comments = (
+                get_commit_comments(
+                    owner=owner,
+                    repository=repository_name,
+                    commit_sha=commit_sha,
+                )
+            )
+
+            print(
+                f"Existing comments: "
+                f"{len(existing_comments)}"
+            )
+
+        except Exception as error:
+
+            print(
+                "Failed to fetch existing "
+                f"comments: {error}"
+            )
+
+            # Continue review even if fetching
+            # existing comments fails.
+            existing_comments = []
+
+        # =================================================
+        # 8. Post line-level comments
         # =================================================
 
         if not ai_review.get(
@@ -213,7 +363,9 @@ def process_github_review(payload: dict):
         ):
 
             print("=" * 60)
-            print("POSTING LINE-LEVEL COMMENTS")
+            print(
+                "POSTING LINE-LEVEL COMMENTS"
+            )
             print("=" * 60)
 
             for issue in ai_review.get(
@@ -230,10 +382,12 @@ def process_github_review(payload: dict):
                 )
 
                 if not file_path:
+
                     print(
                         "Skipping issue because "
                         "file is missing."
                     )
+
                     continue
 
                 if not isinstance(
@@ -242,9 +396,9 @@ def process_github_review(payload: dict):
                 ):
 
                     print(
-                        f"Skipping line comment for "
-                        f"{file_path}: invalid line "
-                        f"{line}"
+                        f"Skipping line comment "
+                        f"for {file_path}: "
+                        f"invalid line {line}"
                     )
 
                     continue
@@ -257,19 +411,53 @@ def process_github_review(payload: dict):
                 )
 
                 # -----------------------------------------
-                # Make sure the AI issue is on a changed
-                # line before posting a line comment.
+                # Make sure AI issue is on changed line
                 # -----------------------------------------
 
                 if line not in changed_lines:
 
                     print(
-                        f"Skipping line comment for "
-                        f"{file_path}:{line} "
+                        f"Skipping line comment "
+                        f"for {file_path}:{line} "
                         f"(line not in diff)"
                     )
 
                     continue
+
+                # -----------------------------------------
+                # Create unique marker
+                # -----------------------------------------
+
+                marker = (
+                    f"<!-- ai-code-review:"
+                    f"{file_path}:{line} -->"
+                )
+
+                # -----------------------------------------
+                # Check duplicate comment
+                # -----------------------------------------
+
+                already_commented = any(
+                    marker in comment.get(
+                        "body",
+                        "",
+                    )
+                    for comment in existing_comments
+                )
+
+                if already_commented:
+
+                    print(
+                        f"Skipping duplicate "
+                        f"comment: "
+                        f"{file_path}:{line}"
+                    )
+
+                    continue
+
+                # -----------------------------------------
+                # Prepare issue details
+                # -----------------------------------------
 
                 severity = issue.get(
                     "severity",
@@ -292,23 +480,33 @@ def process_github_review(payload: dict):
                 )
 
                 line_comment = (
+                    f"{marker}\n\n"
                     "## 🤖 AI Code Review\n\n"
                     f"**Severity:** "
                     f"{severity.upper()}\n\n"
-                    f"**Category:** {category}\n\n"
-                    f"**Problem:** {problem}\n\n"
-                    f"**Suggestion:** {suggestion}"
+                    f"**Category:** "
+                    f"{category}\n\n"
+                    f"**Problem:** "
+                    f"{problem}\n\n"
+                    f"**Suggestion:** "
+                    f"{suggestion}"
                 )
+
+                # -----------------------------------------
+                # Post comment
+                # -----------------------------------------
 
                 try:
 
-                    line_response = post_line_comment(
-                        owner=owner,
-                        repository=repository_name,
-                        commit_sha=commit_sha,
-                        file_path=file_path,
-                        line=line,
-                        comment_body=line_comment,
+                    line_response = (
+                        post_line_comment(
+                            owner=owner,
+                            repository=repository_name,
+                            commit_sha=commit_sha,
+                            file_path=file_path,
+                            line=line,
+                            comment_body=line_comment,
+                        )
                     )
 
                     print(
@@ -325,24 +523,29 @@ def process_github_review(payload: dict):
                 except Exception as error:
 
                     print(
-                        f"Failed to post line comment "
-                        f"for {file_path}:{line}: "
+                        f"Failed to post "
+                        f"line comment for "
+                        f"{file_path}:{line}: "
                         f"{error}"
                     )
 
         # =================================================
-        # 8. Post overall commit review
+        # 9. Post overall commit review
         # =================================================
 
-        github_response = post_commit_review(
-            owner=owner,
-            repository=repository_name,
-            commit_sha=commit_sha,
-            review=ai_review,
+        github_response = (
+            post_commit_review(
+                owner=owner,
+                repository=repository_name,
+                commit_sha=commit_sha,
+                review=ai_review,
+            )
         )
 
         print("=" * 60)
-        print("REVIEW POSTED TO GITHUB")
+        print(
+            "REVIEW POSTED TO GITHUB"
+        )
         print("=" * 60)
 
         print(
@@ -372,14 +575,27 @@ async def github_webhook(
 
     payload = await request.json()
 
-    # Start review in background
-    background_tasks.add_task(
-        process_github_review,
-        payload,
+    event_type = request.headers.get(
+        "X-GitHub-Event"
     )
 
-    # Return immediately to GitHub
+    print("=" * 60)
+    print(
+        f"GitHub Event Received: "
+        f"{event_type}"
+    )
+    print("=" * 60)
+
+    background_tasks.add_task(
+        process_github_event,
+        payload,
+        event_type,
+    )
+
     return {
         "status": "accepted",
-        "message": "Webhook received. Code review started.",
+        "message": (
+            f"GitHub {event_type} event "
+            "received. Processing started."
+        ),
     }

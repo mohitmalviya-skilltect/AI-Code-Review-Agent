@@ -175,7 +175,43 @@ def post_commit_review(
 
     return response.json()
 
+# =========================================================
+# Get Commit Comments
+# ========================================================= 
 
+def get_commit_comments(
+    owner: str,
+    repository: str,
+    commit_sha: str,
+) -> list[dict]:
+    """
+    Get existing comments for a GitHub commit.
+    """
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{owner}/{repository}/commits/"
+        f"{commit_sha}/comments"
+    )
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "X-GitHub-Api-Version": "2026-03-10",
+    }
+
+    response = requests.get(
+        url,
+        headers=headers,
+        params={
+            "per_page": 100,
+        },
+        timeout=15,
+    )
+
+    response.raise_for_status()
+
+    return response.json()
 # =========================================================
 # Post line-level comment
 # =========================================================
@@ -205,19 +241,69 @@ def post_line_comment(
         "X-GitHub-Api-Version": "2026-03-10",
     }
 
+    marker = (
+        f"<!-- ai-code-review:{file_path}:{line} -->"
+    )
+
     payload = {
-        "body": comment_body,
+        "body": (
+            f"{marker}\n\n"
+            f"{comment_body}"
+        ),
         "path": file_path,
         "line": line,
         "side": "RIGHT",
     }
 
-    response = requests.post(
-        url,
-        headers=headers,
-        json=payload,
-    )
+    try:
 
-    response.raise_for_status()
+        response = requests.post(
+            url,
+            headers=headers,
+            json=payload,
+            timeout=15,
+        )
 
-    return response.json()
+        response.raise_for_status()
+
+        return response.json()
+
+    except requests.exceptions.HTTPError as error:
+
+        print("=" * 60)
+        print("GITHUB LINE COMMENT FAILED")
+        print("=" * 60)
+
+        print(
+            f"File: {file_path}"
+        )
+
+        print(
+            f"Line: {line}"
+        )
+
+        print(
+            f"Status Code: "
+            f"{response.status_code}"
+        )
+
+        print(
+            f"Response: "
+            f"{response.text}"
+        )
+
+        print("=" * 60)
+
+        raise error
+
+    except requests.exceptions.RequestException as error:
+
+        print("=" * 60)
+        print("GITHUB REQUEST FAILED")
+        print("=" * 60)
+
+        print(error)
+
+        print("=" * 60)
+
+        raise error
