@@ -8,4 +8,4 @@ def calculate_average(numbers):
     #GEMINI_API_KEY = KL.Ab8RN6KeoZ_b4hScFEWNMJqoLZTp0y12RSzaphZqZdOBXymi9q
     print("Average:", average)
 
-    return Average
+    return Avg
