@@ -21,6 +21,12 @@ from app.services.review_service import (
     generate_code_review,
 )
 
+# =========================================================
+# Reviewed commits
+# =========================================================
+
+reviewed_commits = set()
+
 router = APIRouter()
 
 
@@ -151,6 +157,22 @@ def process_pull_request_review(
     print(
         f"Head SHA: {head_sha}"
     )
+
+    # =====================================================
+    # Prevent duplicate review for the same commit
+    # =====================================================
+
+    if head_sha in reviewed_commits:
+
+        print("=" * 60)
+        print("DUPLICATE REVIEW SKIPPED")
+        print("=" * 60)
+
+        print(
+            f"Commit {head_sha} has already been reviewed."
+        )
+
+        return
 
     # =====================================================
     # 1. Fetch PR changed files
@@ -690,6 +712,14 @@ def process_pull_request_review(
             )
         )
 
+        # Mark this commit as reviewed only after
+        # the GitHub PR review was successfully posted.
+        reviewed_commits.add(head_sha)
+
+        print(
+            f"Commit {head_sha} marked as reviewed."
+        )
+
     except Exception as error:
 
         print("=" * 60)
@@ -763,6 +793,22 @@ def process_github_review(
         print(
             f"Commit SHA: {commit_sha}"
         )
+
+        # =================================================
+        # Prevent duplicate review for the same commit
+        # =================================================
+
+        if commit_sha in reviewed_commits:
+
+            print("=" * 60)
+            print("DUPLICATE REVIEW SKIPPED")
+            print("=" * 60)
+
+            print(
+                f"Commit {commit_sha} has already been reviewed."
+            )
+
+            return
 
         try:
 
@@ -1142,6 +1188,14 @@ def process_github_review(
             github_response.get(
                 "html_url"
             )
+        )
+
+        # Mark this commit as reviewed only after
+        # the GitHub commit review was successfully posted.
+        reviewed_commits.add(commit_sha)
+
+        print(
+            f"Commit {commit_sha} marked as reviewed."
         )
 
     except Exception as error:
