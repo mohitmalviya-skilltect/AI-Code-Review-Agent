@@ -4,6 +4,9 @@ from app.services.github_service import (
     post_commit_review,
     post_line_comment,
     get_commit_comments,
+    get_pull_request_files,
+    post_pull_request_review,
+    post_pull_request_line_comment,
 )
 
 from app.services.git_service import (
@@ -18,11 +21,17 @@ from app.services.review_service import (
     generate_code_review,
 )
 
+# =========================================================
+# Reviewed commits
+# =========================================================
+
+reviewed_commits = set()
+
 router = APIRouter()
 
 
 # =========================================================
-# Process Github Event
+# Process GitHub Event
 # =========================================================
 
 def process_github_event(
@@ -46,9 +55,34 @@ def process_github_event(
         print("PROCESSING PULL REQUEST EVENT")
         print("=" * 60)
 
-        process_pull_request_review(
-            payload
+        action = payload.get(
+            "action",
+            "unknown",
         )
+
+        print(
+            f"Pull Request Action: {action}"
+        )
+
+        # -------------------------------------------------
+        # Only review relevant PR events
+        # -------------------------------------------------
+
+        if action in {
+            "opened",
+            "reopened",
+            "synchronize",
+        }:
+
+            process_pull_request_review(
+                payload
+            )
+
+        else:
+
+            print(
+                f"Skipping PR action: {action}"
+            )
 
     else:
 
@@ -60,7 +94,7 @@ def process_github_event(
 
 
 # =========================================================
-# Temporary Pull Request Review Function
+# Process Pull Request Review
 # =========================================================
 
 def process_pull_request_review(
@@ -76,6 +110,22 @@ def process_pull_request_review(
         {},
     )
 
+    repository = payload.get(
+        "repository",
+        {},
+    )
+
+    owner = repository.get(
+        "owner",
+        {},
+    ).get(
+        "login"
+    )
+
+    repository_name = repository.get(
+        "name"
+    )
+
     pr_number = pull_request.get(
         "number"
     )
@@ -84,20 +134,608 @@ def process_pull_request_review(
         "title"
     )
 
-    print(f"PR Number: {pr_number}")
-    print(f"PR Title: {title}")
-
-    print(
-        "Pull request review logic "
-        "will be implemented next."
+    head_sha = pull_request.get(
+        "head",
+        {},
+    ).get(
+        "sha"
     )
 
+    print(
+        f"Repository: "
+        f"{owner}/{repository_name}"
+    )
+
+    print(
+        f"PR Number: {pr_number}"
+    )
+
+    print(
+        f"PR Title: {title}"
+    )
+
+    print(
+        f"Head SHA: {head_sha}"
+    )
+
+    # =====================================================
+    # Prevent duplicate review for the same commit
+    # =====================================================
+
+    if head_sha in reviewed_commits:
+
+        print("=" * 60)
+        print("DUPLICATE REVIEW SKIPPED")
+        print("=" * 60)
+
+        print(
+            f"Commit {head_sha} has already been reviewed."
+        )
+
+        return
+
+    # =====================================================
+    # 1. Fetch PR changed files
+    # =====================================================
+
+    try:
+
+        pr_files = get_pull_request_files(
+            owner=owner,
+            repository=repository_name,
+            pull_request_number=pr_number,
+        )
+
+        print("=" * 60)
+        print("PULL REQUEST CHANGED FILES")
+        print("=" * 60)
+
+        for file in pr_files:
+
+            print(
+                f"File: "
+                f"{file.get('filename')}"
+            )
+
+            print(
+                f"Status: "
+                f"{file.get('status')}"
+            )
+
+            print(
+                f"Additions: "
+                f"{file.get('additions', 0)}"
+            )
+
+            print(
+                f"Deletions: "
+                f"{file.get('deletions', 0)}"
+            )
+
+            print("Patch:")
+
+            print(
+                file.get(
+                    "patch",
+                    "",
+                )
+            )
+
+            print("=" * 60)
+
+    except Exception as error:
+
+        print("=" * 60)
+        print(
+            "FAILED TO FETCH "
+            "PULL REQUEST FILES"
+        )
+        print("=" * 60)
+
+        print(error)
+
+        return
+
+    # =====================================================
+    # 2. Filter reviewable files
+    # =====================================================
+
+    changed_files = [
+        file.get("filename")
+        for file in pr_files
+    ]
+
+    reviewable_files = filter_reviewable_files(
+        changed_files
+    )
+
+    print("=" * 60)
+    print("PR FILES TO REVIEW")
+    print("=" * 60)
+
+    print(
+        reviewable_files
+    )
+
+    # =====================================================
+    # 3. Prepare files for AI review
+    # =====================================================
+
+    reviewable_diffs = [
+        {
+            "path": file.get("filename"),
+            "status": file.get("status"),
+            "patch": file.get(
+                "patch",
+                "",
+            ),
+        }
+        for file in pr_files
+        if file.get("filename")
+        in reviewable_files
+    ]
+
+    review_files = prepare_review_files(
+        reviewable_diffs
+    )
+
+    print("=" * 60)
+    print("PR FILES READY FOR REVIEW")
+    print("=" * 60)
+
+    for file in review_files:
+
+        print(
+            f"File: {file.path}"
+        )
+
+    # =====================================================
+    # 4. Stop if no reviewable files
+    # =====================================================
+
+    if not review_files:
+
+        print(
+            "No reviewable PR files found."
+        )
+
+        return
+
+    print("=" * 60)
+    print("GENERATING PR AI CODE REVIEW")
+    print("=" * 60)
+
+    try:
+
+        # =================================================
+        # Generate AI review
+        # =================================================
+
+        ai_review = generate_code_review(
+            review_files
+        )
+
+        print("=" * 60)
+        print("PR AI CODE REVIEW")
+        print("=" * 60)
+
+        print(
+            ai_review
+        )
+
+        # =================================================
+        # 5. Get review result
+        # =================================================
+
+        summary = ai_review.get(
+            "summary",
+            "No summary provided.",
+        )
+
+        issues = ai_review.get(
+            "issues",
+            [],
+        )
+
+        review_failed = ai_review.get(
+            "review_failed",
+            False,
+        )
+
+        # =================================================
+        # 6. Build PR review body
+        # =================================================
+
+        review_lines = []
+
+        review_lines.append(
+            "## 🤖 AI Code Review"
+        )
+
+        review_lines.append("")
+
+        review_lines.append(
+            "### Summary"
+        )
+
+        review_lines.append(
+            summary
+        )
+
+        review_lines.append("")
+
+        # -------------------------------------------------
+        # Handle failed AI review correctly
+        # -------------------------------------------------
+
+        if review_failed:
+
+            review_lines.append(
+                "### ⚠️ AI Review Unavailable"
+            )
+
+            review_lines.append("")
+
+            review_lines.append(
+                "The AI reviewer could not "
+                "complete the review."
+            )
+
+            review_lines.append(
+                "No AI findings were generated."
+            )
+
+        # -------------------------------------------------
+        # Handle successful review with issues
+        # -------------------------------------------------
+
+        elif issues:
+
+            review_lines.append(
+                "### Issues Found"
+            )
+
+            review_lines.append("")
+
+            for index, issue in enumerate(
+                issues,
+                start=1,
+            ):
+
+                severity = issue.get(
+                    "severity",
+                    "unknown",
+                )
+
+                category = issue.get(
+                    "category",
+                    "unknown",
+                )
+
+                file_path = issue.get(
+                    "file",
+                    "unknown",
+                )
+
+                line = issue.get(
+                    "line",
+                    "unknown",
+                )
+
+                problem = issue.get(
+                    "problem",
+                    "No problem description.",
+                )
+
+                suggestion = issue.get(
+                    "suggestion",
+                    "No suggestion provided.",
+                )
+
+                review_lines.append(
+                    f"#### {index}. "
+                    f"{severity.upper()} — "
+                    f"{category}"
+                )
+
+                review_lines.append(
+                    f"**File:** `{file_path}`"
+                )
+
+                review_lines.append(
+                    f"**Line:** `{line}`"
+                )
+
+                review_lines.append("")
+
+                review_lines.append(
+                    f"**Problem:** {problem}"
+                )
+
+                review_lines.append("")
+
+                review_lines.append(
+                    f"**Suggestion:** {suggestion}"
+                )
+
+                review_lines.append("")
+
+        # -------------------------------------------------
+        # Successful review with no issues
+        # -------------------------------------------------
+
+        else:
+
+            review_lines.append(
+                "### ✅ No significant issues found"
+            )
+
+        review_body = "\n".join(
+            review_lines
+        )
+
+        # =================================================
+        # 7. Build changed-line mapping
+        # =================================================
+
+        changed_lines_by_file = {}
+
+        for file in pr_files:
+
+            file_path = file.get(
+                "filename"
+            )
+
+            if file_path not in reviewable_files:
+                continue
+
+            patch = file.get(
+                "patch",
+                "",
+            )
+
+            if not patch:
+                continue
+
+            changed_lines = (
+                get_changed_line_numbers(
+                    patch
+                )
+            )
+
+            changed_lines_by_file[
+                file_path
+            ] = changed_lines
+
+        print("=" * 60)
+        print("PR CHANGED LINE MAPPING")
+        print("=" * 60)
+
+        print(
+            changed_lines_by_file
+        )
+
+        # =================================================
+        # 8. Post PR inline comments
+        # =================================================
+
+        if not review_failed and issues:
+
+            print("=" * 60)
+            print(
+                "POSTING PR INLINE COMMENTS"
+            )
+            print("=" * 60)
+
+            for issue in issues:
+
+                file_path = issue.get(
+                    "file"
+                )
+
+                line = issue.get(
+                    "line"
+                )
+
+                # -----------------------------------------
+                # Validate file
+                # -----------------------------------------
+
+                if not file_path:
+
+                    print(
+                        "Skipping issue because "
+                        "file is missing."
+                    )
+
+                    continue
+
+                # -----------------------------------------
+                # Validate line
+                # -----------------------------------------
+
+                if not isinstance(
+                    line,
+                    int,
+                ):
+
+                    print(
+                        f"Skipping inline comment "
+                        f"for {file_path}: "
+                        f"invalid line {line}"
+                    )
+
+                    continue
+
+                # -----------------------------------------
+                # Get changed lines
+                # -----------------------------------------
+
+                changed_lines = (
+                    changed_lines_by_file.get(
+                        file_path,
+                        set(),
+                    )
+                )
+
+                # -----------------------------------------
+                # Only comment on changed lines
+                # -----------------------------------------
+
+                if line not in changed_lines:
+
+                    print(
+                        f"Skipping inline comment "
+                        f"for {file_path}:{line} "
+                        f"(line not in PR diff)"
+                    )
+
+                    continue
+
+                # -----------------------------------------
+                # Prepare issue details
+                # -----------------------------------------
+
+                severity = issue.get(
+                    "severity",
+                    "unknown",
+                )
+
+                category = issue.get(
+                    "category",
+                    "unknown",
+                )
+
+                problem = issue.get(
+                    "problem",
+                    "No problem description.",
+                )
+
+                suggestion = issue.get(
+                    "suggestion",
+                    "No suggestion provided.",
+                )
+
+                # -----------------------------------------
+                # Unique duplicate marker
+                # -----------------------------------------
+
+                marker = (
+                    f"<!-- ai-code-review:"
+                    f"{head_sha}:"
+                    f"{file_path}:"
+                    f"{line} -->"
+                )
+
+                line_comment = (
+                    f"{marker}\n\n"
+                    "## 🤖 AI Code Review\n\n"
+                    f"**Severity:** "
+                    f"{severity.upper()}\n\n"
+                    f"**Category:** "
+                    f"{category}\n\n"
+                    f"**Problem:** "
+                    f"{problem}\n\n"
+                    f"**Suggestion:** "
+                    f"{suggestion}"
+                )
+
+                # -----------------------------------------
+                # Post PR inline comment
+                # -----------------------------------------
+
+                try:
+
+                    line_response = (
+                        post_pull_request_line_comment(
+                            owner=owner,
+                            repository=repository_name,
+                            pull_request_number=pr_number,
+                            commit_sha=head_sha,
+                            file_path=file_path,
+                            line=line,
+                            comment=line_comment,
+                        )
+                    )
+
+                    print(
+                        f"PR inline comment posted: "
+                        f"{file_path}:{line}"
+                    )
+
+                    print(
+                        line_response.get(
+                            "html_url"
+                        )
+                    )
+
+                except Exception as error:
+
+                    print(
+                        f"Failed to post PR inline "
+                        f"comment for "
+                        f"{file_path}:{line}: "
+                        f"{error}"
+                    )
+
+        else:
+
+            print(
+                "Skipping PR inline comments "
+                "because AI review failed or "
+                "no issues were found."
+            )
+
+        # =================================================
+        # 9. Post overall PR review
+        # =================================================
+
+        print("=" * 60)
+        print("POSTING PR REVIEW TO GITHUB")
+        print("=" * 60)
+
+        pr_response = post_pull_request_review(
+            owner=owner,
+            repository=repository_name,
+            pull_request_number=pr_number,
+            commit_sha=head_sha,
+            review_body=review_body,
+        )
+
+        print("=" * 60)
+        print("PR REVIEW POSTED TO GITHUB")
+        print("=" * 60)
+
+        print(
+            pr_response.get(
+                "html_url"
+            )
+        )
+
+        # Mark this commit as reviewed only after
+        # the GitHub PR review was successfully posted.
+        reviewed_commits.add(head_sha)
+
+        print(
+            f"Commit {head_sha} marked as reviewed."
+        )
+
+    except Exception as error:
+
+        print("=" * 60)
+        print("PR AI REVIEW FAILED")
+        print("=" * 60)
+
+        print(error)
+
 
 # =========================================================
-# Process Github Review
+# Process GitHub Push Review
 # =========================================================
 
-def process_github_review(payload: dict):
+def process_github_review(
+    payload: dict,
+):
 
     print("=" * 60)
     print("GitHub Webhook Received")
@@ -156,6 +794,22 @@ def process_github_review(payload: dict):
             f"Commit SHA: {commit_sha}"
         )
 
+        # =================================================
+        # Prevent duplicate review for the same commit
+        # =================================================
+
+        if commit_sha in reviewed_commits:
+
+            print("=" * 60)
+            print("DUPLICATE REVIEW SKIPPED")
+            print("=" * 60)
+
+            print(
+                f"Commit {commit_sha} has already been reviewed."
+            )
+
+            return
+
         try:
 
             file_diffs = get_commit_diff(
@@ -190,10 +844,6 @@ def process_github_review(payload: dict):
                     print("Patch:")
                     print(patch)
 
-                    # -------------------------------------
-                    # Find changed lines
-                    # -------------------------------------
-
                     if patch:
 
                         changed_lines = (
@@ -208,9 +858,7 @@ def process_github_review(payload: dict):
                             f"{changed_lines}"
                         )
 
-                    print(
-                        "=" * 60
-                    )
+                    print("=" * 60)
 
         except Exception as error:
 
@@ -349,8 +997,6 @@ def process_github_review(payload: dict):
                 f"comments: {error}"
             )
 
-            # Continue review even if fetching
-            # existing comments fails.
             existing_comments = []
 
         # =================================================
@@ -410,10 +1056,6 @@ def process_github_review(payload: dict):
                     )
                 )
 
-                # -----------------------------------------
-                # Make sure AI issue is on changed line
-                # -----------------------------------------
-
                 if line not in changed_lines:
 
                     print(
@@ -430,7 +1072,9 @@ def process_github_review(payload: dict):
 
                 marker = (
                     f"<!-- ai-code-review:"
-                    f"{file_path}:{line} -->"
+                    f"{commit_sha}:"
+                    f"{file_path}:"
+                    f"{line} -->"
                 )
 
                 # -----------------------------------------
@@ -454,10 +1098,6 @@ def process_github_review(payload: dict):
                     )
 
                     continue
-
-                # -----------------------------------------
-                # Prepare issue details
-                # -----------------------------------------
 
                 severity = issue.get(
                     "severity",
@@ -491,10 +1131,6 @@ def process_github_review(payload: dict):
                     f"**Suggestion:** "
                     f"{suggestion}"
                 )
-
-                # -----------------------------------------
-                # Post comment
-                # -----------------------------------------
 
                 try:
 
@@ -554,6 +1190,14 @@ def process_github_review(payload: dict):
             )
         )
 
+        # Mark this commit as reviewed only after
+        # the GitHub commit review was successfully posted.
+        reviewed_commits.add(commit_sha)
+
+        print(
+            f"Commit {commit_sha} marked as reviewed."
+        )
+
     except Exception as error:
 
         print("=" * 60)
@@ -564,7 +1208,7 @@ def process_github_review(payload: dict):
 
 
 # =========================================================
-# Webhook endpoint
+# Webhook Endpoint
 # =========================================================
 
 @router.post("/webhook")

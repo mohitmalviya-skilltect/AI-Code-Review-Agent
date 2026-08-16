@@ -50,92 +50,202 @@ def create_review_context(
 
     return "\n\n".join(sections)
 
+
 def generate_code_review(
     review_files: list[ReviewFile],
 ) -> dict:
+    """
+    Generate one combined AI code review for all files.
+
+    Handles:
+    - Empty review input
+    - Successful Gemini review
+    - Gemini quota/rate-limit errors
+    - Gemini API errors
+    - Invalid/failed AI responses
+    """
 
     if not review_files:
+
         return {
             "summary": "No files available for review.",
             "issues": [],
+            "review_failed": False,
         }
 
-    all_issues = []
-    failed_files = []
+    print("=" * 60)
+    print(
+        f"REVIEWING {len(review_files)} FILE(S)"
+    )
+    print("=" * 60)
 
-    for file in review_files:
+    # =====================================================
+    # Create ONE combined context for ALL files
+    # =====================================================
 
-        print("=" * 60)
-        print(f"REVIEWING FILE: {file.path}")
-        print("=" * 60)
+    review_context = create_review_context(
+        review_files
+    )
 
-        review_context = create_review_context(
-            [file]
+    print("=" * 60)
+    print("SENDING ALL FILES TO GEMINI")
+    print("=" * 60)
+
+    try:
+
+        review_result = review_code(
+            review_context
         )
 
-        try:
+        print("=" * 60)
+        print("GEMINI REVIEW RESULT")
+        print("=" * 60)
 
-            review_result = review_code(
-                review_context
+        print(review_result)
+
+        # =================================================
+        # Validate Gemini response
+        # =================================================
+
+        if not isinstance(
+            review_result,
+            dict,
+        ):
+
+            print("=" * 60)
+            print("INVALID GEMINI REVIEW RESULT")
+            print("=" * 60)
+
+            return {
+                "summary": (
+                    "AI reviewer returned "
+                    "an invalid response."
+                ),
+                "issues": [],
+                "review_failed": True,
+                "error_type": "invalid_response",
+            }
+
+        # =================================================
+        # Gemini reported its own failure
+        # =================================================
+
+        if review_result.get(
+            "review_failed",
+            False,
+        ):
+
+            print("=" * 60)
+            print("GEMINI REVIEW FAILED")
+            print("=" * 60)
+
+            # Preserve the original error message
+            # returned by llm_service.py.
+            summary = review_result.get(
+                "summary",
+                "AI reviewer failed to complete the review.",
             )
 
-            print(f"Review result for {file.path}:")
-            print(review_result)
+            return {
+                "summary": summary,
+                "issues": [],
+                "review_failed": True,
+                "error_type": review_result.get(
+                    "error_type",
+                    "ai_review_failed",
+                ),
+            }
 
-            # Check if AI review failed
-            if review_result.get(
-                "review_failed",
-                False,
-            ):
+        # =================================================
+        # Successful review
+        # =================================================
 
-                failed_files.append(
-                    file.path
-                )
+        print("=" * 60)
+        print("AI REVIEW COMPLETED SUCCESSFULLY")
+        print("=" * 60)
 
-                continue
+        return review_result
 
-            issues = review_result.get(
-                "issues",
-                [],
-            )
+    except Exception as error:
 
-            all_issues.extend(
-                issues
-            )
+        error_message = str(
+            error
+        )
 
-        except Exception as error:
+        print("=" * 60)
+        print("FAILED TO GENERATE AI REVIEW")
+        print("=" * 60)
 
-            print(
-                f"Failed to review {file.path}: "
-                f"{error}"
-            )
+        print(
+            error_message
+        )
 
-            failed_files.append(
-                file.path
-            )
+        # =================================================
+        # Gemini quota / rate-limit handling
+        # =================================================
 
-    # -----------------------------------------
-    # Final review result
-    # -----------------------------------------
+        if (
+            "429" in error_message
+            or "RESOURCE_EXHAUSTED"
+            in error_message
+            or "quota" in error_message.lower()
+            or "rate limit"
+            in error_message.lower()
+        ):
 
-    if failed_files:
+            print("=" * 60)
+            print("GEMINI QUOTA EXCEEDED")
+            print("=" * 60)
+
+            return {
+                "summary": (
+                    "Gemini API quota has been "
+                    "exceeded. The AI review could "
+                    "not be completed."
+                ),
+                "issues": [],
+                "review_failed": True,
+                "error_type": "quota_exceeded",
+            }
+
+        # =================================================
+        # Authentication / API key errors
+        # =================================================
+
+        if (
+            "401" in error_message
+            or "403" in error_message
+            or "API key" in error_message
+            or "authentication"
+            in error_message.lower()
+        ):
+
+            print("=" * 60)
+            print("GEMINI AUTHENTICATION FAILED")
+            print("=" * 60)
+
+            return {
+                "summary": (
+                    "Gemini API authentication "
+                    "failed. Please check the "
+                    "GEMINI_API_KEY configuration."
+                ),
+                "issues": [],
+                "review_failed": True,
+                "error_type": "authentication_error",
+            }
+
+        # =================================================
+        # Generic Gemini/API error
+        # =================================================
 
         return {
             "summary": (
-                f"AI reviewed "
-                f"{len(review_files)} file(s), "
-                f"but failed to review: "
-                f"{', '.join(failed_files)}"
+                "The AI reviewer could not "
+                "complete the code review because "
+                "of an API error."
             ),
-            "issues": all_issues,
+            "issues": [],
             "review_failed": True,
-            "failed_files": failed_files,
+            "error_type": "api_error",
         }
-
-    return {
-        "summary": (
-            f"AI reviewed "
-            f"{len(review_files)} file(s)."
-        ),
-        "issues": all_issues,
-    }
