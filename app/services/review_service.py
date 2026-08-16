@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from app.services.llm_service import review_code
+from app.services.secret_scanner import scan_files
 
 
 @dataclass
@@ -51,18 +52,51 @@ def create_review_context(
     return "\n\n".join(sections)
 
 
+def convert_secret_findings(
+    secret_findings,
+) -> list[dict]:
+    """
+    Convert SecretFinding objects into the same
+    issue structure used by the AI review.
+    """
+
+    issues = []
+
+    for finding in secret_findings:
+
+        issues.append(
+            {
+                "file": finding.file,
+                "severity": finding.severity,
+                "category": finding.category,
+                "line": finding.line,
+                "problem": finding.message,
+                "suggestion": (
+                    f"Remove the {finding.secret_type} "
+                    "from the source code. Store "
+                    "credentials in environment variables "
+                    "or a secure secret manager. "
+                    "If the credential was already pushed, "
+                    "rotate or revoke it immediately."
+                ),
+            }
+        )
+
+    return issues
+
+
 def generate_code_review(
     review_files: list[ReviewFile],
 ) -> dict:
     """
-    Generate one combined AI code review for all files.
+    Generate a combined code review.
 
-    Handles:
-    - Empty review input
-    - Successful Gemini review
-    - Gemini quota/rate-limit errors
-    - Gemini API errors
-    - Invalid/failed AI responses
+    Review consists of:
+    1. Deterministic secret scanning
+    2. Gemini AI code review
+
+    Secret findings are generated locally and are
+    never sent to Gemini.
     """
 
     if not review_files:
@@ -80,7 +114,40 @@ def generate_code_review(
     print("=" * 60)
 
     # =====================================================
-    # Create ONE combined context for ALL files
+    # 1. SECRET SCAN
+    # =====================================================
+
+    print("=" * 60)
+    print("RUNNING SECRET SCANNER")
+    print("=" * 60)
+
+    try:
+
+        secret_findings = scan_files(
+            review_files
+        )
+
+        print(
+            f"Secrets detected: "
+            f"{len(secret_findings)}"
+        )
+
+    except Exception as error:
+
+        print("=" * 60)
+        print("SECRET SCANNER FAILED")
+        print("=" * 60)
+
+        print(error)
+
+        secret_findings = []
+
+    secret_issues = convert_secret_findings(
+        secret_findings
+    )
+
+    # =====================================================
+    # 2. CREATE GEMINI CONTEXT
     # =====================================================
 
     review_context = create_review_context(
@@ -90,6 +157,10 @@ def generate_code_review(
     print("=" * 60)
     print("SENDING ALL FILES TO GEMINI")
     print("=" * 60)
+
+    # =====================================================
+    # 3. GEMINI REVIEW
+    # =====================================================
 
     try:
 
@@ -103,9 +174,9 @@ def generate_code_review(
 
         print(review_result)
 
-        # =================================================
+        # -------------------------------------------------
         # Validate Gemini response
-        # =================================================
+        # -------------------------------------------------
 
         if not isinstance(
             review_result,
@@ -116,19 +187,22 @@ def generate_code_review(
             print("INVALID GEMINI REVIEW RESULT")
             print("=" * 60)
 
+            # Secret findings can still be returned
+            # even if Gemini fails.
+
             return {
                 "summary": (
                     "AI reviewer returned "
                     "an invalid response."
                 ),
-                "issues": [],
+                "issues": secret_issues,
                 "review_failed": True,
                 "error_type": "invalid_response",
             }
 
-        # =================================================
-        # Gemini reported its own failure
-        # =================================================
+        # -------------------------------------------------
+        # Gemini reported failure
+        # -------------------------------------------------
 
         if review_result.get(
             "review_failed",
@@ -139,16 +213,18 @@ def generate_code_review(
             print("GEMINI REVIEW FAILED")
             print("=" * 60)
 
-            # Preserve the original error message
-            # returned by llm_service.py.
             summary = review_result.get(
                 "summary",
                 "AI reviewer failed to complete the review.",
             )
 
+            # IMPORTANT:
+            # Secret scanner findings are still useful
+            # even when Gemini is unavailable.
+
             return {
                 "summary": summary,
-                "issues": [],
+                "issues": secret_issues,
                 "review_failed": True,
                 "error_type": review_result.get(
                     "error_type",
@@ -157,14 +233,69 @@ def generate_code_review(
             }
 
         # =================================================
-        # Successful review
+        # 4. COMBINE SECURITY + AI FINDINGS
         # =================================================
 
+        ai_issues = review_result.get(
+            "issues",
+            [],
+        )
+
+        combined_issues = (
+            secret_issues
+            + ai_issues
+        )
+
+        # =================================================
+        # 5. BUILD FINAL SUMMARY
+        # =================================================
+
+        ai_summary = review_result.get(
+            "summary",
+            "AI review completed.",
+        )
+
+        if secret_issues:
+
+            secret_summary = (
+                f"Detected "
+                f"{len(secret_issues)} "
+                f"potential secret(s)."
+            )
+
+            final_summary = (
+                f"{secret_summary} "
+                f"{ai_summary}"
+            )
+
+        else:
+
+            final_summary = ai_summary
+
         print("=" * 60)
-        print("AI REVIEW COMPLETED SUCCESSFULLY")
+        print("COMBINED CODE REVIEW")
         print("=" * 60)
 
-        return review_result
+        print(
+            f"Secret findings: "
+            f"{len(secret_issues)}"
+        )
+
+        print(
+            f"AI findings: "
+            f"{len(ai_issues)}"
+        )
+
+        print(
+            f"Total findings: "
+            f"{len(combined_issues)}"
+        )
+
+        return {
+            "summary": final_summary,
+            "issues": combined_issues,
+            "review_failed": False,
+        }
 
     except Exception as error:
 
@@ -180,22 +311,19 @@ def generate_code_review(
             error_message
         )
 
-        # =================================================
-        # Gemini quota / rate-limit handling
-        # =================================================
+        # -------------------------------------------------
+        # Gemini quota/rate-limit error
+        # -------------------------------------------------
 
         if (
             "429" in error_message
             or "RESOURCE_EXHAUSTED"
             in error_message
-            or "quota" in error_message.lower()
+            or "quota"
+            in error_message.lower()
             or "rate limit"
             in error_message.lower()
         ):
-
-            print("=" * 60)
-            print("GEMINI QUOTA EXCEEDED")
-            print("=" * 60)
 
             return {
                 "summary": (
@@ -203,14 +331,14 @@ def generate_code_review(
                     "exceeded. The AI review could "
                     "not be completed."
                 ),
-                "issues": [],
+                "issues": secret_issues,
                 "review_failed": True,
                 "error_type": "quota_exceeded",
             }
 
-        # =================================================
-        # Authentication / API key errors
-        # =================================================
+        # -------------------------------------------------
+        # Authentication error
+        # -------------------------------------------------
 
         if (
             "401" in error_message
@@ -220,24 +348,20 @@ def generate_code_review(
             in error_message.lower()
         ):
 
-            print("=" * 60)
-            print("GEMINI AUTHENTICATION FAILED")
-            print("=" * 60)
-
             return {
                 "summary": (
                     "Gemini API authentication "
                     "failed. Please check the "
                     "GEMINI_API_KEY configuration."
                 ),
-                "issues": [],
+                "issues": secret_issues,
                 "review_failed": True,
                 "error_type": "authentication_error",
             }
 
-        # =================================================
-        # Generic Gemini/API error
-        # =================================================
+        # -------------------------------------------------
+        # Generic API error
+        # -------------------------------------------------
 
         return {
             "summary": (
@@ -245,7 +369,7 @@ def generate_code_review(
                 "complete the code review because "
                 "of an API error."
             ),
-            "issues": [],
+            "issues": secret_issues,
             "review_failed": True,
             "error_type": "api_error",
         }
