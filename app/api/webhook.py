@@ -5,6 +5,7 @@ from app.services.github_service import (
     post_line_comment,
     get_commit_comments,
     get_pull_request_files,
+    post_pull_request_review,
 )
 
 from app.services.git_service import (
@@ -126,7 +127,7 @@ def process_pull_request_review(
     )
 
     # =====================================================
-    # Fetch PR changed files
+    # 1. Fetch PR changed files
     # =====================================================
 
     try:
@@ -143,49 +144,33 @@ def process_pull_request_review(
 
         for file in pr_files:
 
-            file_path = file.get(
-                "filename"
-            )
-
-            status = file.get(
-                "status"
-            )
-
-            additions = file.get(
-                "additions",
-                0,
-            )
-
-            deletions = file.get(
-                "deletions",
-                0,
-            )
-
-            patch = file.get(
-                "patch",
-                "",
+            print(
+                f"File: "
+                f"{file.get('filename')}"
             )
 
             print(
-                f"File: {file_path}"
+                f"Status: "
+                f"{file.get('status')}"
             )
 
             print(
-                f"Status: {status}"
+                f"Additions: "
+                f"{file.get('additions', 0)}"
             )
 
             print(
-                f"Additions: {additions}"
-            )
-
-            print(
-                f"Deletions: {deletions}"
+                f"Deletions: "
+                f"{file.get('deletions', 0)}"
             )
 
             print("Patch:")
 
             print(
-                patch
+                file.get(
+                    "patch",
+                    "",
+                )
             )
 
             print("=" * 60)
@@ -203,6 +188,239 @@ def process_pull_request_review(
 
         return
 
+    # =====================================================
+    # 2. Filter reviewable files
+    # =====================================================
+
+    changed_files = [
+        file.get("filename")
+        for file in pr_files
+    ]
+
+    reviewable_files = filter_reviewable_files(
+        changed_files
+    )
+
+    print("=" * 60)
+    print("PR FILES TO REVIEW")
+    print("=" * 60)
+
+    print(
+        reviewable_files
+    )
+
+    # =====================================================
+    # 3. Prepare files for AI review
+    # =====================================================
+
+    reviewable_diffs = [
+        {
+            "path": file.get("filename"),
+            "status": file.get("status"),
+            "patch": file.get(
+                "patch",
+                "",
+            ),
+        }
+        for file in pr_files
+        if file.get("filename")
+        in reviewable_files
+    ]
+
+    review_files = prepare_review_files(
+        reviewable_diffs
+    )
+
+    print("=" * 60)
+    print("PR FILES READY FOR REVIEW")
+    print("=" * 60)
+
+    for file in review_files:
+
+        print(
+            f"File: {file.path}"
+        )
+
+    # =====================================================
+    # 4. Generate AI review
+    # =====================================================
+
+        # =====================================================
+    # 4. Generate AI review
+    # =====================================================
+
+    if not review_files:
+
+        print(
+            "No reviewable PR files found."
+        )
+
+        return
+
+    print("=" * 60)
+    print("GENERATING PR AI CODE REVIEW")
+    print("=" * 60)
+
+    try:
+
+        ai_review = generate_code_review(
+            review_files
+        )
+
+        print("=" * 60)
+        print("PR AI CODE REVIEW")
+        print("=" * 60)
+
+        print(
+            ai_review
+        )
+
+        # =================================================
+        # 5. Build PR review body
+        # =================================================
+
+        summary = ai_review.get(
+            "summary",
+            "No summary provided.",
+        )
+
+        issues = ai_review.get(
+            "issues",
+            [],
+        )
+
+        review_lines = []
+
+        review_lines.append(
+            "## 🤖 AI Code Review"
+        )
+
+        review_lines.append("")
+
+        review_lines.append(
+            "### Summary"
+        )
+
+        review_lines.append(
+            summary
+        )
+
+        review_lines.append("")
+
+        if issues:
+
+            review_lines.append(
+                "### Issues Found"
+            )
+
+            review_lines.append("")
+
+            for index, issue in enumerate(
+                issues,
+                start=1,
+            ):
+
+                severity = issue.get(
+                    "severity",
+                    "unknown",
+                )
+
+                category = issue.get(
+                    "category",
+                    "unknown",
+                )
+
+                file_path = issue.get(
+                    "file",
+                    "unknown",
+                )
+
+                line = issue.get(
+                    "line",
+                    "unknown",
+                )
+
+                problem = issue.get(
+                    "problem",
+                    "No problem description.",
+                )
+
+                suggestion = issue.get(
+                    "suggestion",
+                    "No suggestion provided.",
+                )
+
+                review_lines.append(
+                    f"#### {index}. "
+                    f"{severity.upper()} — "
+                    f"{category}"
+                )
+
+                review_lines.append(
+                    f"**File:** `{file_path}`"
+                )
+
+                review_lines.append(
+                    f"**Line:** `{line}`"
+                )
+
+                review_lines.append("")
+
+                review_lines.append(
+                    f"**Problem:** {problem}"
+                )
+
+                review_lines.append("")
+
+                review_lines.append(
+                    f"**Suggestion:** {suggestion}"
+                )
+
+                review_lines.append("")
+
+        else:
+
+            review_lines.append(
+                "### ✅ No significant issues found"
+            )
+
+        review_body = "\n".join(
+            review_lines
+        )
+
+        # =================================================
+        # 6. Post overall review to Pull Request
+        # =================================================
+
+        print("=" * 60)
+        print("POSTING PR REVIEW TO GITHUB")
+        print("=" * 60)
+
+        pr_response = post_pull_request_review(
+            owner=owner,
+            repository=repository_name,
+            pull_request_number=pr_number,
+            commit_sha=head_sha,
+            review_body=review_body,
+        )
+
+        print("=" * 60)
+        print("PR REVIEW POSTED TO GITHUB")
+        print("=" * 60)
+
+        print(
+            pr_response.get(
+                "html_url"
+            )
+        )
+
+    except Exception as error:
+
+        print("=" * 60)
+        print("PR AI REVIEW FAILED")
+        print("=" * 60)
+
+        print(error)
 
 # =========================================================
 # Process Github Review
