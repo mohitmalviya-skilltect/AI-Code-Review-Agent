@@ -203,6 +203,7 @@ def process_pull_request_review(
 
         return
 
+
 # =========================================================
 # Process Github Review
 # =========================================================
@@ -459,8 +460,6 @@ def process_github_review(payload: dict):
                 f"comments: {error}"
             )
 
-            # Continue review even if fetching
-            # existing comments fails.
             existing_comments = []
 
         # =================================================
