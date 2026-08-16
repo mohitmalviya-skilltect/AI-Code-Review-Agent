@@ -345,3 +345,55 @@ def get_pull_request_files(
     response.raise_for_status()
 
     return response.json()
+
+
+# =========================================================
+# Post Pull Request Review
+# =========================================================
+
+def post_pull_request_review(
+    owner: str,
+    repository: str,
+    pull_request_number: int,
+    commit_sha: str,
+    review_body: str,
+) -> dict:
+    """
+    Post an overall review on a Pull Request.
+    """
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{owner}/{repository}/pulls/"
+        f"{pull_request_number}/reviews"
+    )
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "X-GitHub-Api-Version": "2026-03-10",
+    }
+
+    payload = {
+        "body": review_body,
+        "event": "COMMENT",
+        "commit_id": commit_sha,
+    }
+
+    response = requests.post(
+        url,
+        headers=headers,
+        json=payload,
+        timeout=15,
+    )
+
+    print("=" * 60)
+    print("GITHUB PR REVIEW RESPONSE")
+    print("=" * 60)
+    print("Status:", response.status_code)
+    print("Response:", response.text)
+    print("=" * 60)
+
+    response.raise_for_status()
+
+    return response.json()
