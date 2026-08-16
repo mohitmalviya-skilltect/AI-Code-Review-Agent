@@ -21,8 +21,10 @@ SECRET_PATTERNS = [
         "Gemini API Key",
         re.compile(
             r"(?:GEMINI_API_KEY|GOOGLE_API_KEY)"
-            r"\s*[:=]\s*['\"]?"
-            r"([A-Za-z0-9_\-]{20,})"
+            r"\s*[:=]\s*"
+            r"['\"]?"
+            r"([A-Za-z0-9._\-]{20,})"
+            r"['\"]?"
         ),
     ),
     (

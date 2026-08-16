@@ -21,6 +21,7 @@ from app.services.review_service import (
     generate_code_review,
 )
 
+
 # =========================================================
 # Reviewed commits
 # =========================================================
@@ -63,10 +64,6 @@ def process_github_event(
         print(
             f"Pull Request Action: {action}"
         )
-
-        # -------------------------------------------------
-        # Only review relevant PR events
-        # -------------------------------------------------
 
         if action in {
             "opened",
@@ -159,7 +156,8 @@ def process_pull_request_review(
     )
 
     # =====================================================
-    # Prevent duplicate review for the same commit
+    # Prevent duplicate review for successfully
+    # reviewed commits
     # =====================================================
 
     if head_sha in reviewed_commits:
@@ -169,7 +167,8 @@ def process_pull_request_review(
         print("=" * 60)
 
         print(
-            f"Commit {head_sha} has already been reviewed."
+            f"Commit {head_sha} has already "
+            "been successfully reviewed."
         )
 
         return
@@ -307,10 +306,6 @@ def process_pull_request_review(
 
     try:
 
-        # =================================================
-        # Generate AI review
-        # =================================================
-
         ai_review = generate_code_review(
             review_files
         )
@@ -364,10 +359,6 @@ def process_pull_request_review(
 
         review_lines.append("")
 
-        # -------------------------------------------------
-        # Handle failed AI review correctly
-        # -------------------------------------------------
-
         if review_failed:
 
             review_lines.append(
@@ -382,12 +373,10 @@ def process_pull_request_review(
             )
 
             review_lines.append(
-                "No AI findings were generated."
+                "Security findings detected "
+                "by the local scanner, if any, "
+                "are still included above."
             )
-
-        # -------------------------------------------------
-        # Handle successful review with issues
-        # -------------------------------------------------
 
         elif issues:
 
@@ -460,10 +449,6 @@ def process_pull_request_review(
 
                 review_lines.append("")
 
-        # -------------------------------------------------
-        # Successful review with no issues
-        # -------------------------------------------------
-
         else:
 
             review_lines.append(
@@ -519,7 +504,7 @@ def process_pull_request_review(
         # 8. Post PR inline comments
         # =================================================
 
-        if not review_failed and issues:
+        if issues:
 
             print("=" * 60)
             print(
@@ -537,39 +522,14 @@ def process_pull_request_review(
                     "line"
                 )
 
-                # -----------------------------------------
-                # Validate file
-                # -----------------------------------------
-
                 if not file_path:
-
-                    print(
-                        "Skipping issue because "
-                        "file is missing."
-                    )
-
                     continue
-
-                # -----------------------------------------
-                # Validate line
-                # -----------------------------------------
 
                 if not isinstance(
                     line,
                     int,
                 ):
-
-                    print(
-                        f"Skipping inline comment "
-                        f"for {file_path}: "
-                        f"invalid line {line}"
-                    )
-
                     continue
-
-                # -----------------------------------------
-                # Get changed lines
-                # -----------------------------------------
 
                 changed_lines = (
                     changed_lines_by_file.get(
@@ -577,10 +537,6 @@ def process_pull_request_review(
                         set(),
                     )
                 )
-
-                # -----------------------------------------
-                # Only comment on changed lines
-                # -----------------------------------------
 
                 if line not in changed_lines:
 
@@ -591,10 +547,6 @@ def process_pull_request_review(
                     )
 
                     continue
-
-                # -----------------------------------------
-                # Prepare issue details
-                # -----------------------------------------
 
                 severity = issue.get(
                     "severity",
@@ -616,10 +568,6 @@ def process_pull_request_review(
                     "No suggestion provided.",
                 )
 
-                # -----------------------------------------
-                # Unique duplicate marker
-                # -----------------------------------------
-
                 marker = (
                     f"<!-- ai-code-review:"
                     f"{head_sha}:"
@@ -639,10 +587,6 @@ def process_pull_request_review(
                     f"**Suggestion:** "
                     f"{suggestion}"
                 )
-
-                # -----------------------------------------
-                # Post PR inline comment
-                # -----------------------------------------
 
                 try:
 
@@ -681,9 +625,8 @@ def process_pull_request_review(
         else:
 
             print(
-                "Skipping PR inline comments "
-                "because AI review failed or "
-                "no issues were found."
+                "No issues available for "
+                "PR inline comments."
             )
 
         # =================================================
@@ -712,13 +655,30 @@ def process_pull_request_review(
             )
         )
 
-        # Mark this commit as reviewed only after
-        # the GitHub PR review was successfully posted.
-        reviewed_commits.add(head_sha)
+        # =================================================
+        # IMPORTANT:
+        # Only mark the commit as reviewed when
+        # the AI review actually succeeded.
+        # =================================================
 
-        print(
-            f"Commit {head_sha} marked as reviewed."
-        )
+        if not review_failed:
+
+            reviewed_commits.add(
+                head_sha
+            )
+
+            print(
+                f"Commit {head_sha} "
+                "marked as reviewed."
+            )
+
+        else:
+
+            print(
+                f"Commit {head_sha} "
+                "was NOT marked as reviewed "
+                "because the AI review failed."
+            )
 
     except Exception as error:
 
@@ -794,10 +754,6 @@ def process_github_review(
             f"Commit SHA: {commit_sha}"
         )
 
-        # =================================================
-        # Prevent duplicate review for the same commit
-        # =================================================
-
         if commit_sha in reviewed_commits:
 
             print("=" * 60)
@@ -805,7 +761,8 @@ def process_github_review(
             print("=" * 60)
 
             print(
-                f"Commit {commit_sha} has already been reviewed."
+                f"Commit {commit_sha} has already "
+                "been successfully reviewed."
             )
 
             return
@@ -894,10 +851,6 @@ def process_github_review(
             f"File: {file.path}"
         )
 
-    # =====================================================
-    # 4. Generate AI review
-    # =====================================================
-
     if not review_files:
 
         print(
@@ -905,6 +858,10 @@ def process_github_review(
         )
 
         return
+
+    # =====================================================
+    # 4. Generate AI review
+    # =====================================================
 
     print("=" * 60)
     print("GENERATING AI CODE REVIEW")
@@ -920,16 +877,14 @@ def process_github_review(
         print("AI CODE REVIEW")
         print("=" * 60)
 
-        print(ai_review)
-
-        # =================================================
-        # 5. Get commit SHA
-        # =================================================
+        print(
+            ai_review
+        )
 
         commit_sha = payload["commits"][-1]["id"]
 
         # =================================================
-        # 6. Build changed-line mapping
+        # 5. Build changed-line mapping
         # =================================================
 
         changed_lines_by_file = {}
@@ -949,15 +904,11 @@ def process_github_review(
             if not patch:
                 continue
 
-            changed_lines = (
-                get_changed_line_numbers(
-                    patch
-                )
-            )
-
             changed_lines_by_file[
                 file_path
-            ] = changed_lines
+            ] = get_changed_line_numbers(
+                patch
+            )
 
         print("=" * 60)
         print("CHANGED LINE MAPPING")
@@ -968,7 +919,7 @@ def process_github_review(
         )
 
         # =================================================
-        # 7. Get existing GitHub comments
+        # 6. Get existing comments
         # =================================================
 
         print("=" * 60)
@@ -1000,7 +951,7 @@ def process_github_review(
             existing_comments = []
 
         # =================================================
-        # 8. Post line-level comments
+        # 7. Post line comments
         # =================================================
 
         if not ai_review.get(
@@ -1028,25 +979,12 @@ def process_github_review(
                 )
 
                 if not file_path:
-
-                    print(
-                        "Skipping issue because "
-                        "file is missing."
-                    )
-
                     continue
 
                 if not isinstance(
                     line,
                     int,
                 ):
-
-                    print(
-                        f"Skipping line comment "
-                        f"for {file_path}: "
-                        f"invalid line {line}"
-                    )
-
                     continue
 
                 changed_lines = (
@@ -1066,20 +1004,12 @@ def process_github_review(
 
                     continue
 
-                # -----------------------------------------
-                # Create unique marker
-                # -----------------------------------------
-
                 marker = (
                     f"<!-- ai-code-review:"
                     f"{commit_sha}:"
                     f"{file_path}:"
                     f"{line} -->"
                 )
-
-                # -----------------------------------------
-                # Check duplicate comment
-                # -----------------------------------------
 
                 already_commented = any(
                     marker in comment.get(
@@ -1165,8 +1095,15 @@ def process_github_review(
                         f"{error}"
                     )
 
+        else:
+
+            print(
+                "Skipping line comments because "
+                "AI review failed."
+            )
+
         # =================================================
-        # 9. Post overall commit review
+        # 8. Post overall commit review
         # =================================================
 
         github_response = (
@@ -1190,13 +1127,32 @@ def process_github_review(
             )
         )
 
-        # Mark this commit as reviewed only after
-        # the GitHub commit review was successfully posted.
-        reviewed_commits.add(commit_sha)
+        # =================================================
+        # IMPORTANT:
+        # Do NOT mark failed AI reviews as completed.
+        # =================================================
 
-        print(
-            f"Commit {commit_sha} marked as reviewed."
-        )
+        if not ai_review.get(
+            "review_failed",
+            False,
+        ):
+
+            reviewed_commits.add(
+                commit_sha
+            )
+
+            print(
+                f"Commit {commit_sha} "
+                "marked as reviewed."
+            )
+
+        else:
+
+            print(
+                f"Commit {commit_sha} "
+                "was NOT marked as reviewed "
+                "because the AI review failed."
+            )
 
     except Exception as error:
 

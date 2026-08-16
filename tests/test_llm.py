@@ -1,25 +1,43 @@
+from unittest.mock import patch
+
 from app.services.llm_service import review_code
 
 
-code = (
-    "def calculate_total(price, quantity):\n"
-    "    total = price * quantity\n"
-    "    return total\n"
-)
+def test_review_code_success():
 
+    code = (
+        "def calculate_total(price, quantity):\n"
+        "    total = price * quantity\n"
+        "    return total\n"
+    )
 
-review_context = (
-    "FILE: test.py\n\n"
-    "```python\n"
-    f"{code}\n"
-    "```\n"
-)
+    review_context = (
+        "FILE: test.py\n\n"
+        "```python\n"
+        f"{code}\n"
+        "```\n"
+    )
 
+    with patch(
+        "app.services.llm_service.client.models.generate_content"
+    ) as mock_generate:
 
-result = review_code(review_context)
+        mock_generate.return_value.text = (
+            '{"summary": "Code looks good.", '
+            '"issues": []}'
+        )
 
+        result = review_code(
+            review_context
+        )
 
-print("=" * 60)
-print("STRUCTURED AI REVIEW")
-print("=" * 60)
-print(result)
+    assert isinstance(
+        result,
+        dict,
+    )
+
+    assert result["summary"] == (
+        "Code looks good."
+    )
+
+    assert result["issues"] == []
