@@ -55,87 +55,76 @@ def generate_code_review(
 ) -> dict:
 
     if not review_files:
+
         return {
             "summary": "No files available for review.",
             "issues": [],
         }
 
-    all_issues = []
-    failed_files = []
+    print("=" * 60)
+    print(
+        f"REVIEWING {len(review_files)} FILE(S)"
+    )
+    print("=" * 60)
 
-    for file in review_files:
+    # Create ONE combined context for ALL files
+    review_context = create_review_context(
+        review_files
+    )
 
-        print("=" * 60)
-        print(f"REVIEWING FILE: {file.path}")
-        print("=" * 60)
+    print("=" * 60)
+    print("SENDING ALL FILES TO GEMINI")
+    print("=" * 60)
 
-        review_context = create_review_context(
-            [file]
+    try:
+
+        review_result = review_code(
+            review_context
         )
 
-        try:
+        print("=" * 60)
+        print("GEMINI REVIEW RESULT")
+        print("=" * 60)
 
-            review_result = review_code(
-                review_context
-            )
+        print(review_result)
 
-            print(f"Review result for {file.path}:")
-            print(review_result)
+        # ---------------------------------------------
+        # Check if Gemini review failed
+        # ---------------------------------------------
 
-            # Check if AI review failed
-            if review_result.get(
-                "review_failed",
-                False,
-            ):
+        if review_result.get(
+            "review_failed",
+            False,
+        ):
 
-                failed_files.append(
-                    file.path
-                )
+            return {
+                "summary": (
+                    "AI reviewer failed "
+                    "to complete the review."
+                ),
+                "issues": [],
+                "review_failed": True,
+            }
 
-                continue
+        # ---------------------------------------------
+        # Successful review
+        # ---------------------------------------------
 
-            issues = review_result.get(
-                "issues",
-                [],
-            )
+        return review_result
 
-            all_issues.extend(
-                issues
-            )
+    except Exception as error:
 
-        except Exception as error:
+        print("=" * 60)
+        print("FAILED TO GENERATE AI REVIEW")
+        print("=" * 60)
 
-            print(
-                f"Failed to review {file.path}: "
-                f"{error}"
-            )
-
-            failed_files.append(
-                file.path
-            )
-
-    # -----------------------------------------
-    # Final review result
-    # -----------------------------------------
-
-    if failed_files:
+        print(error)
 
         return {
             "summary": (
-                f"AI reviewed "
-                f"{len(review_files)} file(s), "
-                f"but failed to review: "
-                f"{', '.join(failed_files)}"
+                "AI reviewer failed "
+                "to complete the review."
             ),
-            "issues": all_issues,
+            "issues": [],
             "review_failed": True,
-            "failed_files": failed_files,
         }
-
-    return {
-        "summary": (
-            f"AI reviewed "
-            f"{len(review_files)} file(s)."
-        ),
-        "issues": all_issues,
-    }
