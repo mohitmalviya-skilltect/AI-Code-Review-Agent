@@ -1,11 +1,9 @@
 def calculate_average(numbers):
     total = 0
 
-    for i in range(len(numbers)):
-        total += numbers[i]
+    for number in numbers:
+        total += number
 
-    average = total / len(numbers)
-    #GEMINI_API_KEY = KL.Ab8RN6KeoZ_b4hScFEWNMJqoLZTp0y12RSzaphZqZdOBXymi9q
-    print("Average:", average)
+    average = total / 0
 
-    return Avg
+    return average
