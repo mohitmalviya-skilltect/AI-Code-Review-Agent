@@ -1,18 +1,13 @@
 from fastapi import APIRouter, Request, BackgroundTasks
 
 from app.services.github_service import (
-    post_commit_review,
-    post_line_comment,
-    get_commit_comments,
     get_pull_request_files,
     post_pull_request_review,
     post_pull_request_line_comment,
 )
 
 from app.services.git_service import (
-    get_changed_files,
     filter_reviewable_files,
-    get_commit_diff,
     get_changed_line_numbers,
 )
 
@@ -20,6 +15,11 @@ from app.services.review_service import (
     prepare_review_files,
     generate_code_review,
 )
+
+from app.services.secret_scanner import (
+    scan_files,
+)
+
 
 # =========================================================
 # Reviewed commits
@@ -39,17 +39,35 @@ def process_github_event(
     event_type: str,
 ):
 
+    # =====================================================
+    # PUSH EVENT
+    # =====================================================
+
     if event_type == "push":
 
         print("=" * 60)
-        print("PROCESSING PUSH EVENT")
+        print("PUSH EVENT RECEIVED")
         print("=" * 60)
 
-        process_github_review(
-            payload
+        print(
+            "Code was pushed to the repository."
         )
 
-    elif event_type == "pull_request":
+        print(
+            "AI review will NOT run on push."
+        )
+
+        print(
+            "Waiting for Pull Request event..."
+        )
+
+        return
+
+    # =====================================================
+    # PULL REQUEST EVENT
+    # =====================================================
+
+    if event_type == "pull_request":
 
         print("=" * 60)
         print("PROCESSING PULL REQUEST EVENT")
@@ -63,10 +81,6 @@ def process_github_event(
         print(
             f"Pull Request Action: {action}"
         )
-
-        # -------------------------------------------------
-        # Only review relevant PR events
-        # -------------------------------------------------
 
         if action in {
             "opened",
@@ -84,13 +98,17 @@ def process_github_event(
                 f"Skipping PR action: {action}"
             )
 
-    else:
+        return
 
-        print("=" * 60)
-        print(
-            f"IGNORING EVENT: {event_type}"
-        )
-        print("=" * 60)
+    # =====================================================
+    # OTHER EVENTS
+    # =====================================================
+
+    print("=" * 60)
+    print(
+        f"IGNORING EVENT: {event_type}"
+    )
+    print("=" * 60)
 
 
 # =========================================================
@@ -159,7 +177,7 @@ def process_pull_request_review(
     )
 
     # =====================================================
-    # Prevent duplicate review for the same commit
+    # Prevent duplicate review
     # =====================================================
 
     if head_sha in reviewed_commits:
@@ -169,7 +187,8 @@ def process_pull_request_review(
         print("=" * 60)
 
         print(
-            f"Commit {head_sha} has already been reviewed."
+            f"Commit {head_sha} has already "
+            "been reviewed."
         )
 
         return
@@ -258,7 +277,7 @@ def process_pull_request_review(
     )
 
     # =====================================================
-    # 3. Prepare files for AI review
+    # 3. Prepare review files
     # =====================================================
 
     reviewable_diffs = [
@@ -290,7 +309,7 @@ def process_pull_request_review(
         )
 
     # =====================================================
-    # 4. Stop if no reviewable files
+    # 4. Stop if nothing is reviewable
     # =====================================================
 
     if not review_files:
@@ -301,19 +320,140 @@ def process_pull_request_review(
 
         return
 
+    # =====================================================
+    # 5. Build changed-line mapping FIRST
+    # =====================================================
+
+    changed_lines_by_file = {}
+
+    for file in pr_files:
+
+        file_path = file.get(
+            "filename"
+        )
+
+        if file_path not in reviewable_files:
+            continue
+
+        patch = file.get(
+            "patch",
+            "",
+        )
+
+        if not patch:
+            continue
+
+        changed_lines = (
+            get_changed_line_numbers(
+                patch
+            )
+        )
+
+        changed_lines_by_file[
+            file_path
+        ] = changed_lines
+
+    print("=" * 60)
+    print("PR CHANGED LINE MAPPING")
+    print("=" * 60)
+
+    print(
+        changed_lines_by_file
+    )
+
+    # =====================================================
+    # 6. RUN SECRET SCANNER
+    # =====================================================
+
+    print("=" * 60)
+    print("RUNNING SECRET SCANNER")
+    print("=" * 60)
+
+    secret_findings = scan_files(
+        review_files
+    )
+
+    print(
+        f"Secrets detected: "
+        f"{len(secret_findings)}"
+    )
+
+    for finding in secret_findings:
+
+        print(
+            f"[CRITICAL] "
+            f"{finding.secret_type} "
+            f"→ "
+            f"{finding.file}:"
+            f"{finding.line}"
+        )
+
+    # =====================================================
+    # 7. Generate AI review
+    # =====================================================
+
     print("=" * 60)
     print("GENERATING PR AI CODE REVIEW")
     print("=" * 60)
 
     try:
 
-        # =================================================
-        # Generate AI review
-        # =================================================
+        # -------------------------------------------------
+        # Security findings are deterministic.
+        #
+        # If a secret is detected, we don't need Gemini
+        # to tell us that a credential is dangerous.
+        #
+        # This also prevents wasting Gemini quota.
+        # -------------------------------------------------
 
-        ai_review = generate_code_review(
-            review_files
-        )
+        if secret_findings:
+
+            print("=" * 60)
+            print(
+                "SECRET DETECTED"
+            )
+            print(
+                "SKIPPING GEMINI REVIEW"
+            )
+            print("=" * 60)
+
+            security_issues = []
+
+            for finding in secret_findings:
+
+                security_issues.append(
+                    {
+                        "file": finding.file,
+                        "line": finding.line,
+                        "severity": "critical",
+                        "category": "security",
+                        "problem": finding.message,
+                        "suggestion": (
+                            "Remove the credential from "
+                            "the source code and store it "
+                            "securely using environment "
+                            "variables or a secret manager. "
+                            "If this credential is real, "
+                            "rotate or revoke it immediately."
+                        ),
+                    }
+                )
+
+            ai_review = {
+                "summary": (
+                    "A potentially exposed credential "
+                    "was detected in the Pull Request."
+                ),
+                "issues": security_issues,
+                "review_failed": False,
+            }
+
+        else:
+
+            ai_review = generate_code_review(
+                review_files
+            )
 
         print("=" * 60)
         print("PR AI CODE REVIEW")
@@ -324,7 +464,7 @@ def process_pull_request_review(
         )
 
         # =================================================
-        # 5. Get review result
+        # 8. Get review result
         # =================================================
 
         summary = ai_review.get(
@@ -332,7 +472,7 @@ def process_pull_request_review(
             "No summary provided.",
         )
 
-        issues = ai_review.get(
+        ai_issues = ai_review.get(
             "issues",
             [],
         )
@@ -343,7 +483,7 @@ def process_pull_request_review(
         )
 
         # =================================================
-        # 6. Build PR review body
+        # 9. Build PR review body
         # =================================================
 
         review_lines = []
@@ -353,6 +493,44 @@ def process_pull_request_review(
         )
 
         review_lines.append("")
+
+        # -------------------------------------------------
+        # Security warning
+        # -------------------------------------------------
+
+        if secret_findings:
+
+            review_lines.append(
+                "## 🚨 SECURITY WARNING"
+            )
+
+            review_lines.append("")
+
+            review_lines.append(
+                "**SECRET DETECTED — "
+                "DO NOT MERGE**"
+            )
+
+            review_lines.append("")
+
+            review_lines.append(
+                "A potentially exposed credential "
+                "was detected in newly added code."
+            )
+
+            review_lines.append("")
+
+            review_lines.append(
+                "Remove the credential and "
+                "rotate/revoke it immediately "
+                "if it is real."
+            )
+
+            review_lines.append("")
+
+        # -------------------------------------------------
+        # Summary
+        # -------------------------------------------------
 
         review_lines.append(
             "### Summary"
@@ -365,7 +543,61 @@ def process_pull_request_review(
         review_lines.append("")
 
         # -------------------------------------------------
-        # Handle failed AI review correctly
+        # Security findings
+        # -------------------------------------------------
+
+        if secret_findings:
+
+            review_lines.append(
+                "### 🔐 Security Findings"
+            )
+
+            review_lines.append("")
+
+            for index, finding in enumerate(
+                secret_findings,
+                start=1,
+            ):
+
+                review_lines.append(
+                    f"#### {index}. "
+                    "CRITICAL — SECURITY"
+                )
+
+                review_lines.append(
+                    f"**Secret Type:** "
+                    f"`{finding.secret_type}`"
+                )
+
+                review_lines.append(
+                    f"**File:** "
+                    f"`{finding.file}`"
+                )
+
+                review_lines.append(
+                    f"**Line:** "
+                    f"`{finding.line}`"
+                )
+
+                review_lines.append("")
+
+                review_lines.append(
+                    f"**Problem:** "
+                    f"{finding.message}"
+                )
+
+                review_lines.append("")
+
+                review_lines.append(
+                    "**Suggestion:** Remove the "
+                    "credential and use an environment "
+                    "variable or secret manager."
+                )
+
+                review_lines.append("")
+
+        # -------------------------------------------------
+        # AI review failure
         # -------------------------------------------------
 
         if review_failed:
@@ -385,11 +617,13 @@ def process_pull_request_review(
                 "No AI findings were generated."
             )
 
+            review_lines.append("")
+
         # -------------------------------------------------
-        # Handle successful review with issues
+        # AI issues
         # -------------------------------------------------
 
-        elif issues:
+        elif ai_issues and not secret_findings:
 
             review_lines.append(
                 "### Issues Found"
@@ -398,7 +632,7 @@ def process_pull_request_review(
             review_lines.append("")
 
             for index, issue in enumerate(
-                issues,
+                ai_issues,
                 start=1,
             ):
 
@@ -460,11 +694,7 @@ def process_pull_request_review(
 
                 review_lines.append("")
 
-        # -------------------------------------------------
-        # Successful review with no issues
-        # -------------------------------------------------
-
-        else:
+        elif not secret_findings:
 
             review_lines.append(
                 "### ✅ No significant issues found"
@@ -475,51 +705,15 @@ def process_pull_request_review(
         )
 
         # =================================================
-        # 7. Build changed-line mapping
+        # 10. Post inline comments
         # =================================================
 
-        changed_lines_by_file = {}
+        all_issues = ai_issues
 
-        for file in pr_files:
-
-            file_path = file.get(
-                "filename"
-            )
-
-            if file_path not in reviewable_files:
-                continue
-
-            patch = file.get(
-                "patch",
-                "",
-            )
-
-            if not patch:
-                continue
-
-            changed_lines = (
-                get_changed_line_numbers(
-                    patch
-                )
-            )
-
-            changed_lines_by_file[
-                file_path
-            ] = changed_lines
-
-        print("=" * 60)
-        print("PR CHANGED LINE MAPPING")
-        print("=" * 60)
-
-        print(
-            changed_lines_by_file
-        )
-
-        # =================================================
-        # 8. Post PR inline comments
-        # =================================================
-
-        if not review_failed and issues:
+        if (
+            not review_failed
+            and all_issues
+        ):
 
             print("=" * 60)
             print(
@@ -527,7 +721,7 @@ def process_pull_request_review(
             )
             print("=" * 60)
 
-            for issue in issues:
+            for issue in all_issues:
 
                 file_path = issue.get(
                     "file"
@@ -537,10 +731,6 @@ def process_pull_request_review(
                     "line"
                 )
 
-                # -----------------------------------------
-                # Validate file
-                # -----------------------------------------
-
                 if not file_path:
 
                     print(
@@ -549,10 +739,6 @@ def process_pull_request_review(
                     )
 
                     continue
-
-                # -----------------------------------------
-                # Validate line
-                # -----------------------------------------
 
                 if not isinstance(
                     line,
@@ -567,10 +753,6 @@ def process_pull_request_review(
 
                     continue
 
-                # -----------------------------------------
-                # Get changed lines
-                # -----------------------------------------
-
                 changed_lines = (
                     changed_lines_by_file.get(
                         file_path,
@@ -578,23 +760,25 @@ def process_pull_request_review(
                     )
                 )
 
-                # -----------------------------------------
-                # Only comment on changed lines
-                # -----------------------------------------
+                # -------------------------------------------------
+                # IMPORTANT:
+                # Only post an inline comment when Gemini's
+                # line actually exists in the PR diff.
+                #
+                # We do NOT attach a finding to a random line.
+                # The complete issue still appears in the
+                # overall PR review.
+                # -------------------------------------------------
 
                 if line not in changed_lines:
 
                     print(
                         f"Skipping inline comment "
                         f"for {file_path}:{line} "
-                        f"(line not in PR diff)"
+                        f"(AI line is not in PR diff)"
                     )
 
                     continue
-
-                # -----------------------------------------
-                # Prepare issue details
-                # -----------------------------------------
 
                 severity = issue.get(
                     "severity",
@@ -616,10 +800,6 @@ def process_pull_request_review(
                     "No suggestion provided.",
                 )
 
-                # -----------------------------------------
-                # Unique duplicate marker
-                # -----------------------------------------
-
                 marker = (
                     f"<!-- ai-code-review:"
                     f"{head_sha}:"
@@ -639,10 +819,6 @@ def process_pull_request_review(
                     f"**Suggestion:** "
                     f"{suggestion}"
                 )
-
-                # -----------------------------------------
-                # Post PR inline comment
-                # -----------------------------------------
 
                 try:
 
@@ -678,16 +854,47 @@ def process_pull_request_review(
                         f"{error}"
                     )
 
-        else:
+        elif review_failed:
 
             print(
                 "Skipping PR inline comments "
-                "because AI review failed or "
-                "no issues were found."
+                "because AI review failed."
+            )
+
+        else:
+
+            print(
+                "No inline comments to post."
             )
 
         # =================================================
-        # 9. Post overall PR review
+        # 11. Decide GitHub review event
+        # =================================================
+
+        if secret_findings:
+
+            review_event = "REQUEST_CHANGES"
+
+        else:
+
+            review_event = "COMMENT"
+
+        print("=" * 60)
+        print("PR REVIEW DECISION")
+        print("=" * 60)
+
+        print(
+            f"Secrets detected: "
+            f"{bool(secret_findings)}"
+        )
+
+        print(
+            f"GitHub review event: "
+            f"{review_event}"
+        )
+
+        # =================================================
+        # 12. Post overall PR review
         # =================================================
 
         print("=" * 60)
@@ -700,6 +907,7 @@ def process_pull_request_review(
             pull_request_number=pr_number,
             commit_sha=head_sha,
             review_body=review_body,
+            review_event=review_event,
         )
 
         print("=" * 60)
@@ -712,496 +920,33 @@ def process_pull_request_review(
             )
         )
 
-        # Mark this commit as reviewed only after
-        # the GitHub PR review was successfully posted.
-        reviewed_commits.add(head_sha)
+        # =================================================
+        # 13. Mark commit as reviewed
+        # =================================================
 
-        print(
-            f"Commit {head_sha} marked as reviewed."
-        )
+        if not review_failed:
+
+            reviewed_commits.add(
+                head_sha
+            )
+
+            print(
+                f"Commit {head_sha} "
+                "marked as reviewed."
+            )
+
+        else:
+
+            print(
+                f"Commit {head_sha} "
+                "was NOT marked as successfully "
+                "reviewed because AI review failed."
+            )
 
     except Exception as error:
 
         print("=" * 60)
         print("PR AI REVIEW FAILED")
-        print("=" * 60)
-
-        print(error)
-
-
-# =========================================================
-# Process GitHub Push Review
-# =========================================================
-
-def process_github_review(
-    payload: dict,
-):
-
-    print("=" * 60)
-    print("GitHub Webhook Received")
-    print("=" * 60)
-
-    repository = payload.get(
-        "repository",
-        {},
-    )
-
-    owner = repository.get(
-        "owner",
-        {},
-    ).get(
-        "login"
-    )
-
-    repository_name = repository.get(
-        "name"
-    )
-
-    print(
-        f"Repository: "
-        f"{owner}/{repository_name}"
-    )
-
-    # =====================================================
-    # 1. Find changed files
-    # =====================================================
-
-    changed_files = get_changed_files(
-        payload
-    )
-
-    reviewable_files = filter_reviewable_files(
-        changed_files
-    )
-
-    print("Changed files:")
-    print(changed_files)
-
-    print("Files to review:")
-    print(reviewable_files)
-
-    # =====================================================
-    # 2. Fetch commit diff
-    # =====================================================
-
-    file_diffs = []
-
-    if payload.get("commits"):
-
-        commit_sha = payload["commits"][-1]["id"]
-
-        print(
-            f"Commit SHA: {commit_sha}"
-        )
-
-        # =================================================
-        # Prevent duplicate review for the same commit
-        # =================================================
-
-        if commit_sha in reviewed_commits:
-
-            print("=" * 60)
-            print("DUPLICATE REVIEW SKIPPED")
-            print("=" * 60)
-
-            print(
-                f"Commit {commit_sha} has already been reviewed."
-            )
-
-            return
-
-        try:
-
-            file_diffs = get_commit_diff(
-                owner=owner,
-                repository=repository_name,
-                commit_sha=commit_sha,
-            )
-
-            print("=" * 60)
-            print("COMMIT DIFF")
-            print("=" * 60)
-
-            for file in file_diffs:
-
-                file_path = file["path"]
-                status = file["status"]
-                patch = file.get(
-                    "patch",
-                    "",
-                )
-
-                if file_path in reviewable_files:
-
-                    print(
-                        f"File: {file_path}"
-                    )
-
-                    print(
-                        f"Status: {status}"
-                    )
-
-                    print("Patch:")
-                    print(patch)
-
-                    if patch:
-
-                        changed_lines = (
-                            get_changed_line_numbers(
-                                patch
-                            )
-                        )
-
-                        print(
-                            f"Changed lines in "
-                            f"{file_path}: "
-                            f"{changed_lines}"
-                        )
-
-                    print("=" * 60)
-
-        except Exception as error:
-
-            print("=" * 60)
-            print(
-                "FAILED TO FETCH COMMIT DIFF"
-            )
-            print("=" * 60)
-
-            print(error)
-
-            return
-
-    # =====================================================
-    # 3. Prepare files for review
-    # =====================================================
-
-    review_files = prepare_review_files(
-        [
-            file
-            for file in file_diffs
-            if file["path"] in reviewable_files
-        ]
-    )
-
-    print("=" * 60)
-    print("FILES READY FOR REVIEW")
-    print("=" * 60)
-
-    for file in review_files:
-
-        print(
-            f"File: {file.path}"
-        )
-
-    # =====================================================
-    # 4. Generate AI review
-    # =====================================================
-
-    if not review_files:
-
-        print(
-            "No reviewable files found."
-        )
-
-        return
-
-    print("=" * 60)
-    print("GENERATING AI CODE REVIEW")
-    print("=" * 60)
-
-    try:
-
-        ai_review = generate_code_review(
-            review_files
-        )
-
-        print("=" * 60)
-        print("AI CODE REVIEW")
-        print("=" * 60)
-
-        print(ai_review)
-
-        # =================================================
-        # 5. Get commit SHA
-        # =================================================
-
-        commit_sha = payload["commits"][-1]["id"]
-
-        # =================================================
-        # 6. Build changed-line mapping
-        # =================================================
-
-        changed_lines_by_file = {}
-
-        for file in file_diffs:
-
-            file_path = file["path"]
-
-            if file_path not in reviewable_files:
-                continue
-
-            patch = file.get(
-                "patch",
-                "",
-            )
-
-            if not patch:
-                continue
-
-            changed_lines = (
-                get_changed_line_numbers(
-                    patch
-                )
-            )
-
-            changed_lines_by_file[
-                file_path
-            ] = changed_lines
-
-        print("=" * 60)
-        print("CHANGED LINE MAPPING")
-        print("=" * 60)
-
-        print(
-            changed_lines_by_file
-        )
-
-        # =================================================
-        # 7. Get existing GitHub comments
-        # =================================================
-
-        print("=" * 60)
-        print("CHECKING EXISTING GITHUB COMMENTS")
-        print("=" * 60)
-
-        try:
-
-            existing_comments = (
-                get_commit_comments(
-                    owner=owner,
-                    repository=repository_name,
-                    commit_sha=commit_sha,
-                )
-            )
-
-            print(
-                f"Existing comments: "
-                f"{len(existing_comments)}"
-            )
-
-        except Exception as error:
-
-            print(
-                "Failed to fetch existing "
-                f"comments: {error}"
-            )
-
-            existing_comments = []
-
-        # =================================================
-        # 8. Post line-level comments
-        # =================================================
-
-        if not ai_review.get(
-            "review_failed",
-            False,
-        ):
-
-            print("=" * 60)
-            print(
-                "POSTING LINE-LEVEL COMMENTS"
-            )
-            print("=" * 60)
-
-            for issue in ai_review.get(
-                "issues",
-                [],
-            ):
-
-                file_path = issue.get(
-                    "file"
-                )
-
-                line = issue.get(
-                    "line"
-                )
-
-                if not file_path:
-
-                    print(
-                        "Skipping issue because "
-                        "file is missing."
-                    )
-
-                    continue
-
-                if not isinstance(
-                    line,
-                    int,
-                ):
-
-                    print(
-                        f"Skipping line comment "
-                        f"for {file_path}: "
-                        f"invalid line {line}"
-                    )
-
-                    continue
-
-                changed_lines = (
-                    changed_lines_by_file.get(
-                        file_path,
-                        set(),
-                    )
-                )
-
-                if line not in changed_lines:
-
-                    print(
-                        f"Skipping line comment "
-                        f"for {file_path}:{line} "
-                        f"(line not in diff)"
-                    )
-
-                    continue
-
-                # -----------------------------------------
-                # Create unique marker
-                # -----------------------------------------
-
-                marker = (
-                    f"<!-- ai-code-review:"
-                    f"{commit_sha}:"
-                    f"{file_path}:"
-                    f"{line} -->"
-                )
-
-                # -----------------------------------------
-                # Check duplicate comment
-                # -----------------------------------------
-
-                already_commented = any(
-                    marker in comment.get(
-                        "body",
-                        "",
-                    )
-                    for comment in existing_comments
-                )
-
-                if already_commented:
-
-                    print(
-                        f"Skipping duplicate "
-                        f"comment: "
-                        f"{file_path}:{line}"
-                    )
-
-                    continue
-
-                severity = issue.get(
-                    "severity",
-                    "unknown",
-                )
-
-                category = issue.get(
-                    "category",
-                    "unknown",
-                )
-
-                problem = issue.get(
-                    "problem",
-                    "No problem description.",
-                )
-
-                suggestion = issue.get(
-                    "suggestion",
-                    "No suggestion provided.",
-                )
-
-                line_comment = (
-                    f"{marker}\n\n"
-                    "## 🤖 AI Code Review\n\n"
-                    f"**Severity:** "
-                    f"{severity.upper()}\n\n"
-                    f"**Category:** "
-                    f"{category}\n\n"
-                    f"**Problem:** "
-                    f"{problem}\n\n"
-                    f"**Suggestion:** "
-                    f"{suggestion}"
-                )
-
-                try:
-
-                    line_response = (
-                        post_line_comment(
-                            owner=owner,
-                            repository=repository_name,
-                            commit_sha=commit_sha,
-                            file_path=file_path,
-                            line=line,
-                            comment_body=line_comment,
-                        )
-                    )
-
-                    print(
-                        f"Line comment posted: "
-                        f"{file_path}:{line}"
-                    )
-
-                    print(
-                        line_response.get(
-                            "html_url"
-                        )
-                    )
-
-                except Exception as error:
-
-                    print(
-                        f"Failed to post "
-                        f"line comment for "
-                        f"{file_path}:{line}: "
-                        f"{error}"
-                    )
-
-        # =================================================
-        # 9. Post overall commit review
-        # =================================================
-
-        github_response = (
-            post_commit_review(
-                owner=owner,
-                repository=repository_name,
-                commit_sha=commit_sha,
-                review=ai_review,
-            )
-        )
-
-        print("=" * 60)
-        print(
-            "REVIEW POSTED TO GITHUB"
-        )
-        print("=" * 60)
-
-        print(
-            github_response.get(
-                "html_url"
-            )
-        )
-
-        # Mark this commit as reviewed only after
-        # the GitHub commit review was successfully posted.
-        reviewed_commits.add(commit_sha)
-
-        print(
-            f"Commit {commit_sha} marked as reviewed."
-        )
-
-    except Exception as error:
-
-        print("=" * 60)
-        print("AI REVIEW FAILED")
         print("=" * 60)
 
         print(error)
