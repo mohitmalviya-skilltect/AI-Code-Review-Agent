@@ -17,71 +17,123 @@ class SecretFinding:
 # =========================================================
 
 SECRET_PATTERNS = [
+
+    # -----------------------------------------------------
+    # Gemini / Google API Key
+    # -----------------------------------------------------
+
     (
         "Gemini API Key",
         re.compile(
             r"(?:GEMINI_API_KEY|GOOGLE_API_KEY)"
-            r"\s*[:=]\s*['\"]?"
-            r"([A-Za-z0-9_\-]{20,})"
+            r"\s*[:=]\s*"
+            r"['\"]?"
+            r"([A-Za-z0-9._\-]{20,})"
+            r"['\"]?"
         ),
     ),
+
+    # -----------------------------------------------------
+    # GitHub Personal Access Token
+    # -----------------------------------------------------
+
     (
         "GitHub Token",
         re.compile(
             r"(?:GITHUB_TOKEN|GH_TOKEN)"
-            r"\s*[:=]\s*['\"]?"
-            r"(gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})"
+            r"\s*[:=]\s*"
+            r"['\"]?"
+            r"(gh[pousr]_[A-Za-z0-9_]{20,}"
+            r"|github_pat_[A-Za-z0-9_]{20,})"
+            r"['\"]?"
         ),
     ),
+
+    # -----------------------------------------------------
+    # AWS Access Key
+    # -----------------------------------------------------
+
     (
         "AWS Access Key",
         re.compile(
             r"(?:AWS_ACCESS_KEY_ID|aws_access_key_id)"
-            r"\s*[:=]\s*['\"]?"
+            r"\s*[:=]\s*"
+            r"['\"]?"
             r"(AKIA[0-9A-Z]{16})"
+            r"['\"]?"
         ),
     ),
+
+    # -----------------------------------------------------
+    # AWS Secret Access Key
+    # -----------------------------------------------------
+
     (
         "AWS Secret Key",
         re.compile(
             r"(?:AWS_SECRET_ACCESS_KEY|aws_secret_access_key)"
-            r"\s*[:=]\s*['\"]?"
+            r"\s*[:=]\s*"
+            r"['\"]?"
             r"([A-Za-z0-9/+=]{30,})"
+            r"['\"]?"
         ),
     ),
+
+    # -----------------------------------------------------
+    # Private Key
+    # -----------------------------------------------------
+
     (
         "Private Key",
         re.compile(
             r"-----BEGIN "
-            r"(?:RSA |EC |OPENSSH |DSA )?"
+            r"(?:RSA |EC |OPENSSH |DSA |PGP )?"
             r"PRIVATE KEY-----"
         ),
     ),
+
+    # -----------------------------------------------------
+    # Password
+    # -----------------------------------------------------
+
     (
         "Password",
         re.compile(
             r"(?:password|passwd|pwd)"
-            r"\s*[:=]\s*['\"]"
+            r"\s*[:=]\s*"
+            r"['\"]"
             r"[^'\"]{4,}"
             r"['\"]",
             re.IGNORECASE,
         ),
     ),
+
+    # -----------------------------------------------------
+    # Generic API Key
+    # -----------------------------------------------------
+
     (
         "API Key",
         re.compile(
             r"(?:api[_-]?key|apikey)"
-            r"\s*[:=]\s*['\"]"
+            r"\s*[:=]\s*"
+            r"['\"]"
             r"[^'\"]{10,}"
             r"['\"]",
             re.IGNORECASE,
         ),
     ),
+
+    # -----------------------------------------------------
+    # Generic Secret
+    # -----------------------------------------------------
+
     (
         "Secret",
         re.compile(
             r"(?:secret|client_secret)"
-            r"\s*[:=]\s*['\"]"
+            r"\s*[:=]\s*"
+            r"['\"]"
             r"[^'\"]{10,}"
             r"['\"]",
             re.IGNORECASE,
@@ -91,7 +143,7 @@ SECRET_PATTERNS = [
 
 
 # =========================================================
-# Extract added lines from a Git diff
+# Extract added lines from Git diff
 # =========================================================
 
 def extract_added_lines(
@@ -114,12 +166,12 @@ def extract_added_lines(
 
     for line in patch.splitlines():
 
-        # ---------------------------------------------
-        # Parse hunk header
+        # -------------------------------------------------
+        # Parse diff hunk header
         #
         # Example:
         # @@ -4,5 +4,6 @@
-        # ---------------------------------------------
+        # -------------------------------------------------
 
         if line.startswith("@@"):
 
@@ -136,13 +188,16 @@ def extract_added_lines(
 
                 current_line = int(
                     new_file_range
-                    .split(",")[0]
+                    .split(",", 1)[0]
                     .replace("+", "")
                 )
 
             continue
 
+        # -------------------------------------------------
         # Ignore diff metadata
+        # -------------------------------------------------
+
         if line.startswith(
             ("---", "+++")
         ):
@@ -151,9 +206,9 @@ def extract_added_lines(
         if current_line is None:
             continue
 
-        # ---------------------------------------------
+        # -------------------------------------------------
         # Added line
-        # ---------------------------------------------
+        # -------------------------------------------------
 
         if line.startswith("+"):
 
@@ -168,26 +223,54 @@ def extract_added_lines(
 
             current_line += 1
 
-        # ---------------------------------------------
+        # -------------------------------------------------
         # Removed line
-        # ---------------------------------------------
+        # -------------------------------------------------
 
         elif line.startswith("-"):
 
             # Removed lines don't exist in the
-            # new version, so don't increment
-            # the new-file line number.
+            # new version.
+
             continue
 
-        # ---------------------------------------------
+        # -------------------------------------------------
         # Context line
-        # ---------------------------------------------
+        # -------------------------------------------------
 
         else:
 
             current_line += 1
 
     return added_lines
+
+
+# =========================================================
+# Check whether a line is an environment-variable lookup
+# =========================================================
+
+def is_environment_variable_reference(
+    line: str,
+) -> bool:
+    """
+    Return True when the line retrieves a secret from
+    an environment variable instead of hardcoding it.
+    """
+
+    environment_patterns = [
+        r"os\.getenv\(",
+        r"os\.environ\.get\(",
+        r"process\.env\.",
+        r"process\.env\[",
+    ]
+
+    return any(
+        re.search(
+            pattern,
+            line,
+        )
+        for pattern in environment_patterns
+    )
 
 
 # =========================================================
@@ -198,6 +281,11 @@ def scan_diff(
     file_path: str,
     patch: str,
 ) -> list[SecretFinding]:
+    """
+    Scan only newly added lines in a Git diff.
+
+    Removed lines and unchanged lines are ignored.
+    """
 
     findings = []
 
@@ -207,16 +295,18 @@ def scan_diff(
 
     for line_number, line in added_lines:
 
-        # ---------------------------------------------
-        # Ignore environment variable references
-        # ---------------------------------------------
+        # -------------------------------------------------
+        # Ignore environment-variable references
+        # -------------------------------------------------
 
-        if (
-            "os.getenv(" in line
-            or "os.environ.get(" in line
-            or "process.env." in line
+        if is_environment_variable_reference(
+            line
         ):
             continue
+
+        # -------------------------------------------------
+        # Check all secret patterns
+        # -------------------------------------------------
 
         for secret_type, pattern in SECRET_PATTERNS:
 
@@ -243,8 +333,10 @@ def scan_diff(
                 )
             )
 
-            # Don't report multiple patterns
-            # for the same line.
+            # -------------------------------------------------
+            # Don't report multiple secrets for the same line
+            # -------------------------------------------------
+
             break
 
     return findings
@@ -257,6 +349,9 @@ def scan_diff(
 def scan_files(
     files: list,
 ) -> list[SecretFinding]:
+    """
+    Scan multiple ReviewFile objects for secrets.
+    """
 
     findings = []
 
