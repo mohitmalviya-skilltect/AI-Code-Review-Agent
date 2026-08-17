@@ -1,7 +1,5 @@
 from fastapi import APIRouter, Request, BackgroundTasks
 
-from fastapi import APIRouter, Request, BackgroundTasks
-
 from app.services.github_service import (
     get_pull_request_files,
     post_pull_request_review,
@@ -16,6 +14,10 @@ from app.services.git_service import (
 from app.services.review_service import (
     prepare_review_files,
     generate_code_review,
+)
+
+from app.services.secret_scanner import (
+    scan_files,
 )
 
 
@@ -275,7 +277,7 @@ def process_pull_request_review(
     )
 
     # =====================================================
-    # 3. Prepare files for AI review
+    # 3. Prepare files for review
     # =====================================================
 
     reviewable_diffs = [
@@ -318,6 +320,37 @@ def process_pull_request_review(
 
         return
 
+    # =====================================================
+    # 5. RUN SECRET SCANNER
+    # =====================================================
+
+    print("=" * 60)
+    print("RUNNING SECRET SCANNER")
+    print("=" * 60)
+
+    secret_findings = scan_files(
+        review_files
+    )
+
+    print(
+        f"Secrets detected: "
+        f"{len(secret_findings)}"
+    )
+
+    for finding in secret_findings:
+
+        print(
+            f"[CRITICAL] "
+            f"{finding.secret_type} "
+            f"→ "
+            f"{finding.file}:"
+            f"{finding.line}"
+        )
+
+    # =====================================================
+    # 6. Generate AI review
+    # =====================================================
+
     print("=" * 60)
     print("GENERATING PR AI CODE REVIEW")
     print("=" * 60)
@@ -337,7 +370,7 @@ def process_pull_request_review(
         )
 
         # =================================================
-        # 5. Get review result
+        # 7. Get AI review result
         # =================================================
 
         summary = ai_review.get(
@@ -356,7 +389,70 @@ def process_pull_request_review(
         )
 
         # =================================================
-        # 6. Build PR review body
+        # 8. Convert secret findings into review issues
+        # =================================================
+
+        security_issues = []
+
+        for finding in secret_findings:
+
+            security_issues.append(
+                {
+                    "severity": "critical",
+                    "category": "security",
+                    "file": finding.file,
+                    "line": finding.line,
+                    "problem": finding.message,
+                    "suggestion": (
+                        "Remove the credential from "
+                        "the source code and store it "
+                        "securely using environment "
+                        "variables or a secret manager. "
+                        "If this credential is real, "
+                        "rotate or revoke it immediately."
+                    ),
+                }
+            )
+
+        # Add security findings to the issues
+        # that will be shown in the PR review.
+
+        all_issues = (
+            security_issues + issues
+        )
+
+        # =================================================
+        # 9. Determine whether PR should be blocked
+        # =================================================
+
+        secrets_detected = bool(
+            secret_findings
+        )
+
+        if secrets_detected:
+
+            review_event = "REQUEST_CHANGES"
+
+        else:
+
+            review_event = "COMMENT"
+
+        print("=" * 60)
+        print("PR REVIEW DECISION")
+        print("=" * 60)
+
+        print(
+            f"Secrets detected: "
+            f"{secrets_detected}"
+        )
+
+        print(
+            f"GitHub review event: "
+            f"{review_event}"
+        )
+
+        # =================================================
+        # 10. Build PR review body
         # =================================================
 
         review_lines = []
@@ -367,6 +463,43 @@ def process_pull_request_review(
 
         review_lines.append("")
 
+        # -------------------------------------------------
+        # Security warning
+        # -------------------------------------------------
+
+        if secrets_detected:
+
+            review_lines.append(
+                "## 🚨 SECURITY WARNING"
+            )
+
+            review_lines.append("")
+
+            review_lines.append(
+                "**SECRET DETECTED — DO NOT MERGE**"
+            )
+
+            review_lines.append("")
+
+            review_lines.append(
+                "A potentially exposed credential "
+                "was detected in newly added code."
+            )
+
+            review_lines.append("")
+
+            review_lines.append(
+                "Please remove the credential and "
+                "rotate/revoke it immediately if "
+                "it is a real credential."
+            )
+
+            review_lines.append("")
+
+        # -------------------------------------------------
+        # Summary
+        # -------------------------------------------------
+
         review_lines.append(
             "### Summary"
         )
@@ -376,6 +509,58 @@ def process_pull_request_review(
         )
 
         review_lines.append("")
+
+        # -------------------------------------------------
+        # Security findings
+        # -------------------------------------------------
+
+        if security_issues:
+
+            review_lines.append(
+                "### 🔐 Security Findings"
+            )
+
+            review_lines.append("")
+
+            for index, issue in enumerate(
+                security_issues,
+                start=1,
+            ):
+
+                review_lines.append(
+                    f"#### {index}. "
+                    "CRITICAL — SECURITY"
+                )
+
+                review_lines.append(
+                    f"**File:** "
+                    f"`{issue['file']}`"
+                )
+
+                review_lines.append(
+                    f"**Line:** "
+                    f"`{issue['line']}`"
+                )
+
+                review_lines.append("")
+
+                review_lines.append(
+                    f"**Problem:** "
+                    f"{issue['problem']}"
+                )
+
+                review_lines.append("")
+
+                review_lines.append(
+                    f"**Suggestion:** "
+                    f"{issue['suggestion']}"
+                )
+
+                review_lines.append("")
+
+        # -------------------------------------------------
+        # AI issues
+        # -------------------------------------------------
 
         if review_failed:
 
@@ -390,11 +575,15 @@ def process_pull_request_review(
                 "complete the review."
             )
 
-            review_lines.append(
-                "Security findings detected "
-                "by the local scanner, if any, "
-                "are still included above."
-            )
+            if secrets_detected:
+
+                review_lines.append(
+                    "The local security scanner "
+                    "still detected the security "
+                    "finding shown above."
+                )
+
+            review_lines.append("")
 
         elif issues:
 
@@ -467,7 +656,7 @@ def process_pull_request_review(
 
                 review_lines.append("")
 
-        else:
+        elif not security_issues:
 
             review_lines.append(
                 "### ✅ No significant issues found"
@@ -478,7 +667,7 @@ def process_pull_request_review(
         )
 
         # =================================================
-        # 7. Build changed-line mapping
+        # 11. Build changed-line mapping
         # =================================================
 
         changed_lines_by_file = {}
@@ -519,10 +708,10 @@ def process_pull_request_review(
         )
 
         # =================================================
-        # 8. Post PR inline comments
+        # 12. Post inline comments
         # =================================================
 
-        if issues:
+        if not review_failed and all_issues:
 
             print("=" * 60)
             print(
@@ -530,7 +719,7 @@ def process_pull_request_review(
             )
             print("=" * 60)
 
-            for issue in issues:
+            for issue in all_issues:
 
                 file_path = issue.get(
                     "file"
@@ -561,7 +750,7 @@ def process_pull_request_review(
                     print(
                         f"Skipping inline comment "
                         f"for {file_path}:{line} "
-                        f"(line not in PR diff)"
+                        "(line not in PR diff)"
                     )
 
                     continue
@@ -640,6 +829,13 @@ def process_pull_request_review(
                         f"{error}"
                     )
 
+        elif review_failed:
+
+            print(
+                "Skipping AI inline comments "
+                "because AI review failed."
+            )
+
         else:
 
             print(
@@ -648,7 +844,7 @@ def process_pull_request_review(
             )
 
         # =================================================
-        # 9. Post overall PR review
+        # 13. Post overall PR review
         # =================================================
 
         print("=" * 60)
@@ -661,6 +857,7 @@ def process_pull_request_review(
             pull_request_number=pr_number,
             commit_sha=head_sha,
             review_body=review_body,
+            review_event=review_event,
         )
 
         print("=" * 60)
@@ -674,10 +871,14 @@ def process_pull_request_review(
         )
 
         # =================================================
-        # Only mark successful AI reviews as reviewed
+        # Only mark successful reviews without secrets
+        # as successfully reviewed.
         # =================================================
 
-        if not review_failed:
+        if (
+            not review_failed
+            and not secrets_detected
+        ):
 
             reviewed_commits.add(
                 head_sha
@@ -692,8 +893,11 @@ def process_pull_request_review(
 
             print(
                 f"Commit {head_sha} "
-                "was NOT marked as reviewed "
-                "because the AI review failed."
+                "was NOT marked as successfully "
+                "reviewed because "
+                f"review_failed={review_failed}, "
+                f"secrets_detected="
+                f"{secrets_detected}."
             )
 
     except Exception as error:
@@ -703,7 +907,6 @@ def process_pull_request_review(
         print("=" * 60)
 
         print(error)
-
 
 
 # =========================================================

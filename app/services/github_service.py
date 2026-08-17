@@ -63,7 +63,6 @@ def get_pull_request_files(
 
     return response.json()
 
-
 # =========================================================
 # Post Pull Request Review
 # =========================================================
@@ -74,9 +73,16 @@ def post_pull_request_review(
     pull_request_number: int,
     commit_sha: str,
     review_body: str,
+    review_event: str = "COMMENT",
 ) -> dict:
     """
-    Post an overall AI review on a Pull Request.
+    Post an overall review on a Pull Request.
+
+    If REQUEST_CHANGES is rejected by GitHub with a 422
+    validation error, automatically fall back to COMMENT.
+
+    This can happen when the GitHub account creating the
+    review is also the author of the Pull Request.
     """
 
     url = (
@@ -85,15 +91,25 @@ def post_pull_request_review(
         f"{pull_request_number}/reviews"
     )
 
+    headers = get_github_headers()
+
     payload = {
         "body": review_body,
-        "event": "COMMENT",
+        "event": review_event,
         "commit_id": commit_sha,
     }
 
+    print("=" * 60)
+    print("POSTING GITHUB PR REVIEW")
+    print("=" * 60)
+
+    print(
+        f"Requested review event: {review_event}"
+    )
+
     response = requests.post(
         url,
-        headers=get_github_headers(),
+        headers=headers,
         json=payload,
         timeout=15,
     )
@@ -112,12 +128,71 @@ def post_pull_request_review(
         response.text,
     )
 
-    print("=" * 60)
+    # =====================================================
+    # REQUEST_CHANGES fallback
+    # =====================================================
+
+    if (
+        response.status_code == 422
+        and review_event == "REQUEST_CHANGES"
+    ):
+
+        print("=" * 60)
+        print(
+            "REQUEST_CHANGES REJECTED"
+        )
+        print("=" * 60)
+
+        print(
+            "GitHub rejected REQUEST_CHANGES."
+        )
+
+        print(
+            "Falling back to COMMENT review."
+        )
+
+        fallback_payload = {
+            "body": review_body,
+            "event": "COMMENT",
+            "commit_id": commit_sha,
+        }
+
+        fallback_response = requests.post(
+            url,
+            headers=headers,
+            json=fallback_payload,
+            timeout=15,
+        )
+
+        print("=" * 60)
+        print(
+            "GITHUB PR FALLBACK REVIEW RESPONSE"
+        )
+        print("=" * 60)
+
+        print(
+            "Status:",
+            fallback_response.status_code,
+        )
+
+        print(
+            "Response:",
+            fallback_response.text,
+        )
+
+        print("=" * 60)
+
+        fallback_response.raise_for_status()
+
+        return fallback_response.json()
+
+    # =====================================================
+    # Normal response
+    # =====================================================
 
     response.raise_for_status()
 
     return response.json()
-
 
 # =========================================================
 # Post Pull Request Line Comment
