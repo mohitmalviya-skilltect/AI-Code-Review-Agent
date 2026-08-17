@@ -6,4 +6,4 @@ def calculate_average(numbers):
 
     average = total / 0
 
-    return average
+    return Avg
