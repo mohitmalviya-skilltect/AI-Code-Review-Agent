@@ -1,9 +1,13 @@
-from typing import Any
 from pathlib import Path
+from typing import Any
 import base64
 
 import requests
 
+
+# =========================================================
+# Supported File Types
+# =========================================================
 
 SUPPORTED_EXTENSIONS = {
     ".py",
@@ -32,6 +36,11 @@ SUPPORTED_EXTENSIONS = {
     ".sh",
 }
 
+
+# =========================================================
+# Special Files
+# =========================================================
+
 SPECIAL_FILES = {
     "Dockerfile",
     "DockerFile",
@@ -39,59 +48,40 @@ SPECIAL_FILES = {
 }
 
 
-def get_changed_files(payload: dict[str, Any]) -> list[str]:
-    changed_files = []
+# =========================================================
+# Filter Reviewable Files
+# =========================================================
 
-    for commit in payload.get("commits", []):
-        changed_files.extend(commit.get("added", []))
-        changed_files.extend(commit.get("modified", []))
+def filter_reviewable_files(
+    files: list[str],
+) -> list[str]:
+    """
+    Return only files supported by the AI code reviewer.
+    """
 
-    return changed_files
-
-
-def filter_reviewable_files(files: list[str]) -> list[str]:
     reviewable_files = []
 
     for file in files:
+
         filename = Path(file).name
+
         extension = Path(file).suffix.lower()
 
-        if filename in SPECIAL_FILES or extension in SUPPORTED_EXTENSIONS:
-            reviewable_files.append(file)
+        if (
+            filename in SPECIAL_FILES
+            or extension in SUPPORTED_EXTENSIONS
+        ):
+
+            reviewable_files.append(
+                file
+            )
 
     return reviewable_files
 
 
-# commit difference function
-def get_commit_diff(
-    owner: str,
-    repository: str,
-    commit_sha: str,
-) -> list[dict]:
-
-    url = (
-        f"https://api.github.com/repos/"
-        f"{owner}/{repository}/commits/{commit_sha}"
-    )
-
-    response = requests.get(url)
-
-    response.raise_for_status()
-
-    data = response.json()
-
-    changed_files = []
-
-    for file in data.get("files", []):
-        changed_files.append(
-            {
-                "path": file["filename"],
-                "status": file["status"],
-                "patch": file.get("patch", ""),
-            }
-        )
-
-    return changed_files
+# =========================================================
+# Get Changed Line Numbers
+# =========================================================
 
 def get_changed_line_numbers(
     patch: str,
@@ -102,12 +92,18 @@ def get_changed_line_numbers(
     """
 
     changed_lines = set()
+
     current_line = None
 
     for line in patch.splitlines():
 
+        # -------------------------------------------------
+        # Diff hunk header
+        # -------------------------------------------------
+
         # Example:
         # @@ -4,5 +4,5 @@
+
         if line.startswith("@@"):
 
             parts = line.split()
@@ -117,7 +113,9 @@ def get_changed_line_numbers(
             for part in parts:
 
                 if part.startswith("+"):
+
                     new_range = part
+
                     break
 
             if new_range:
@@ -126,9 +124,10 @@ def get_changed_line_numbers(
 
                 if "," in new_range:
 
-                    start_line = new_range.split(
-                        ","
-                    )[0]
+                    start_line = (
+                        new_range
+                        .split(",", 1)[0]
+                    )
 
                 else:
 
@@ -141,11 +140,12 @@ def get_changed_line_numbers(
             continue
 
         if current_line is None:
+
             continue
 
-        # -----------------------------------------
+        # -------------------------------------------------
         # Added line
-        # -----------------------------------------
+        # -------------------------------------------------
 
         if line.startswith("+"):
 
@@ -155,27 +155,28 @@ def get_changed_line_numbers(
 
             current_line += 1
 
-        # -----------------------------------------
+        # -------------------------------------------------
         # Deleted line
-        # -----------------------------------------
+        # -------------------------------------------------
 
         elif line.startswith("-"):
 
-            # Deleted lines exist only on the
-            # old side of the diff.
+            # Deleted lines exist only on
+            # the old side of the diff.
+
             continue
 
-        # -----------------------------------------
+        # -------------------------------------------------
         # Git diff metadata
-        # -----------------------------------------
+        # -------------------------------------------------
 
         elif line.startswith("\\"):
 
             continue
 
-        # -----------------------------------------
+        # -------------------------------------------------
         # Context line
-        # -----------------------------------------
+        # -------------------------------------------------
 
         else:
 
@@ -183,23 +184,37 @@ def get_changed_line_numbers(
 
     return changed_lines
 
+
+# =========================================================
+# Get File Content
+# =========================================================
+
 def get_file_content(
     owner: str,
     repository: str,
     file_path: str,
     commit_sha: str,
 ) -> str:
+    """
+    Fetch the complete content of a file from
+    a specific GitHub commit.
+    """
 
     url = (
         f"https://api.github.com/repos/"
-        f"{owner}/{repository}/contents/{file_path}"
+        f"{owner}/{repository}/contents/"
+        f"{file_path}"
     )
 
     params = {
-        "ref": commit_sha
+        "ref": commit_sha,
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(
+        url,
+        params=params,
+        timeout=15,
+    )
 
     response.raise_for_status()
 
@@ -207,6 +222,9 @@ def get_file_content(
 
     content = data["content"]
 
-    decoded_content = base64.b64decode(content).decode("utf-8")
+    decoded_content = (
+        base64.b64decode(content)
+        .decode("utf-8")
+    )
 
     return decoded_content

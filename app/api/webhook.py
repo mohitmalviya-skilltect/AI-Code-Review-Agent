@@ -1,18 +1,15 @@
 from fastapi import APIRouter, Request, BackgroundTasks
 
+from fastapi import APIRouter, Request, BackgroundTasks
+
 from app.services.github_service import (
-    post_commit_review,
-    post_line_comment,
-    get_commit_comments,
     get_pull_request_files,
     post_pull_request_review,
     post_pull_request_line_comment,
 )
 
 from app.services.git_service import (
-    get_changed_files,
     filter_reviewable_files,
-    get_commit_diff,
     get_changed_line_numbers,
 )
 
@@ -707,31 +704,6 @@ def process_pull_request_review(
 
         print(error)
 
-
-# =========================================================
-# OLD PUSH REVIEW FUNCTION
-# =========================================================
-#
-# Kept for now so we don't delete working code.
-# It is NO LONGER called by process_github_event().
-#
-# PR review is now the primary review workflow.
-# =========================================================
-
-def process_github_review(
-    payload: dict,
-):
-
-    print(
-        "Push-based AI review is disabled."
-    )
-
-    print(
-        "AI reviews are triggered through "
-        "Pull Request events."
-    )
-
-    return
 
 
 # =========================================================
