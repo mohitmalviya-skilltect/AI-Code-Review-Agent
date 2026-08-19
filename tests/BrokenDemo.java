@@ -12,7 +12,7 @@ public class BrokenDemo {
 
         // Scope & Method Errors
         nonExistentMethod();
-        System.out.println(secretKey;
+        System.out.println(secretKey);
 
         // Accessing null reference
         String text = nul;
