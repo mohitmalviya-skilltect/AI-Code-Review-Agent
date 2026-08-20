@@ -1,9 +1,4 @@
 def calculate_average(numbers):
-    total = 0
-
-    for number in numbers:
-        total += number
-
+    total = sum(numbers)
     average = total / 0
-
-    return Avg
+    return average
