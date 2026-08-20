@@ -10,7 +10,14 @@ load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 if not GITHUB_TOKEN:
-    raise ValueError("GITHUB_TOKEN is not set in the .env file")
+    raise ValueError(
+        "GITHUB_TOKEN is not set in the .env file"
+    )
+
+
+# =========================================================
+# GitHub Headers
+# =========================================================
 
 def get_github_headers() -> dict:
     """
@@ -20,9 +27,13 @@ def get_github_headers() -> dict:
     return {
         "Accept": "application/vnd.github+json",
         "Authorization": f"Bearer {GITHUB_TOKEN}",
-        "X-GitHub-Api-Version": "2022-11-28",
+        "X-GitHub-Api-Version": "2026-03-10",
     }
 
+
+# =========================================================
+# Post Commit Review
+# =========================================================
 
 def post_commit_review(
     owner: str,
@@ -36,14 +47,11 @@ def post_commit_review(
 
     url = (
         f"https://api.github.com/repos/"
-        f"{owner}/{repository}/commits/{commit_sha}/comments"
+        f"{owner}/{repository}/commits/"
+        f"{commit_sha}/comments"
     )
 
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
-        "X-GitHub-Api-Version": "2026-03-10",
-    }
+    headers = get_github_headers()
 
     summary = review.get(
         "summary",
@@ -62,10 +70,20 @@ def post_commit_review(
 
     comment_lines = []
 
-    comment_lines.append("## AI Code Review")
+    comment_lines.append(
+        "## AI Code Review"
+    )
+
     comment_lines.append("")
-    comment_lines.append("### Summary")
-    comment_lines.append(summary)
+
+    comment_lines.append(
+        "### Summary"
+    )
+
+    comment_lines.append(
+        summary
+    )
+
     comment_lines.append("")
 
     # -----------------------------------------
@@ -180,15 +198,17 @@ def post_commit_review(
         url,
         headers=headers,
         json=payload,
+        timeout=15,
     )
 
     response.raise_for_status()
 
     return response.json()
 
+
 # =========================================================
 # Get Commit Comments
-# ========================================================= 
+# =========================================================
 
 def get_commit_comments(
     owner: str,
@@ -205,11 +225,7 @@ def get_commit_comments(
         f"{commit_sha}/comments"
     )
 
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
-        "X-GitHub-Api-Version": "2026-03-10",
-    }
+    headers = get_github_headers()
 
     response = requests.get(
         url,
@@ -223,8 +239,10 @@ def get_commit_comments(
     response.raise_for_status()
 
     return response.json()
+
+
 # =========================================================
-# Post line-level comment
+# Post Commit Line Comment
 # =========================================================
 
 def post_line_comment(
@@ -246,14 +264,11 @@ def post_line_comment(
         f"{commit_sha}/comments"
     )
 
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
-        "X-GitHub-Api-Version": "2026-03-10",
-    }
+    headers = get_github_headers()
 
     marker = (
-        f"<!-- ai-code-review:{file_path}:{line} -->"
+        f"<!-- ai-code-review:"
+        f"{file_path}:{line} -->"
     )
 
     payload = {
@@ -319,6 +334,7 @@ def post_line_comment(
 
         raise error
 
+
 # =========================================================
 # Get Pull Request Files
 # =========================================================
@@ -330,6 +346,12 @@ def get_pull_request_files(
 ) -> list[dict]:
     """
     Get files changed in a GitHub Pull Request.
+
+    NOTE:
+    This returns files changed across the current state
+    of the entire Pull Request.
+
+    It does NOT mean only the latest commit files.
     """
 
     url = (
@@ -338,11 +360,7 @@ def get_pull_request_files(
         f"{pull_request_number}/files"
     )
 
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
-        "X-GitHub-Api-Version": "2026-03-10",
-    }
+    headers = get_github_headers()
 
     response = requests.get(
         url,
@@ -356,6 +374,107 @@ def get_pull_request_files(
     response.raise_for_status()
 
     return response.json()
+
+
+# =========================================================
+# Get Commit Files
+# =========================================================
+
+def get_commit_files(
+    owner: str,
+    repository: str,
+    commit_sha: str,
+) -> list[dict]:
+    """
+    Get files changed by one specific Git commit.
+
+    This is different from get_pull_request_files().
+
+    get_pull_request_files()
+        -> returns files changed across the PR.
+
+    get_commit_files()
+        -> returns files changed by the specified commit.
+
+    This function is intended for the AI Code Review Agent
+    so that a push containing only one changed file results
+    in only that file being reviewed.
+    """
+
+    if not owner:
+        raise ValueError(
+            "Repository owner is required."
+        )
+
+    if not repository:
+        raise ValueError(
+            "Repository name is required."
+        )
+
+    if not commit_sha:
+        raise ValueError(
+            "Commit SHA is required."
+        )
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{owner}/{repository}/commits/"
+        f"{commit_sha}"
+    )
+
+    headers = get_github_headers()
+
+    response = requests.get(
+        url,
+        headers=headers,
+        params={
+            "per_page": 100,
+        },
+        timeout=15,
+    )
+
+    response.raise_for_status()
+
+    commit_data = response.json()
+
+    files = commit_data.get(
+        "files",
+        [],
+    )
+
+    if not isinstance(
+        files,
+        list,
+    ):
+        raise ValueError(
+            "GitHub returned an invalid commit file list."
+        )
+
+    print("=" * 60)
+    print("COMMIT FILES FETCHED")
+    print("=" * 60)
+
+    print(
+        f"Commit SHA: {commit_sha}"
+    )
+
+    print(
+        f"Files changed in commit: "
+        f"{len(files)}"
+    )
+
+    for file in files:
+
+        print(
+            f"  - "
+            f"{file.get('filename', 'unknown')} "
+            f"({file.get('status', 'unknown')})"
+        )
+
+    print("=" * 60)
+
+    return files
+
 
 # =========================================================
 # Post Pull Request Review
@@ -487,6 +606,7 @@ def post_pull_request_review(
     response.raise_for_status()
 
     return response.json()
+
 
 # =========================================================
 # Post Pull Request Line Comment

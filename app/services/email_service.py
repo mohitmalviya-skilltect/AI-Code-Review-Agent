@@ -1,5 +1,6 @@
 import os
-import smtplib
+
+import resend
 
 from email.message import EmailMessage
 from urllib.parse import quote
@@ -9,24 +10,13 @@ from urllib.parse import quote
 # Email Configuration
 # =========================================================
 
-SMTP_HOST = os.getenv(
-    "SMTP_HOST",
-    "smtp.gmail.com",
+RESEND_API_KEY = os.getenv(
+    "RESEND_API_KEY",
 )
 
-SMTP_PORT = int(
-    os.getenv(
-        "SMTP_PORT",
-        "587",
-    )
-)
-
-SMTP_USERNAME = os.getenv(
-    "SMTP_USERNAME",
-)
-
-SMTP_PASSWORD = os.getenv(
-    "SMTP_PASSWORD",
+APPROVAL_FROM_EMAIL = os.getenv(
+    "APPROVAL_FROM_EMAIL",
+    "onboarding@resend.dev",
 )
 
 APPROVAL_BASE_URL = os.getenv(
@@ -78,8 +68,8 @@ def build_approval_email(
     """
     Create the approval email.
 
-    This function only creates the email.
-    It does not send anything.
+    This function only creates the email content.
+    It does not send the email.
     """
 
     if not recipient_email:
@@ -108,10 +98,7 @@ def build_approval_email(
         f"Approval Required for PR #{pull_request_number}"
     )
 
-    message["From"] = (
-        SMTP_USERNAME
-        or "AI Code Review Agent"
-    )
+    message["From"] = APPROVAL_FROM_EMAIL
 
     message["To"] = recipient_email
 
@@ -165,48 +152,91 @@ def send_approval_email(
     proposed_fix_count: int,
 ) -> bool:
     """
-    Send the approval email using SMTP.
+    Send the approval email using Resend.
 
     Returns True when the email is sent successfully.
     """
 
-    message = build_approval_email(
-        recipient_email=recipient_email,
-        approval_id=approval_id,
-        owner=owner,
-        repository=repository,
-        pull_request_number=pull_request_number,
-        proposed_fix_count=proposed_fix_count,
+    if not RESEND_API_KEY:
+        raise ValueError(
+            "RESEND_API_KEY is not configured."
+        )
+
+    if not APPROVAL_FROM_EMAIL:
+        raise ValueError(
+            "APPROVAL_FROM_EMAIL is not configured."
+        )
+
+    if not recipient_email:
+        raise ValueError(
+            "Recipient email is required."
+        )
+
+    # -----------------------------------------------------
+    # Build approval link
+    # -----------------------------------------------------
+
+    approval_link = build_approval_link(
+        approval_id
     )
 
-    if not SMTP_USERNAME:
-        raise ValueError(
-            "SMTP_USERNAME is not configured."
-        )
+    # -----------------------------------------------------
+    # Build email content
+    # -----------------------------------------------------
 
-    if not SMTP_PASSWORD:
-        raise ValueError(
-            "SMTP_PASSWORD is not configured."
-        )
+    subject = (
+        f"AI Code Review - "
+        f"Approval Required for PR #{pull_request_number}"
+    )
+
+    body = f"""
+Hello,
+
+The AI Code Review Agent has reviewed the following Pull Request:
+
+Repository:
+{owner}/{repository}
+
+Pull Request:
+#{pull_request_number}
+
+Proposed fixes:
+{proposed_fix_count}
+
+The AI has generated proposed code changes.
+
+No changes will be applied to the repository until you approve them.
+
+Please review the proposed changes here:
+
+{approval_link}
+
+After approval, the agent will apply the approved changes.
+
+If you did not request this review, you can ignore this email.
+
+Regards,
+AI Code Review Agent
+""".strip()
+
+    # -----------------------------------------------------
+    # Configure Resend
+    # -----------------------------------------------------
+
+    resend.api_key = RESEND_API_KEY
+
+    params = {
+        "from": APPROVAL_FROM_EMAIL,
+        "to": [recipient_email],
+        "subject": subject,
+        "text": body,
+    }
 
     try:
 
-        with smtplib.SMTP(
-            SMTP_HOST,
-            SMTP_PORT,
-            timeout=15,
-        ) as server:
-
-            server.starttls()
-
-            server.login(
-                SMTP_USERNAME,
-                SMTP_PASSWORD,
-            )
-
-            server.send_message(
-                message
-            )
+        response = resend.Emails.send(
+            params
+        )
 
         print("=" * 60)
         print("APPROVAL EMAIL SENT")
@@ -219,6 +249,11 @@ def send_approval_email(
 
         print(
             f"PR: #{pull_request_number}"
+        )
+
+        print(
+            f"Resend Response: "
+            f"{response}"
         )
 
         print("=" * 60)
