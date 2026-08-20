@@ -32,7 +32,8 @@ class ReviewIssue(BaseModel):
         "security",
         "performance",
         "quality",
-        "maintainability"
+        "maintainability",
+        "reliability"
     ]
     problem: str
     suggestion: str
