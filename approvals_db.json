@@ -1,0 +1,1503 @@
+{
+    "30b82146-aea9-4478-b41e-53a41a91bfc8": {
+        "approval_id": "30b82146-aea9-4478-b41e-53a41a91bfc8",
+        "owner": "mohitmalviya-skilltect",
+        "repository": "AI-Code-Review-Agent",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Replace division by zero with len(numbers)."
+                ],
+                "fixed_code": "def calculate_average(numbers):\n    return sum(numbers) / len(numbers)\n"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:12:14.358221+00:00",
+        "approved_at": null
+    },
+    "53037f07-f27c-4b47-a390-c6e07c225eeb": {
+        "approval_id": "53037f07-f27c-4b47-a390-c6e07c225eeb",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 1,
+        "commit_sha": "sha123",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the calculation."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:12:14.362475+00:00",
+        "approved_at": null
+    },
+    "7a275c07-6d3b-486c-b0b2-e4122caaaddc": {
+        "approval_id": "7a275c07-6d3b-486c-b0b2-e4122caaaddc",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 2,
+        "commit_sha": "sha456",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:12:14.376016+00:00",
+        "approved_at": "2026-08-21T07:12:14.394555+00:00"
+    },
+    "50c378f4-8964-4772-b81b-f532acedc7bb": {
+        "approval_id": "50c378f4-8964-4772-b81b-f532acedc7bb",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 3,
+        "commit_sha": "sha789",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "cancelled",
+        "created_at": "2026-08-21T07:12:14.407736+00:00",
+        "approved_at": null
+    },
+    "10ecbed8-fedc-4cc0-9dd9-732bf4482680": {
+        "approval_id": "10ecbed8-fedc-4cc0-9dd9-732bf4482680",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:12:14.434799+00:00",
+        "approved_at": null,
+        "applied_at": "2026-08-21T07:12:14.448437+00:00"
+    },
+    "808750c2-1378-40cb-b5f2-7aa79c581415": {
+        "approval_id": "808750c2-1378-40cb-b5f2-7aa79c581415",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:12:14.452664+00:00",
+        "approved_at": "2026-08-21T07:12:14.466289+00:00"
+    },
+    "1ad9421c-9daf-4212-b208-ed1c017e0fca": {
+        "approval_id": "1ad9421c-9daf-4212-b208-ed1c017e0fca",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:12:14.478768+00:00",
+        "approved_at": "2026-08-21T07:12:14.492143+00:00"
+    },
+    "72bae856-dc33-4bdf-a257-b542ed3dcef3": {
+        "approval_id": "72bae856-dc33-4bdf-a257-b542ed3dcef3",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:12:14.841406+00:00",
+        "approved_at": null
+    },
+    "4bc15219-418c-4e6e-b66d-1cdd52a4db24": {
+        "approval_id": "4bc15219-418c-4e6e-b66d-1cdd52a4db24",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:12:14.854127+00:00",
+        "approved_at": "2026-08-21T07:12:14.871483+00:00"
+    },
+    "071d5b3a-b988-4d64-b886-47f205e457e4": {
+        "approval_id": "071d5b3a-b988-4d64-b886-47f205e457e4",
+        "owner": "mohitmalviya-skilltect",
+        "repository": "AI-Code-Review-Agent",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Replace division by zero with len(numbers)."
+                ],
+                "fixed_code": "def calculate_average(numbers):\n    return sum(numbers) / len(numbers)\n"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:16:06.845413+00:00",
+        "approved_at": null
+    },
+    "6b3aad30-af27-43cc-afb0-3381d47988e4": {
+        "approval_id": "6b3aad30-af27-43cc-afb0-3381d47988e4",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 1,
+        "commit_sha": "sha123",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the calculation."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:16:06.851067+00:00",
+        "approved_at": null
+    },
+    "3804e162-b857-4621-af70-f9aef17189c3": {
+        "approval_id": "3804e162-b857-4621-af70-f9aef17189c3",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 2,
+        "commit_sha": "sha456",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:16:06.856748+00:00",
+        "approved_at": "2026-08-21T07:16:06.859192+00:00"
+    },
+    "5652700e-835c-44a4-885b-c1e538ad57c4": {
+        "approval_id": "5652700e-835c-44a4-885b-c1e538ad57c4",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 3,
+        "commit_sha": "sha789",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "cancelled",
+        "created_at": "2026-08-21T07:16:06.864590+00:00",
+        "approved_at": null
+    },
+    "976ba17c-9363-4ef9-94d9-db8ec92ddd21": {
+        "approval_id": "976ba17c-9363-4ef9-94d9-db8ec92ddd21",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:16:06.872391+00:00",
+        "approved_at": "2026-08-21T07:16:06.875040+00:00",
+        "applied_at": "2026-08-21T07:16:06.877054+00:00"
+    },
+    "f9691931-f93f-450c-ac97-428a89e4aac3": {
+        "approval_id": "f9691931-f93f-450c-ac97-428a89e4aac3",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:16:06.883816+00:00",
+        "approved_at": "2026-08-21T07:16:06.886284+00:00"
+    },
+    "ebf2b34a-8803-4455-8dc4-febbe63285e3": {
+        "approval_id": "ebf2b34a-8803-4455-8dc4-febbe63285e3",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:16:06.890975+00:00",
+        "approved_at": null
+    },
+    "ad800dbc-5652-4ed2-8b1a-66d2d941d133": {
+        "approval_id": "ad800dbc-5652-4ed2-8b1a-66d2d941d133",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:16:06.900839+00:00",
+        "approved_at": null
+    },
+    "0d3d3552-5387-4ac1-9aa7-13e0fe0e5c92": {
+        "approval_id": "0d3d3552-5387-4ac1-9aa7-13e0fe0e5c92",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:16:06.904793+00:00",
+        "approved_at": "2026-08-21T07:16:06.906403+00:00"
+    },
+    "6d8fd779-2da9-4bcb-a822-800d2951d1e2": {
+        "approval_id": "6d8fd779-2da9-4bcb-a822-800d2951d1e2",
+        "owner": "mohitmalviya-skilltect",
+        "repository": "AI-Code-Review-Agent",
+        "pull_request_number": 6,
+        "commit_sha": "2e8c586e07805937b669be390e99c9c797341c84",
+        "proposed_fixes": [
+            {
+                "file": "app/services/approval_service.py",
+                "summary": "Propagate database loading exception in `load_approvals` to prevent silently defaulting to an empty state, which risks permanently overwriting the existing approvals file.",
+                "changes": [
+                    "Modified `load_approvals` to raise the encountered exception with a critical error message instead of silently swallowing it and returning an empty dictionary."
+                ],
+                "fixed_code": "import json\nimport os\nfrom datetime import datetime, timezone\nfrom uuid import uuid4\nfrom typing import Any\n\n\n# =========================================================\n# JSON approval storage for persistence across restarts\n# =========================================================\n\nAPPROVALS_FILE = \"approvals_db.json\"\n\ndef load_approvals() -> dict[str, dict[str, Any]]:\n    if not os.path.exists(APPROVALS_FILE):\n        return {}\n    try:\n        with open(APPROVALS_FILE, \"r\", encoding=\"utf-8\") as f:\n            return json.load(f)\n    except Exception as e:\n        print(f\"CRITICAL: Error loading approvals database: {e}\")\n        raise\n\ndef save_approvals(approvals: dict[str, dict[str, Any]]):\n    try:\n        with open(APPROVALS_FILE, \"w\", encoding=\"utf-8\") as f:\n            json.dump(approvals, f, indent=4)\n    except Exception as e:\n        print(f\"Error saving approvals database: {e}\")\n\n_APPROVAL_REQUESTS = load_approvals()\n\n\n# =========================================================\n# Create Approval Request\n# =========================================================\n\ndef create_approval_request(\n    owner: str,\n    repository: str,\n    pull_request_number: int,\n    commit_sha: str,\n    proposed_fixes: list[dict[str, Any]],\n) -> dict[str, Any]:\n    \"\"\"\n    Create a new approval request for AI-generated code fixes.\n\n    This function DOES NOT apply any changes.\n\n    It only stores the proposed changes and waits for the\n    user to approve them.\n    \"\"\"\n\n    if not owner:\n        raise ValueError(\n            \"Repository owner is required.\"\n        )\n\n    if not repository:\n        raise ValueError(\n            \"Repository name is required.\"\n        )\n\n    if not pull_request_number:\n        raise ValueError(\n            \"Pull request number is required.\"\n        )\n\n    if not commit_sha:\n        raise ValueError(\n            \"Commit SHA is required.\"\n        )\n\n    if not isinstance(\n        proposed_fixes,\n        list,\n    ):\n        raise ValueError(\n            \"proposed_fixes must be a list.\"\n        )\n\n    if not proposed_fixes:\n        raise ValueError(\n            \"At least one proposed fix is required.\"\n        )\n\n    # -----------------------------------------\n    # Generate unique approval ID\n    # -----------------------------------------\n\n    approval_id = str(\n        uuid4()\n    )\n\n    # -----------------------------------------\n    # Create approval request\n    # -----------------------------------------\n\n    approval_request = {\n        \"approval_id\": approval_id,\n        \"owner\": owner,\n        \"repository\": repository,\n        \"pull_request_number\": pull_request_number,\n        \"commit_sha\": commit_sha,\n        \"proposed_fixes\": proposed_fixes,\n        \"status\": \"pending\",\n        \"created_at\": datetime.now(\n            timezone.utc\n        ).isoformat(),\n        \"approved_at\": None,\n    }\n\n    _APPROVAL_REQUESTS[\n        approval_id\n    ] = approval_request\n    save_approvals(_APPROVAL_REQUESTS)\n\n    print(\"=\" * 60)\n    print(\"APPROVAL REQUEST CREATED\")\n    print(\"=\" * 60)\n\n    print(\n        f\"Approval ID: {approval_id}\"\n    )\n\n    print(\n        f\"Repository: \"\n        f\"{owner}/{repository}\"\n    )\n\n    print(\n        f\"PR Number: \"\n        f\"{pull_request_number}\"\n    )\n\n    print(\n        f\"Commit SHA: \"\n        f\"{commit_sha}\"\n    )\n\n    print(\n        f\"Proposed fixes: \"\n        f\"{len(proposed_fixes)}\"\n    )\n\n    print(\n        \"Status: pending\"\n    )\n\n    print(\"=\" * 60)\n\n    return approval_request\n\n\n# =========================================================\n# Get Approval Request\n# =========================================================\n\ndef get_approval_request(\n    approval_id: str,\n) -> dict[str, Any] | None:\n    \"\"\"\n    Retrieve an approval request using its ID.\n\n    Returns None if the approval request does not exist.\n    \"\"\"\n\n    if not approval_id:\n        return None\n\n    return _APPROVAL_REQUESTS.get(\n        approval_id\n    )\n\n\n# =========================================================\n# Approve Request\n# =========================================================\n\ndef approve_request(\n    approval_id: str,\n) -> dict[str, Any]:\n    \"\"\"\n    Approve a pending code-change request.\n\n    IMPORTANT:\n    This function ONLY changes the approval status.\n\n    It does NOT modify GitHub or apply code changes.\n    \"\"\"\n\n    approval_request = get_approval_request(\n        approval_id\n    )\n\n    if approval_request is None:\n        raise ValueError(\n            \"Approval request not found.\"\n        )\n\n    # -----------------------------------------\n    # Prevent duplicate approval\n    # -----------------------------------------\n\n    if approval_request[\"status\"] == \"approved\":\n\n        return approval_request\n\n    # -----------------------------------------\n    # Prevent approval of cancelled request\n    # -----------------------------------------\n\n    if approval_request[\"status\"] == \"cancelled\":\n\n        raise ValueError(\n            \"This approval request has been cancelled.\"\n        )\n\n    # -----------------------------------------\n    # Approve request\n    # -----------------------------------------\n\n    approval_request[\"status\"] = \"approved\"\n\n    approval_request[\"approved_at\"] = (\n        datetime.now(\n            timezone.utc\n        ).isoformat()\n    )\n\n    _APPROVAL_REQUESTS[approval_id] = approval_request\n    save_approvals(_APPROVAL_REQUESTS)\n\n    print(\"=\" * 60)\n    print(\"CODE CHANGES APPROVED\")\n    print(\"=\" * 60)\n\n    print(\n        f\"Approval ID: \"\n        f\"{approval_id}\"\n    )\n\n    print(\n        \"Status: approved\"\n    )\n\n    print(\"=\" * 60)\n\n    return approval_request\n\n\n# =========================================================\n# Cancel Request\n# =========================================================\n\ndef cancel_request(\n    approval_id: str,\n) -> dict[str, Any]:\n    \"\"\"\n    Cancel a pending approval request.\n\n    This does not modify GitHub.\n    \"\"\"\n\n    approval_request = get_approval_request(\n        approval_id\n    )\n\n    if approval_request is None:\n        raise ValueError(\n            \"Approval request not found.\"\n        )\n\n    if approval_request[\"status\"] == \"approved\":\n\n        raise ValueError(\n            \"An approved request cannot be cancelled.\"\n        )\n\n    approval_request[\"status\"] = \"cancelled\"\n\n    _APPROVAL_REQUESTS[approval_id] = approval_request\n    save_approvals(_APPROVAL_REQUESTS)\n\n    return approval_request\n\n\n# =========================================================\n# Check Approval Status\n# =========================================================\n\ndef is_approved(\n    approval_id: str,\n) -> bool:\n    \"\"\"\n    Check whether an approval request has been approved.\n    \"\"\"\n\n    approval_request = get_approval_request(\n        approval_id\n    )\n\n    if approval_request is None:\n        return False\n\n    return (\n        approval_request[\"status\"]\n        == \"approved\"\n    )\n"
+            },
+            {
+                "file": "app/services/approval_service.py",
+                "summary": "Implemented atomic writes and a cross-platform file locking mechanism, alongside in-memory reloading, to prevent race conditions and empty/corrupted JSON file writes across concurrent threads and processes.",
+                "changes": [
+                    "Added standard imports: sys, tempfile, and threading.",
+                    "Created a cross-platform `FileLock` context manager utilizing fcntl on Unix/macOS and msvcrt on Windows.",
+                    "Added a `_lock = threading.Lock()` for thread-level synchronization.",
+                    "Updated `save_approvals` to perform an atomic write using a temporary file that is subsequently renamed to the final destination.",
+                    "Refactored all mutations and read queries (`create_approval_request`, `get_approval_request`, `approve_request`, and `cancel_request`) to load the database state from the disk under the protection of both thread and file locks, ensuring consistency across processes/threads."
+                ],
+                "fixed_code": "import json\nimport os\nimport sys\nimport tempfile\nimport threading\nfrom datetime import datetime, timezone\nfrom uuid import uuid4\nfrom typing import Any\n\n\n# =========================================================\n# JSON approval storage for persistence across restarts\n# =========================================================\n\nAPPROVALS_FILE = \"approvals_db.json\"\n_lock = threading.Lock()\n\nclass FileLock:\n    def __init__(self, filepath: str):\n        self.lockfile = filepath + \".lock\"\n        self.fd = None\n\n    def __enter__(self):\n        try:\n            self.fd = open(self.lockfile, \"w\")\n            if sys.platform == \"win32\":\n                import msvcrt\n                msvcrt.locking(self.fd.fileno(), msvcrt.LK_LOCK, 1)\n            else: \n                import fcntl\n                fcntl.flock(self.fd, fcntl.LOCK_EX)\n        except Exception:\n            pass\n        return self\n\n    def __exit__(self, exc_type, exc_val, exc_tb):\n        if self.fd:\n            try:\n                if sys.platform == \"win32\":\n                    import msvcrt\n                    self.fd.seek(0)\n                    msvcrt.locking(self.fd.fileno(), msvcrt.LK_UNLCK, 1)\n                else:\n                    import fcntl\n                    fcntl.flock(self.fd, fcntl.LOCK_UN)\n            except Exception:\n                pass\n            try:\n                self.fd.close()\n            except Exception:\n                pass\n            try:\n                os.remove(self.lockfile)\n            except OSError:\n                pass\n\n\ndef load_approvals() -> dict[str, dict[str, Any]]:\n    if not os.path.exists(APPROVALS_FILE):\n        return {}\n    try:\n        with open(APPROVALS_FILE, \"r\", encoding=\"utf-8\") as f:\n            return json.load(f)\n    except Exception as e:\n        print(f\"Error loading approvals database: {e}\")\n        return {}\n\ndef save_approvals(approvals: dict[str, dict[str, Any]]):\n    try:\n        dir_name = os.path.dirname(os.path.abspath(APPROVALS_FILE))\n        if dir_name and not os.path.exists(dir_name):\n            os.makedirs(dir_name, exist_ok=True)\n        fd, temp_path = tempfile.mkstemp(dir=dir_name or \".\", prefix=\"approvals_db_\", suffix=\".tmp\")\n        try:\n            with os.fdopen(fd, \"w\", encoding=\"utf-8\") as f:\n                json.dump(approvals, f, indent=4)\n            os.replace(temp_path, APPROVALS_FILE)\n        except Exception as e:\n            try:\n                os.remove(temp_path)\n            except OSError:\n                pass\n            raise e\n    except Exception as e:\n        print(f\"Error saving approvals database: {e}\")\n\n_APPROVAL_REQUESTS = load_approvals()\n\n\n# =========================================================\n# Create Approval Request\n# =========================================================\n\ndef create_approval_request(\n    owner: str,\n    repository: str,\n    pull_request_number: int,\n    commit_sha: str,\n    proposed_fixes: list[dict[str, Any]],\n) -> dict[str, Any]:\n    \"\"\"\n    Create a new approval request for AI-generated code fixes.\n\n    This function DOES NOT apply any changes.\n\n    It only stores the proposed changes and waits for the\n    user to approve them.\n    \"\"\"\n\n    if not owner:\n        raise ValueError(\n            \"Repository owner is required.\"\n        )\n\n    if not repository:\n        raise ValueError(\n            \"Repository name is required.\"\n        )\n\n    if not pull_request_number:\n        raise ValueError(\n            \"Pull request number is required.\"\n        )\n\n    if not commit_sha:\n        raise ValueError(\n            \"Commit SHA is required.\"\n        )\n\n    if not isinstance(\n        proposed_fixes,\n        list,\n    ):\n        raise ValueError(\n            \"proposed_fixes must be a list.\"\n        )\n\n    if not proposed_fixes:\n        raise ValueError(\n            \"At least one proposed fix is required.\"\n        )\n\n    # -----------------------------------------\n    # Generate unique approval ID\n    # -----------------------------------------\n\n    approval_id = str(\n        uuid4()\n    )\n\n    # -----------------------------------------\n    # Create approval request\n    # -----------------------------------------\n\n    approval_request = {\n        \"approval_id\": approval_id,\n        \"owner\": owner,\n        \"repository\": repository,\n        \"pull_request_number\": pull_request_number,\n        \"commit_sha\": commit_sha,\n        \"proposed_fixes\": proposed_fixes,\n        \"status\": \"pending\",\n        \"created_at\": datetime.now(\n            timezone.utc\n        ).isoformat(),\n        \"approved_at\": None,\n    }\n\n    with _lock, FileLock(APPROVALS_FILE):\n        approvals = load_approvals()\n        approvals[approval_id] = approval_request\n        save_approvals(approvals)\n        global _APPROVAL_REQUESTS\n        _APPROVAL_REQUESTS = approvals\n\n    print(\"=\" * 60)\n    print(\"APPROVAL REQUEST CREATED\")\n    print(\"=\" * 60)\n\n    print(\n        f\"Approval ID: {approval_id}\"\n    )\n\n    print(\n        f\"Repository: \"\n        f\"{owner}/{repository}\"\n    )\n\n    print(\n        f\"PR Number: \"\n        f\"{pull_request_number}\"\n    )\n\n    print(\n        f\"Commit SHA: \"\n        f\"{commit_sha}\"\n    )\n\n    print(\n        f\"Proposed fixes: \"\n        f\"{len(proposed_fixes)}\"\n    )\n\n    print(\n        \"Status: pending\"\n    )\n\n    print(\"=\" * 60)\n\n    return approval_request\n\n\n# =========================================================\n# Get Approval Request\n# =========================================================\n\ndef get_approval_request(\n    approval_id: str,\n) -> dict[str, Any] | None:\n    \"\"\"\n    Retrieve an approval request using its ID.\n\n    Returns None if the approval request does not exist.\n    \"\"\"\n\n    if not approval_id:\n        return None\n\n    with _lock, FileLock(APPROVALS_FILE):\n        approvals = load_approvals()\n        global _APPROVAL_REQUESTS\n        _APPROVAL_REQUESTS = approvals\n        return approvals.get(approval_id)\n\n\n# =========================================================\n# Approve Request\n# =========================================================\n\ndef approve_request(\n    approval_id: str,\n) -> dict[str, Any]:\n    \"\"\"\n    Approve a pending code-change request.\n\n    IMPORTANT:\n    This function ONLY changes the approval status.\n\n    It does NOT modify GitHub or apply code changes.\n    \"\"\"\n\n    with _lock, FileLock(APPROVALS_FILE):\n        approvals = load_approvals()\n        global _APPROVAL_REQUESTS\n        _APPROVAL_REQUESTS = approvals\n\n        approval_request = approvals.get(approval_id)\n\n        if approval_request is None:\n            raise ValueError(\n                \"Approval request not found.\"\n            )\n\n        # -----------------------------------------\n        # Prevent duplicate approval\n        # -----------------------------------------\n\n        if approval_request[\"status\"] == \"approved\":\n            return approval_request\n\n        # -----------------------------------------\n        # Prevent approval of cancelled request\n        # -----------------------------------------\n\n        if approval_request[\"status\"] == \"cancelled\":\n            raise ValueError(\n                \"This approval request has been cancelled.\"\n            )\n\n        # -----------------------------------------\n        # Approve request\n        # -----------------------------------------\n\n        approval_request[\"status\"] = \"approved\"\n\n        approval_request[\"approved_at\"] = (\n            datetime.now(\n                timezone.utc\n            ).isoformat()\n        )\n\n        approvals[approval_id] = approval_request\n        save_approvals(approvals)\n\n    print(\"=\" * 60)\n    print(\"CODE CHANGES APPROVED\")\n    print(\"=\" * 60)\n\n    print(\n        f\"Approval ID: \"\n        f\"{approval_id}\"\n    )\n\n    print(\n        \"Status: approved\"\n    )\n\n    print(\"=\" * 60)\n\n    return approval_request\n\n\n# =========================================================\n# Cancel Request\n# =========================================================\n\ndef cancel_request(\n    approval_id: str,\n) -> dict[str, Any]:\n    \"\"\"\n    Cancel a pending approval request.\n\n    This does not modify GitHub.\n    \"\"\"\n\n    with _lock, FileLock(APPROVALS_FILE):\n        approvals = load_approvals()\n        global _APPROVAL_REQUESTS\n        _APPROVAL_REQUESTS = approvals\n\n        approval_request = approvals.get(approval_id)\n\n        if approval_request is None:\n            raise ValueError(\n                \"Approval request not found.\"\n            )\n\n        if approval_request[\"status\"] == \"approved\":\n            raise ValueError(\n                \"An approved request cannot be cancelled.\"\n            )\n\n        approval_request[\"status\"] = \"cancelled\"\n\n        approvals[approval_id] = approval_request\n        save_approvals(approvals)\n\n    return approval_request\n\n\n# =========================================================\n# Check Approval Status\n# =========================================================\n\ndef is_approved(\n    approval_id: str,\n) -> bool:\n    \"\"\"\n    Check whether an approval request has been approved.\n    \"\"\"\n\n    approval_request = get_approval_request(\n        approval_id\n    )\n\n    if approval_request is None:\n        return False\n\n    return (\n        approval_request[\"status\"]\n        == \"approved\"\n    )"
+            },
+            {
+                "file": "app/services/approval_service.py",
+                "summary": "Resolve the database file path as an absolute path relative to the directory of approval_service.py using pathlib.Path.",
+                "changes": [
+                    "Import Path from pathlib",
+                    "Define APPROVALS_FILE as an absolute path resolved relative to the parent directory of approval_service.py"
+                ],
+                "fixed_code": "import json\nimport os\nfrom datetime import datetime, timezone\nfrom uuid import uuid4\nfrom typing import Any\nfrom pathlib import Path\n\n\n# =========================================================\n# JSON approval storage for persistence across restarts\n# =========================================================\n\nAPPROVALS_FILE = str(Path(__file__).resolve().parent / \"approvals_db.json\")\n\ndef load_approvals() -> dict[str, dict[str, Any]]:\n    if not os.path.exists(APPROVALS_FILE):\n        return {}\n    try:\n        with open(APPROVALS_FILE, \"r\", encoding=\"utf-8\") as f:\n            return json.load(f)\n    except Exception as e:\n        print(f\"Error loading approvals database: {e}\")\n        return {}\n\ndef save_approvals(approvals: dict[str, dict[str, Any]]):\n    try:\n        with open(APPROVALS_FILE, \"w\", encoding=\"utf-8\") as f:\n            json.dump(approvals, f, indent=4)\n    except Exception as e:\n        print(f\"Error saving approvals database: {e}\")\n\n_APPROVAL_REQUESTS = load_approvals()\n\n\n# =========================================================\n# Create Approval Request\n# =========================================================\n\ndef create_approval_request(\n    owner: str,\n    repository: str,\n    pull_request_number: int,\n    commit_sha: str,\n    proposed_fixes: list[dict[str, Any]],\n) -> dict[str, Any]:\n    \"\"\"\n    Create a new approval request for AI-generated code fixes.\n\n    This function DOES NOT apply any changes.\n\n    It only stores the proposed changes and waits for the\n    user to approve them.\n    \"\"\"\n\n    if not owner:\n        raise ValueError(\n            \"Repository owner is required.\"\n        )\n\n    if not repository:\n        raise ValueError(\n            \"Repository name is required.\"\n        )\n\n    if not pull_request_number:\n        raise ValueError(\n            \"Pull request number is required.\"\n        )\n\n    if not commit_sha:\n        raise ValueError(\n            \"Commit SHA is required.\"\n        )\n\n    if not isinstance(\n        proposed_fixes,\n        list,\n    ):\n        raise ValueError(\n            \"proposed_fixes must be a list.\"\n        )\n\n    if not proposed_fixes:\n        raise ValueError(\n            \"At least one proposed fix is required.\"\n        )\n\n    # -----------------------------------------\n    # Generate unique approval ID\n    # -----------------------------------------\n\n    approval_id = str(\n        uuid4()\n    )\n\n    # -----------------------------------------\n    # Create approval request\n    # -----------------------------------------\n\n    approval_request = {\n        \"approval_id\": approval_id,\n        \"owner\": owner,\n        \"repository\": repository,\n        \"pull_request_number\": pull_request_number,\n        \"commit_sha\": commit_sha,\n        \"proposed_fixes\": proposed_fixes,\n        \"status\": \"pending\",\n        \"created_at\": datetime.now(\n            timezone.utc\n        ).isoformat(),\n        \"approved_at\": None,\n    }\n\n    _APPROVAL_REQUESTS[\n        approval_id\n    ] = approval_request\n    save_approvals(_APPROVAL_REQUESTS)\n\n    print(\"=\" * 60)\n    print(\"APPROVAL REQUEST CREATED\")\n    print(\"=\" * 60)\n\n    print(\n        f\"Approval ID: {approval_id}\"\n    )\n\n    print(\n        f\"Repository: \"\n        f\"{owner}/{repository}\"\n    )\n\n    print(\n        f\"PR Number: \"\n        f\"{pull_request_number}\"\n    )\n\n    print(\n        f\"Commit SHA: \"\n        f\"{commit_sha}\"\n    )\n\n    print(\n        f\"Proposed fixes: \"\n        f\"{len(proposed_fixes)}\"\n    )\n\n    print(\n        \"Status: pending\"\n    )\n\n    print(\"=\" * 60)\n\n    return approval_request\n\n\n# =========================================================\n# Get Approval Request\n# =========================================================\n\ndef get_approval_request(\n    approval_id: str,\n) -> dict[str, Any] | None:\n    \"\"\"\n    Retrieve an approval request using its ID.\n\n    Returns None if the approval request does not exist.\n    \"\"\"\n\n    if not approval_id:\n        return None\n\n    return _APPROVAL_REQUESTS.get(\n        approval_id\n    )\n\n\n# =========================================================\n# Approve Request\n# =========================================================\n\ndef approve_request(\n    approval_id: str,\n) -> dict[str, Any]:\n    \"\"\"\n    Approve a pending code-change request.\n\n    IMPORTANT:\n    This function ONLY changes the approval status.\n\n    It does NOT modify GitHub or apply code changes.\n    \"\"\"\n\n    approval_request = get_approval_request(\n        approval_id\n    )\n\n    if approval_request is None:\n        raise ValueError(\n            \"Approval request not found.\"\n        )\n\n    # -----------------------------------------\n    # Prevent duplicate approval\n    # -----------------------------------------\n\n    if approval_request[\"status\"] == \"approved\":\n\n        return approval_request\n\n    # -----------------------------------------\n    # Prevent approval of cancelled request\n    # -----------------------------------------\n\n    if approval_request[\"status\"] == \"cancelled\":\n\n        raise ValueError(\n            \"This approval request has been cancelled.\"\n        )\n\n    # -----------------------------------------\n    # Approve request\n    # -----------------------------------------\n\n    approval_request[\"status\"] = \"approved\"\n\n    approval_request[\"approved_at\"] = (\n        datetime.now(\n            timezone.utc\n        ).isoformat()\n    )\n\n    _APPROVAL_REQUESTS[approval_id] = approval_request\n    save_approvals(_APPROVAL_REQUESTS)\n\n    print(\"=\" * 60)\n    print(\"CODE CHANGES APPROVED\")\n    print(\"=\" * 60)\n\n    print(\n        f\"Approval ID: \"\n        f\"{approval_id}\"\n    )\n\n    print(\n        \"Status: approved\"\n    )\n\n    print(\"=\" * 60)\n\n    return approval_request\n\n\n# =========================================================\n# Cancel Request\n# =========================================================\n\ndef cancel_request(\n    approval_id: str,\n) -> dict[str, Any]:\n    \"\"\"\n    Cancel a pending approval request.\n\n    This does not modify GitHub.\n    \"\"\"\n\n    approval_request = get_approval_request(\n        approval_id\n    )\n\n    if approval_request is None:\n        raise ValueError(\n            \"Approval request not found.\"\n        )\n\n    if approval_request[\"status\"] == \"approved\":\n\n        raise ValueError(\n            \"An approved request cannot be cancelled.\"\n        )\n\n    approval_request[\"status\"] = \"cancelled\"\n\n    _APPROVAL_REQUESTS[approval_id] = approval_request\n    save_approvals(_APPROVAL_REQUESTS)\n\n    return approval_request\n\n\n# =========================================================\n# Check Approval Status\n# =========================================================\n\ndef is_approved(\n    approval_id: str,\n) -> bool:\n    \"\"\"\n    Check whether an approval request has been approved.\n    \"\"\"\n\n    approval_request = get_approval_request(\n        approval_id\n    )\n\n    if approval_request is None:\n        return False\n\n    return (\n        approval_request[\"status\"]\n        == \"approved\"\n    )\n"
+            },
+            {
+                "file": "app/api/approval.py",
+                "summary": "Move inline imports of `save_approvals` and `_APPROVAL_REQUESTS` to the top of the file.",
+                "changes": [
+                    "Moved the inline imports of `save_approvals` and `_APPROVAL_REQUESTS` to the top of the file under `app.services.approval_service` imports.",
+                    "Removed repetitive inline imports inside `approve_changes` and `reject_changes` functions."
+                ],
+                "fixed_code": "from datetime import datetime, timezone\nimport html\nimport requests\n\nfrom fastapi import APIRouter, HTTPException\nfrom fastapi.responses import HTMLResponse\n\nfrom app.services.approval_service import (\n    get_approval_request,\n    approve_request,\n    save_approvals,\n    _APPROVAL_REQUESTS,\n)\n\nfrom app.services.github_apply_service import (\n    apply_approved_changes,\n)\n\nrouter = APIRouter(\n    prefix=\"/approval\",\n    tags=[\"Approval\"],\n)\n\n\n# =========================================================\n# View Approval Request\n# =========================================================\n\n@router.get(\n    \"/{approval_id}\",\n    response_class=HTMLResponse,\n)\ndef view_approval(\n    approval_id: str,\n):\n    \"\"\"\n    Display the proposed code changes and provide\n    Approve / Reject buttons.\n\n    This endpoint DOES NOT modify GitHub.\n    \"\"\"\n\n    approval_request = get_approval_request(\n        approval_id\n    )\n\n    if approval_request is None:\n        raise HTTPException(\n            status_code=404,\n            detail=\"Approval request not found.\",\n        )\n\n    repository = (\n        f\"{approval_request['owner']}/\"\n        f\"{approval_request['repository']}\"\n    )\n\n    pr_number = approval_request[\n        \"pull_request_number\"\n    ]\n\n    status = approval_request[\n        \"status\"\n    ]\n\n    proposed_fixes = approval_request.get(\n        \"proposed_fixes\",\n        [],\n    )\n\n    fix_sections = []\n\n    for index, fix in enumerate(\n        proposed_fixes,\n        start=1,\n    ):\n\n        # -------------------------------------------------\n        # Escape AI-generated content before inserting it\n        # into HTML.\n        # -------------------------------------------------\n\n        file_path = html.escape(\n            str(\n                fix.get(\n                    \"file\",\n                    \"unknown\",\n                )\n            )\n        )\n\n        summary = html.escape(\n            str(\n                fix.get(\n                    \"summary\",\n                    \"No summary provided.\",\n                )\n            )\n        )\n\n        changes = fix.get(\n            \"changes\",\n            [],\n        )\n\n        fixed_code = html.escape(\n            str(\n                fix.get(\n                    \"fixed_code\",\n                    \"\",\n                )\n            )\n        )\n\n        changes_html = \"\"\n\n        if changes:\n\n            change_items = []\n\n            for change in changes:\n\n                change_items.append(\n                    f\"<li>{html.escape(str(change))}</li>\"\n                )\n\n            changes_html = (\n                \"<ul>\"\n                + \"\".join(change_items)\n                + \"</ul>\"\n            )\n\n        else:\n\n            changes_html = (\n                \"<p>No detailed changes provided.</p>\"\n            )\n\n        fix_sections.append(\n            f\"\"\"\n            <div class=\"fix\">\n\n                <h3>\n                    Fix {index}\n                </h3>\n\n                <p>\n                    <strong>File:</strong>\n                    <code>{file_path}</code>\n                </p>\n\n                <p>\n                    <strong>Summary:</strong>\n                    {summary}\n                </p>\n\n                <p>\n                    <strong>Changes:</strong>\n                </p>\n\n                {changes_html}\n\n                <p>\n                    <strong>Proposed Code:</strong>\n                </p>\n\n                <pre>{fixed_code}</pre>\n\n            </div>\n            \"\"\"\n        )\n\n    fixes_html = \"\\n\".join(\n        fix_sections\n    )\n\n    # -----------------------------------------------------\n    # Pending\n    # -----------------------------------------------------\n\n    if status == \"pending\":\n\n        action_html = f\"\"\"\n        <form\n            method=\"post\"\n            action=\"/approval/{approval_id}/approve\"\n        >\n\n            <button\n                type=\"submit\"\n                class=\"approve\"\n            >\n                Approve Changes\n            </button>\n\n        </form>\n\n        <form\n            method=\"post\"\n            action=\"/approval/{approval_id}/reject\"\n        >\n\n            <button\n                type=\"submit\"\n                class=\"reject\"\n            >\n                Reject Changes\n            </button>\n\n        </form>\n        \"\"\"\n\n    # -----------------------------------------------------\n    # Approved but not yet applied\n    # -----------------------------------------------------\n\n    elif status == \"approved\":\n\n        action_html = f\"\"\"\n        <div class=\"approved\">\n            \u2713 Changes Approved\n        </div>\n\n        <p class=\"retry-info\">\n            The changes have been approved but are not yet\n            marked as applied.\n        </p>\n\n        <form\n            method=\"post\"\n            action=\"/approval/{approval_id}/approve\"\n        >\n\n            <button\n                type=\"submit\"\n                class=\"apply\"\n            >\n                Apply Approved Changes\n            </button>\n\n        </form>\n        \"\"\"\n\n    # -----------------------------------------------------\n    # Applied\n    # -----------------------------------------------------\n\n    elif status == \"applied\":\n\n        action_html = \"\"\"\n        <div class=\"applied\">\n            \u2713 Changes Approved and Applied\n            to the Pull Request branch.\n        </div>\n        \"\"\"\n\n    # -----------------------------------------------------\n    # Rejected\n    # -----------------------------------------------------\n\n    elif status == \"cancelled\":\n\n        action_html = \"\"\"\n        <div class=\"rejected\">\n            \u2717 Changes Rejected\n        </div>\n        \"\"\"\n\n    # -----------------------------------------------------\n    # Other\n    # -----------------------------------------------------\n\n    else:\n\n        safe_status = html.escape(\n            str(status)\n        )\n\n        action_html = f\"\"\"\n        <p>\n            Current status:\n            <strong>{safe_status}</strong>\n        </p>\n        \"\"\"\n\n    # -----------------------------------------------------\n    # Escape repository information\n    # -----------------------------------------------------\n\n    safe_repository = html.escape(\n        repository\n    )\n\n    safe_status = html.escape(\n        str(status)\n    )\n\n    # -----------------------------------------------------\n    # HTML\n    # -----------------------------------------------------\n\n    html_page = f\"\"\"\n    <!DOCTYPE html>\n\n    <html>\n\n    <head>\n\n        <meta charset=\"UTF-8\">\n\n        <title>\n            AI Code Review Approval\n        </title>\n\n        <style>\n\n            body {{\n                font-family: Arial, sans-serif;\n                max-width: 1000px;\n                margin: 40px auto;\n                padding: 20px;\n                background: #f5f5f5;\n            }}\n\n            .container {{\n                background: white;\n                padding: 30px;\n                border-radius: 10px;\n                box-shadow:\n                    0 2px 10px\n                    rgba(0, 0, 0, 0.1);\n            }}\n\n            h1 {{\n                margin-top: 0;\n            }}\n\n            .info {{                background: #f0f0f0;\n                padding: 15px;\n                border-radius: 6px;\n                margin-bottom: 20px;\n            }}\n\n            .fix {{\n                border: 1px solid #ddd;\n                padding: 20px;\n                margin-top: 20px;\n                border-radius: 8px;\n            }}\n\n            pre {{\n                background: #272822;\n                color: white;\n                padding: 15px;\n                overflow-x: auto;\n                border-radius: 6px;\n                white-space: pre-wrap;\n            }}\n\n            code {{                background: #eee;\n                padding: 3px 6px;\n                border-radius: 4px;\n            }}\n\n            form {{\n                display: inline-block;\n                margin-right: 10px;\n                margin-top: 20px;\n            }}\n\n            button {{\n                border: none;\n                padding: 12px 20px;\n                border-radius: 6px;\n                cursor: pointer;\n                font-size: 15px;\n            }}\n\n            .approve {{\n                background: #2da44e;\n                color: white;\n            }}\n\n            .apply {{\n                background: #0969da;\n                color: white;\n            }}\n\n            .reject {{                background: #cf222e;\n                color: white;\n            }}\n\n            .approved {{\n                background: #dafbe1;\n                color: #1a7f37;\n                padding: 15px;\n                border-radius: 6px;\n                margin-top: 20px;\n            }}\n\n            .applied {{\n                background: #ddf4ff;\n                color: #0969da;\n                padding: 15px;\n                border-radius: 6px;\n                margin-top: 20px;\n            }}\n\n            .rejected {{\n                background: #ffebe9;\n                color: #cf222e;\n                padding: 15px;\n                border-radius: 6px;\n                margin-top: 20px;\n            }}\n\n            .retry-info {{\n                color: #666;\n            }}\n\n        </style>\n\n    </head>\n\n    <body>\n\n        <div class=\"container\">\n\n            <h1>\n                \ud83e\udd16 AI Code Review Agent\n            </h1>\n\n            <div class=\"info\">\n\n                <p>\n                    <strong>Repository:</strong>\n                    {safe_repository}\n                </p>\n\n                <p>\n                    <strong>Pull Request:</strong>\n                    #{pr_number}\n                </p>\n\n                <p>\n                    <strong>Status:</strong>\n                    {safe_status}\n                </p>\n\n            </div>\n\n            <h2>\n                Proposed Code Changes\n            </h2>\n\n            {fixes_html}\n\n            {action_html}\n\n        </div>\n\n    </body>\n\n    </html>\n    \"\"\"\n\n    return HTMLResponse(\n        content=html_page\n    )\n\n\n# =========================================================\n# Approve / Apply Changes\n# =========================================================\n\n@router.post(\n    \"/{approval_id}/approve\",\n)\ndef approve_changes(\n    approval_id: str,\n):\n    \"\"\"\n    Approve and apply the proposed code changes.\n\n    Flow:\n\n        1. Get approval request.\n        2. Verify request exists.\n        3. If pending, mark it approved.\n        4. Verify approval safety gate.\n        5. Apply approved changes to GitHub.\n        6. Mark request as applied.\n        7. Return result.\n\n    IMPORTANT:\n\n    GitHub changes are ONLY made after the approval\n    request has been marked as approved.\n    \"\"\"\n\n    # -----------------------------------------------------\n    # Get approval request\n    # -----------------------------------------------------\n\n    approval_request = get_approval_request(\n        approval_id\n    )\n\n    if approval_request is None:\n\n        raise HTTPException(\n            status_code=404,\n            detail=\"Approval request not found.\",\n        )\n\n    current_status = approval_request.get(\n        \"status\"\n    )\n\n    # -----------------------------------------------------\n    # Already applied\n    # -----------------------------------------------------\n\n    if current_status == \"applied\":\n\n        return {\n            \"message\": (\n                \"Changes were already applied.\"\n            ),\n            \"approval_id\": approval_id,\n            \"status\": \"applied\",\n        }\n\n    # -----------------------------------------------------\n    # Cancelled / rejected\n    # -----------------------------------------------------\n\n    if current_status == \"cancelled\":\n\n        raise HTTPException(\n            status_code=400,\n            detail=(\n                \"This approval request \"\n                \"has been rejected.\"\n            ),\n        )\n\n    # -----------------------------------------------------\n    # Pending request\n    # -----------------------------------------------------\n    #\n    # Only pending requests need to be approved.\n    #\n    # If status is already \"approved\", we continue\n    # directly to the GitHub application step.\n    #\n    # This is important because if GitHub failed during\n    # the previous attempt, the request can be retried.\n    # -----------------------------------------------------\n\n    if current_status == \"pending\":\n\n        try:\n\n            approved_request = approve_request(\n                approval_id\n            )\n\n            if approved_request.get(\n                \"status\"\n            ) != \"approved\":\n\n                raise ValueError(\n                    \"Approval request could not \"\n                    \"be marked as approved.\"\n                )\n\n        except ValueError as error:\n\n            raise HTTPException(\n                status_code=400,\n                detail=str(error),\n            ) from error\n\n    elif current_status != \"approved\":\n\n        raise HTTPException(\n            status_code=400,\n            detail=(\n                f\"Invalid approval status: \"\n                f\"{current_status}\"\n            ),\n        )\n\n    # -----------------------------------------------------\n    # Apply approved changes to GitHub\n    # -----------------------------------------------------\n\n    try:\n\n        result = apply_approved_changes(\n            approval_id\n        )\n\n    except PermissionError as error:\n\n        raise HTTPException(\n            status_code=403,\n            detail=str(error),\n        ) from error\n\n    except ValueError as error:\n\n        raise HTTPException(\n            status_code=400,\n            detail=str(error),\n        ) from error\n\n    except requests.exceptions.RequestException as error:\n\n        print(\"=\" * 60)\n        print(\n            \"GITHUB UPDATE FAILED\"\n        )\n        print(\"=\" * 60)\n\n        print(\n            f\"Approval ID: \"\n            f\"{approval_id}\"\n        )\n\n        print(\n            f\"Error: \"\n            f\"{error}\"\n        )\n\n        print(\"=\" * 60)\n\n        # IMPORTANT:\n        #\n        # Do NOT mark the request as applied.\n        #\n        # It remains \"approved\", so the user can\n        # retry the application.\n\n        raise HTTPException(\n            status_code=502,\n            detail=(\n                \"Changes were approved, \"\n                \"but the GitHub update failed. \"\n                \"The approved changes can be retried.\"\n            ),\n        ) from error\n\n    except Exception as error:\n\n        print(\"=\" * 60)\n        print(\n            \"FAILED TO APPLY APPROVED CHANGES\"\n        )\n        print(\"=\" * 60)\n\n        print(\n            f\"Approval ID: \"\n            f\"{approval_id}\"\n        )\n\n        print(\n            f\"Error: \"\n            f\"{error}\"\n        )\n\n        print(\"=\" * 60)\n\n        raise HTTPException(\n            status_code=500,\n            detail=(\n                \"Changes were approved, \"\n                \"but the GitHub update failed. \"\n                \"The approved changes can be retried.\"\n            ),\n        ) from error\n\n    # -----------------------------------------------------\n    # Mark as applied ONLY after GitHub succeeds\n    # -----------------------------------------------------\n\n    approval_request[\"status\"] = \"applied\"\n\n    approval_request[\"applied_at\"] = (\n        datetime.now(\n            timezone.utc\n        ).isoformat()\n    )\n\n    _APPROVAL_REQUESTS[approval_id] = approval_request\n    save_approvals(_APPROVAL_REQUESTS)\n\n    print(\"=\" * 60)\n    print(\n        \"APPROVED CHANGES APPLIED\"\n    )\n    print(\"=\" * 60)\n\n    print(\n        f\"Approval ID: \"\n        f\"{approval_id}\"\n    )\n\n    print(\n        \"Status: applied\"\n    )\n\n    print(\"=\" * 60)\n\n    # -----------------------------------------------------\n    # Return successful result\n    # -----------------------------------------------------\n\n    return {\n        \"message\": (\n            \"Changes approved and \"\n            \"applied successfully.\"\n        ),\n        \"approval_id\": approval_id,\n        \"status\": \"applied\",\n        \"result\": result,\n    }\n\n\n# =========================================================\n# Reject Changes\n# =========================================================\n\n@router.post(\n    \"/{approval_id}/reject\",\n)\ndef reject_changes(\n    approval_id: str,\n):\n    \"\"\"\n    Reject the proposed changes.\n\n    No GitHub modification is performed.\n    \"\"\"\n\n    approval_request = get_approval_request(\n        approval_id\n    )\n\n    if approval_request is None:\n\n        raise HTTPException(\n            status_code=404,\n            detail=\"Approval request not found.\",\n        )\n\n    current_status = approval_request.get(\n        \"status\"\n    )\n\n    # -----------------------------------------------------\n    # Already applied\n    # -----------------------------------------------------\n\n    if current_status == \"applied\":\n\n        raise HTTPException(\n            status_code=400,\n            detail=(\n                \"Changes have already been \"\n                \"applied and cannot be rejected.\"\n            ),\n        )\n\n    # -----------------------------------------------------\n    # Already approved\n    # -----------------------------------------------------\n\n    if current_status == \"approved\":\n\n        raise HTTPException(\n            status_code=400,\n            detail=(\n                \"Approved changes cannot \"\n                \"be rejected.\"\n            ),\n        )\n\n    # -----------------------------------------------------\n    # Already rejected\n    # -----------------------------------------------------\n\n    if current_status == \"cancelled\":\n\n        return {\n            \"message\": (\n                \"Changes were already rejected.\"\n            ),\n            \"approval_id\": approval_id,\n            \"status\": \"cancelled\",\n        }\n\n    # -----------------------------------------------------\n    # Reject\n    # -----------------------------------------------------\n\n    approval_request[\n        \"status\"\n    ] = \"cancelled\"\n\n    approval_request[\n        \"cancelled_at\"\n    ] = (\n        datetime.now(\n            timezone.utc\n        ).isoformat()\n    )\n\n    _APPROVAL_REQUESTS[approval_id] = approval_request\n    save_approvals(_APPROVAL_REQUESTS)\n\n    print(\"=\" * 60)\n    print(\n        \"CODE CHANGES REJECTED\"\n    )\n    print(\"=\" * 60)\n\n    print(\n        f\"Approval ID: \"\n        f\"{approval_id}\"\n    )\n\n    print(\n        \"Status: cancelled\"\n    )\n\n    print(\"=\" * 60)\n\n    return {\n        \"message\": (\n            \"Changes rejected successfully.\"\n        ),\n        \"approval_id\": approval_id,\n        \"status\": \"cancelled\",\n    }"
+            },
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix ZeroDivisionError by dividing by the length of the list instead of zero, and handle empty lists safely.",
+                "changes": [
+                    "Changed `average = total / 0` to `average = total / len(numbers) if numbers else 0` to safely calculate the average."
+                ],
+                "fixed_code": "def calculate_average(numbers):\n    total = sum(numbers)\n    average = total / len(numbers) if numbers else 0\n    return average"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:25:17.099251+00:00",
+        "approved_at": null
+    },
+    "322e11af-397f-4c68-941d-5a3b673b7d91": {
+        "approval_id": "322e11af-397f-4c68-941d-5a3b673b7d91",
+        "owner": "mohitmalviya-skilltect",
+        "repository": "AI-Code-Review-Agent",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Replace division by zero with len(numbers)."
+                ],
+                "fixed_code": "def calculate_average(numbers):\n    return sum(numbers) / len(numbers)\n"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:39:43.421492+00:00",
+        "approved_at": null
+    },
+    "60604a38-90a4-4f6d-a8e5-2511325f58b9": {
+        "approval_id": "60604a38-90a4-4f6d-a8e5-2511325f58b9",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 1,
+        "commit_sha": "sha123",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the calculation."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:39:43.427617+00:00",
+        "approved_at": null
+    },
+    "242231c9-8974-4304-81a0-fb1e3091ef2a": {
+        "approval_id": "242231c9-8974-4304-81a0-fb1e3091ef2a",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 2,
+        "commit_sha": "sha456",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:39:43.433320+00:00",
+        "approved_at": "2026-08-21T07:39:43.436019+00:00"
+    },
+    "93f5ca8b-8a90-46c5-992b-9f728cccdd28": {
+        "approval_id": "93f5ca8b-8a90-46c5-992b-9f728cccdd28",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 3,
+        "commit_sha": "sha789",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "cancelled",
+        "created_at": "2026-08-21T07:39:43.441492+00:00",
+        "approved_at": null
+    },
+    "474d5a55-c872-4fd1-820d-f286f7b77dbe": {
+        "approval_id": "474d5a55-c872-4fd1-820d-f286f7b77dbe",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:39:43.451395+00:00",
+        "approved_at": null
+    },
+    "10c9f706-1a10-4dbd-bae4-f412d6041f72": {
+        "approval_id": "10c9f706-1a10-4dbd-bae4-f412d6041f72",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:39:43.925326+00:00",
+        "approved_at": null
+    },
+    "b6e8cdbe-994e-41c0-8aea-eec6ab9eeb48": {
+        "approval_id": "b6e8cdbe-994e-41c0-8aea-eec6ab9eeb48",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:39:43.950235+00:00",
+        "approved_at": null
+    },
+    "7ac349ee-0d7d-4a19-be96-24a2e8b7f623": {
+        "approval_id": "7ac349ee-0d7d-4a19-be96-24a2e8b7f623",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:39:44.004581+00:00",
+        "approved_at": null
+    },
+    "25a5bab8-0c58-4296-a968-ec1f1f3fa1c6": {
+        "approval_id": "25a5bab8-0c58-4296-a968-ec1f1f3fa1c6",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:39:44.013064+00:00",
+        "approved_at": "2026-08-21T07:39:44.018476+00:00"
+    },
+    "26e3b515-c3fe-4a98-aa1e-7b12778330f8": {
+        "approval_id": "26e3b515-c3fe-4a98-aa1e-7b12778330f8",
+        "owner": "mohitmalviya-skilltect",
+        "repository": "AI-Code-Review-Agent",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Replace division by zero with len(numbers)."
+                ],
+                "fixed_code": "def calculate_average(numbers):\n    return sum(numbers) / len(numbers)\n"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:40:20.617047+00:00",
+        "approved_at": null
+    },
+    "55414434-0b11-4af0-a30a-f8d57d6c4ba5": {
+        "approval_id": "55414434-0b11-4af0-a30a-f8d57d6c4ba5",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 1,
+        "commit_sha": "sha123",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the calculation."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:40:20.622069+00:00",
+        "approved_at": null
+    },
+    "4622c3a0-18a4-4930-adb1-7c73c78e2f40": {
+        "approval_id": "4622c3a0-18a4-4930-adb1-7c73c78e2f40",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 2,
+        "commit_sha": "sha456",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:40:20.626361+00:00",
+        "approved_at": "2026-08-21T07:40:20.629624+00:00"
+    },
+    "22991cf9-f8e0-44c1-928a-f8ae5f6c8b80": {
+        "approval_id": "22991cf9-f8e0-44c1-928a-f8ae5f6c8b80",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 3,
+        "commit_sha": "sha789",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "cancelled",
+        "created_at": "2026-08-21T07:40:20.634134+00:00",
+        "approved_at": null
+    },
+    "d532f195-447c-4c59-bfef-974abff3e62e": {
+        "approval_id": "d532f195-447c-4c59-bfef-974abff3e62e",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:40:20.644450+00:00",
+        "approved_at": null
+    },
+    "d3a99e81-1834-4460-8bf8-31d17c761133": {
+        "approval_id": "d3a99e81-1834-4460-8bf8-31d17c761133",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:40:21.032595+00:00",
+        "approved_at": null
+    },
+    "93351cc3-420b-4522-8f93-eab11ca7d251": {
+        "approval_id": "93351cc3-420b-4522-8f93-eab11ca7d251",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:40:21.094328+00:00",
+        "approved_at": null
+    },
+    "5563e629-26fe-4c03-9dc8-ae614a0843e8": {
+        "approval_id": "5563e629-26fe-4c03-9dc8-ae614a0843e8",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:40:21.236633+00:00",
+        "approved_at": null
+    },
+    "d2e0bc72-8908-4b22-90c7-c67d2334cb2b": {
+        "approval_id": "d2e0bc72-8908-4b22-90c7-c67d2334cb2b",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:40:21.244980+00:00",
+        "approved_at": "2026-08-21T07:40:21.250215+00:00"
+    },
+    "d8d80173-6139-4dba-ad94-979a2dfd2eac": {
+        "approval_id": "d8d80173-6139-4dba-ad94-979a2dfd2eac",
+        "owner": "mohitmalviya-skilltect",
+        "repository": "AI-Code-Review-Agent",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Replace division by zero with len(numbers)."
+                ],
+                "fixed_code": "def calculate_average(numbers):\n    return sum(numbers) / len(numbers)\n"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:40:47.499532+00:00",
+        "approved_at": null
+    },
+    "852e72f4-3f25-4f91-8ba4-3b49cc50f517": {
+        "approval_id": "852e72f4-3f25-4f91-8ba4-3b49cc50f517",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 1,
+        "commit_sha": "sha123",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the calculation."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:40:47.510742+00:00",
+        "approved_at": null
+    },
+    "c8655714-3bd5-44ac-8531-cd740303c079": {
+        "approval_id": "c8655714-3bd5-44ac-8531-cd740303c079",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 2,
+        "commit_sha": "sha456",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:40:47.522504+00:00",
+        "approved_at": "2026-08-21T07:40:47.530330+00:00"
+    },
+    "5161c94b-784a-442c-9d4c-86935ee8954c": {
+        "approval_id": "5161c94b-784a-442c-9d4c-86935ee8954c",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 3,
+        "commit_sha": "sha789",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "cancelled",
+        "created_at": "2026-08-21T07:40:47.539376+00:00",
+        "approved_at": null
+    },
+    "d5d049de-343e-4bb2-823d-efa96e213f8d": {
+        "approval_id": "d5d049de-343e-4bb2-823d-efa96e213f8d",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:40:47.556453+00:00",
+        "approved_at": "2026-08-21T07:40:47.568980+00:00"
+    },
+    "6c2ae40d-debb-427f-b1aa-b2fe13d686d8": {
+        "approval_id": "6c2ae40d-debb-427f-b1aa-b2fe13d686d8",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:40:48.164469+00:00",
+        "approved_at": "2026-08-21T07:40:48.176198+00:00"
+    },
+    "c62aa1b9-e78f-4e2d-a7db-920673d0ff48": {
+        "approval_id": "c62aa1b9-e78f-4e2d-a7db-920673d0ff48",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:40:48.188002+00:00",
+        "approved_at": null
+    },
+    "b23716d9-353c-4eeb-a22b-bd37ec94e2bc": {
+        "approval_id": "b23716d9-353c-4eeb-a22b-bd37ec94e2bc",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:40:48.211462+00:00",
+        "approved_at": null
+    },
+    "472faacb-3909-4951-9cf5-deacc9917efd": {
+        "approval_id": "472faacb-3909-4951-9cf5-deacc9917efd",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:40:48.222416+00:00",
+        "approved_at": "2026-08-21T07:40:48.229568+00:00"
+    },
+    "086891c0-3824-4729-8469-58027dc3485f": {
+        "approval_id": "086891c0-3824-4729-8469-58027dc3485f",
+        "owner": "mohitmalviya-skilltect",
+        "repository": "AI-Code-Review-Agent",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Replace division by zero with len(numbers)."
+                ],
+                "fixed_code": "def calculate_average(numbers):\n    return sum(numbers) / len(numbers)\n"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:41:20.652872+00:00",
+        "approved_at": null
+    },
+    "0f6964ab-d671-48fa-b6e1-fa6d073fc7e7": {
+        "approval_id": "0f6964ab-d671-48fa-b6e1-fa6d073fc7e7",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 1,
+        "commit_sha": "sha123",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the calculation."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:41:20.658714+00:00",
+        "approved_at": null
+    },
+    "de425eea-9bab-423b-9088-7a74d4eaaa71": {
+        "approval_id": "de425eea-9bab-423b-9088-7a74d4eaaa71",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 2,
+        "commit_sha": "sha456",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:41:20.663526+00:00",
+        "approved_at": "2026-08-21T07:41:20.666614+00:00"
+    },
+    "ef7a5496-2308-4773-a73e-2fcd38960c95": {
+        "approval_id": "ef7a5496-2308-4773-a73e-2fcd38960c95",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 3,
+        "commit_sha": "sha789",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "cancelled",
+        "created_at": "2026-08-21T07:41:20.672982+00:00",
+        "approved_at": null
+    },
+    "c6ae03ed-98df-4133-81f2-d56fdd517185": {
+        "approval_id": "c6ae03ed-98df-4133-81f2-d56fdd517185",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:41:20.682660+00:00",
+        "approved_at": "2026-08-21T07:41:20.693641+00:00"
+    },
+    "4d1b2825-20f2-4aa8-a22b-8e0898ccded7": {
+        "approval_id": "4d1b2825-20f2-4aa8-a22b-8e0898ccded7",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:41:21.103444+00:00",
+        "approved_at": "2026-08-21T07:41:21.110421+00:00"
+    },
+    "3f47e5c3-f700-4b5c-81f3-306e1c83405c": {
+        "approval_id": "3f47e5c3-f700-4b5c-81f3-306e1c83405c",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:41:21.117096+00:00",
+        "approved_at": null
+    },
+    "7fa47d66-5549-44ca-b987-53f039b40afe": {
+        "approval_id": "7fa47d66-5549-44ca-b987-53f039b40afe",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:41:21.140322+00:00",
+        "approved_at": null
+    },
+    "3b99c83f-8075-4de9-8bd7-10f3e91cf799": {
+        "approval_id": "3b99c83f-8075-4de9-8bd7-10f3e91cf799",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:41:21.149611+00:00",
+        "approved_at": "2026-08-21T07:41:21.154298+00:00"
+    },
+    "9516db62-3384-452f-9cae-0c7ff7878ff0": {
+        "approval_id": "9516db62-3384-452f-9cae-0c7ff7878ff0",
+        "owner": "mohitmalviya-skilltect",
+        "repository": "AI-Code-Review-Agent",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Replace division by zero with len(numbers)."
+                ],
+                "fixed_code": "def calculate_average(numbers):\n    return sum(numbers) / len(numbers)\n"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:41:55.250805+00:00",
+        "approved_at": null
+    },
+    "9102ec33-718c-43b3-96f5-64c53f8f24bf": {
+        "approval_id": "9102ec33-718c-43b3-96f5-64c53f8f24bf",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 1,
+        "commit_sha": "sha123",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the calculation."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:41:55.256719+00:00",
+        "approved_at": null
+    },
+    "cc3e2e40-b970-4823-bb2c-cb7e919e8043": {
+        "approval_id": "cc3e2e40-b970-4823-bb2c-cb7e919e8043",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 2,
+        "commit_sha": "sha456",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:41:55.265916+00:00",
+        "approved_at": "2026-08-21T07:41:55.272452+00:00"
+    },
+    "d7154a5b-8d90-4cd1-a4c2-5a9b0a112bd9": {
+        "approval_id": "d7154a5b-8d90-4cd1-a4c2-5a9b0a112bd9",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 3,
+        "commit_sha": "sha789",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "cancelled",
+        "created_at": "2026-08-21T07:41:55.280124+00:00",
+        "approved_at": null
+    },
+    "5ba8d0d6-097e-4490-8e8c-41d9acf45d8d": {
+        "approval_id": "5ba8d0d6-097e-4490-8e8c-41d9acf45d8d",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:41:55.291563+00:00",
+        "approved_at": "2026-08-21T07:41:55.301423+00:00"
+    },
+    "cdc47d2e-e697-474f-894e-cd5e94608025": {
+        "approval_id": "cdc47d2e-e697-474f-894e-cd5e94608025",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:41:55.784339+00:00",
+        "approved_at": "2026-08-21T07:41:55.793971+00:00"
+    },
+    "ea95f145-58a1-49d2-9350-6579b4ec2588": {
+        "approval_id": "ea95f145-58a1-49d2-9350-6579b4ec2588",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:41:55.808808+00:00",
+        "approved_at": null
+    },
+    "107e8a99-ec06-4a34-814d-fe3537909172": {
+        "approval_id": "107e8a99-ec06-4a34-814d-fe3537909172",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:41:55.827430+00:00",
+        "approved_at": null
+    },
+    "bf19e07b-028c-436f-86b3-9e655c6d0e27": {
+        "approval_id": "bf19e07b-028c-436f-86b3-9e655c6d0e27",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:41:55.838951+00:00",
+        "approved_at": "2026-08-21T07:41:55.846681+00:00"
+    },
+    "5ebdee78-238a-4edd-8e4d-97621fa2def5": {
+        "approval_id": "5ebdee78-238a-4edd-8e4d-97621fa2def5",
+        "owner": "mohitmalviya-skilltect",
+        "repository": "AI-Code-Review-Agent",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Replace division by zero with len(numbers)."
+                ],
+                "fixed_code": "def calculate_average(numbers):\n    return sum(numbers) / len(numbers)\n"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:42:34.200986+00:00",
+        "approved_at": null
+    },
+    "588321fd-3e70-4420-afae-6bff9e164a5e": {
+        "approval_id": "588321fd-3e70-4420-afae-6bff9e164a5e",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 1,
+        "commit_sha": "sha123",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the calculation."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:42:34.208625+00:00",
+        "approved_at": null
+    },
+    "319afb28-b74f-4fed-8e31-ee9c0aecab38": {
+        "approval_id": "319afb28-b74f-4fed-8e31-ee9c0aecab38",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 2,
+        "commit_sha": "sha456",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:42:34.218043+00:00",
+        "approved_at": "2026-08-21T07:42:34.225930+00:00"
+    },
+    "ccf48859-561f-4389-aadc-44a1f092fd77": {
+        "approval_id": "ccf48859-561f-4389-aadc-44a1f092fd77",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 3,
+        "commit_sha": "sha789",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "cancelled",
+        "created_at": "2026-08-21T07:42:34.233004+00:00",
+        "approved_at": null
+    },
+    "3941f2f2-83e8-437f-8fe5-38eb2764e80a": {
+        "approval_id": "3941f2f2-83e8-437f-8fe5-38eb2764e80a",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:42:34.252014+00:00",
+        "approved_at": "2026-08-21T07:42:34.261781+00:00",
+        "applied_at": "2026-08-21T07:42:34.266665+00:00"
+    },
+    "58e41fc4-0300-47b2-8970-f3e159510e5f": {
+        "approval_id": "58e41fc4-0300-47b2-8970-f3e159510e5f",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:42:34.275380+00:00",
+        "approved_at": "2026-08-21T07:42:34.283667+00:00"
+    },
+    "380a9efb-9e22-4879-a883-1ffe98588843": {
+        "approval_id": "380a9efb-9e22-4879-a883-1ffe98588843",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:42:34.293753+00:00",
+        "approved_at": null
+    },
+    "c6b61bf8-8932-431c-aa5d-95c686fcfcb0": {
+        "approval_id": "c6b61bf8-8932-431c-aa5d-95c686fcfcb0",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:42:34.316086+00:00",
+        "approved_at": null
+    },
+    "8f009d3e-23e8-442e-9946-e36f66b9765c": {
+        "approval_id": "8f009d3e-23e8-442e-9946-e36f66b9765c",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:42:34.326965+00:00",
+        "approved_at": "2026-08-21T07:42:34.336741+00:00"
+    }
+}
