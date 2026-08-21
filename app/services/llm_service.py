@@ -134,7 +134,7 @@ Rules:
 
 - Do not use Markdown.
 - Do not add text before or after the JSON.
-- If there are no issues, return an empty issues array.
+- The category field MUST strictly be one of: bug, security, performance, quality, maintainability. DO NOT output category values like reliability, correctness, architecture, style, or testing.
 - The line number should be the approximate line where the issue occurs.
 - Only report meaningful issues.
 - Do not invent problems.

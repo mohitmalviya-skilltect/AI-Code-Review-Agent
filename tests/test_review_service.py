@@ -48,3 +48,34 @@ def test_secret_finding_survives_gemini_failure():
     assert issue["line"] == 2
     assert issue["severity"] == "critical"
     assert issue["category"] == "security"
+
+
+def test_review_response_categories():
+    """
+    Verify that ReviewIssue schema validates the specified categories and excludes reliability.
+    """
+    from app.models.schemas import ReviewIssue
+    import pytest
+    from pydantic import ValidationError
+
+    # Valid category
+    issue = ReviewIssue(
+        file="main.py",
+        line=10,
+        severity="high",
+        category="bug",
+        problem="Division by zero",
+        suggestion="Check denominator",
+    )
+    assert issue.category == "bug"
+
+    # Invalid category (reliability) should raise ValidationError
+    with pytest.raises(ValidationError):
+        ReviewIssue(
+            file="main.py",
+            line=10,
+            severity="high",
+            category="reliability",
+            problem="Issue description",
+            suggestion="Fix suggestion",
+        )
