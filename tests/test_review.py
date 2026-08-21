@@ -1,4 +1,6 @@
 def calculate_average(numbers):
+    if not numbers:
+        return 0
     total = sum(numbers)
-    average = total / 0
-    return Avg
+    average = total / len(numbers)
+    return average
