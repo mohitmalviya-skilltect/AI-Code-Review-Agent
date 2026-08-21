@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 import html
 import requests
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
 from app.services.approval_service import (
@@ -168,150 +168,135 @@ def view_approval(
             """
         )
 
-    fixes_html = "\n".join(
-        fix_sections
-    )
-
     # -----------------------------------------------------
-    # Pending
+    # HTML Layout & Actions (Granular/Selectable check)
     # -----------------------------------------------------
 
-    if status == "pending":
+    form_start = ""
+    form_end = ""
 
-        action_html = f"""
+    if status in {"pending", "approved"}:
+        form_start = f"""
         <form
             method="post"
             action="/approval/{approval_id}/approve"
+            id="approval-form"
         >
+        """
+        form_end = "</form>"
 
+    fixes_list_html = []
+    for index, fix in enumerate(proposed_fixes):
+        # build checkbox for pending/approved fixes
+        checkbox_html = ""
+        if status in {"pending", "approved"}:
+            checkbox_html = f"""
+            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <input
+                    type="checkbox"
+                    name="selected_fixes"
+                    value="{index}"
+                    id="fix-check-{index}"
+                    checked
+                    style="width: 20px; height: 20px; cursor: pointer;"
+                />
+                <label for="fix-check-{index}" style="font-weight: bold; cursor: pointer;">
+                    Select to apply this fix
+                </label>
+            </div>
+            """
+        fixes_list_html.append(
+            f"""
+            <div class="fix">
+                {checkbox_html}
+                <h3>Fix {index + 1}</h3>
+                <p><strong>File:</strong> <code>{html.escape(str(fix.get("file", "unknown")))}</code></p>
+                <p><strong>Summary:</strong> {html.escape(str(fix.get("summary", "No summary provided.")))}</p>
+                <p><strong>Changes:</strong></p>
+                {"<ul>" + "".join(f"<li>{html.escape(str(c))}</li>" for c in fix.get("changes", [])) + "</ul>" if fix.get("changes") else "<p>No detailed changes provided.</p>"}
+                <p><strong>Proposed Code:</strong></p>
+                <pre>{html.escape(str(fix.get("fixed_code", "")))}</pre>
+            </div>
+            """
+        )
+
+    fixes_html = "\n".join(fixes_list_html)
+
+    if status == "pending":
+        action_html = """
+        <div style="display: flex; gap: 15px; margin-top: 20px;">
             <button
                 type="submit"
                 class="approve"
             >
-                Approve Changes
+                Approve Selected Changes
             </button>
-
-        </form>
-
-        <form
-            method="post"
-            action="/approval/{approval_id}/reject"
-        >
-
             <button
                 type="submit"
+                formaction="REJECT_PLACEHOLDER"
                 class="reject"
+                id="reject-btn"
+                onclick="event.preventDefault(); document.getElementById('reject-form').submit();"
             >
                 Reject Changes
             </button>
-
-        </form>
+        </div>
         """
-
-    # -----------------------------------------------------
-    # Approved but not yet applied
-    # -----------------------------------------------------
-
     elif status == "approved":
-
-        action_html = f"""
+        action_html = """
         <div class="approved">
             ✓ Changes Approved
         </div>
-
         <p class="retry-info">
-            The changes have been approved but are not yet
-            marked as applied.
+            The changes have been approved but are not yet marked as applied.
         </p>
-
-        <form
-            method="post"
-            action="/approval/{approval_id}/approve"
-        >
-
+        <div style="margin-top: 20px;">
             <button
                 type="submit"
                 class="apply"
             >
                 Apply Approved Changes
             </button>
-
-        </form>
-        """
-
-    # -----------------------------------------------------
-    # Applied
-    # -----------------------------------------------------
-
-    elif status == "applied":
-
-        action_html = """
-        <div class="applied">
-            ✓ Changes Approved and Applied
-            to the Pull Request branch.
         </div>
         """
-
-    # -----------------------------------------------------
-    # Rejected
-    # -----------------------------------------------------
-
+    elif status == "applied":
+        action_html = """
+        <div class="applied">
+            ✓ Changes Approved and Applied to the Pull Request branch.
+        </div>
+        """
     elif status == "cancelled":
-
         action_html = """
         <div class="rejected">
             ✗ Changes Rejected
         </div>
         """
-
-    # -----------------------------------------------------
-    # Other
-    # -----------------------------------------------------
-
     else:
+        action_html = f"<p>Current status: <strong>{html.escape(str(status))}</strong></p>"
 
-        safe_status = html.escape(
-            str(status)
-        )
-
-        action_html = f"""
-        <p>
-            Current status:
-            <strong>{safe_status}</strong>
-        </p>
+    # Reject form (outside main form to reject everything)
+    reject_form_html = ""
+    if status == "pending":
+        reject_form_html = f"""
+        <form
+            id="reject-form"
+            method="post"
+            action="/approval/{approval_id}/reject"
+            style="display: none;"
+        ></form>
         """
 
     # -----------------------------------------------------
-    # Escape repository information
-    # -----------------------------------------------------
-
-    safe_repository = html.escape(
-        repository
-    )
-
-    safe_status = html.escape(
-        str(status)
-    )
-
-    # -----------------------------------------------------
-    # HTML
+    # HTML Page Output
     # -----------------------------------------------------
 
     html_page = f"""
     <!DOCTYPE html>
-
     <html>
-
     <head>
-
         <meta charset="UTF-8">
-
-        <title>
-            AI Code Review Approval
-        </title>
-
+        <title>AI Code Review Approval</title>
         <style>
-
             body {{
                 font-family: Arial, sans-serif;
                 max-width: 1000px;
@@ -319,34 +304,27 @@ def view_approval(
                 padding: 20px;
                 background: #f5f5f5;
             }}
-
             .container {{
                 background: white;
                 padding: 30px;
                 border-radius: 10px;
-                box-shadow:
-                    0 2px 10px
-                    rgba(0, 0, 0, 0.1);
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }}
-
             h1 {{
                 margin-top: 0;
             }}
-
             .info {{
                 background: #f0f0f0;
                 padding: 15px;
                 border-radius: 6px;
                 margin-bottom: 20px;
             }}
-
             .fix {{
                 border: 1px solid #ddd;
                 padding: 20px;
                 margin-top: 20px;
                 border-radius: 8px;
             }}
-
             pre {{
                 background: #272822;
                 color: white;
@@ -355,19 +333,11 @@ def view_approval(
                 border-radius: 6px;
                 white-space: pre-wrap;
             }}
-
             code {{
                 background: #eee;
                 padding: 3px 6px;
                 border-radius: 4px;
             }}
-
-            form {{
-                display: inline-block;
-                margin-right: 10px;
-                margin-top: 20px;
-            }}
-
             button {{
                 border: none;
                 padding: 12px 20px;
@@ -375,22 +345,18 @@ def view_approval(
                 cursor: pointer;
                 font-size: 15px;
             }}
-
             .approve {{
                 background: #2da44e;
                 color: white;
             }}
-
             .apply {{
                 background: #0969da;
                 color: white;
             }}
-
             .reject {{
                 background: #cf222e;
                 color: white;
             }}
-
             .approved {{
                 background: #dafbe1;
                 color: #1a7f37;
@@ -398,7 +364,6 @@ def view_approval(
                 border-radius: 6px;
                 margin-top: 20px;
             }}
-
             .applied {{
                 background: #ddf4ff;
                 color: #0969da;
@@ -406,7 +371,6 @@ def view_approval(
                 border-radius: 6px;
                 margin-top: 20px;
             }}
-
             .rejected {{
                 background: #ffebe9;
                 color: #cf222e;
@@ -414,54 +378,27 @@ def view_approval(
                 border-radius: 6px;
                 margin-top: 20px;
             }}
-
             .retry-info {{
                 color: #666;
             }}
-
         </style>
-
     </head>
-
     <body>
-
         <div class="container">
-
-            <h1>
-                🤖 AI Code Review Agent
-            </h1>
-
+            <h1>🤖 AI Code Review Agent</h1>
             <div class="info">
-
-                <p>
-                    <strong>Repository:</strong>
-                    {safe_repository}
-                </p>
-
-                <p>
-                    <strong>Pull Request:</strong>
-                    #{pr_number}
-                </p>
-
-                <p>
-                    <strong>Status:</strong>
-                    {safe_status}
-                </p>
-
+                <p><strong>Repository:</strong> {html.escape(repository)}</p>
+                <p><strong>Pull Request:</strong> #{pr_number}</p>
+                <p><strong>Status:</strong> {html.escape(str(status))}</p>
             </div>
-
-            <h2>
-                Proposed Code Changes
-            </h2>
-
-            {fixes_html}
-
-            {action_html}
-
+            <h2>Proposed Code Changes</h2>
+            {form_start}
+                {fixes_html}
+                {action_html}
+            {form_end}
+            {reject_form_html}
         </div>
-
     </body>
-
     </html>
     """
 
@@ -477,8 +414,9 @@ def view_approval(
 @router.post(
     "/{approval_id}/approve",
 )
-def approve_changes(
+async def approve_changes(
     approval_id: str,
+    request: Request,
 ):
     """
     Approve and apply the proposed code changes.
@@ -498,6 +436,19 @@ def approve_changes(
     GitHub changes are ONLY made after the approval
     request has been marked as approved.
     """
+
+    # -----------------------------------------------------
+    # Read selected fixes from form data
+    # -----------------------------------------------------
+
+    form_data = await request.form()
+    selected_fixes_raw = form_data.getlist("selected_fixes")
+    selected_indices = None
+    if selected_fixes_raw:
+        try:
+            selected_indices = [int(x) for x in selected_fixes_raw]
+        except ValueError:
+            pass
 
     # -----------------------------------------------------
     # Get approval request
@@ -600,7 +551,8 @@ def approve_changes(
     try:
 
         result = apply_approved_changes(
-            approval_id
+            approval_id=approval_id,
+            selected_indices=selected_indices,
         )
 
     except PermissionError as error:

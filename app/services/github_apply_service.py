@@ -154,6 +154,7 @@ def apply_file_change(
 
 def apply_approved_changes(
     approval_id: str,
+    selected_indices: list[int] | None = None,
 ) -> dict[str, Any]:
     """
     Apply all approved fixes to the Pull Request branch.
@@ -176,6 +177,17 @@ def apply_approved_changes(
     proposed_fixes = approved[
         "proposed_fixes"
     ]
+
+    # -----------------------------------------------------
+    # Filter proposed fixes if selected_indices is provided
+    # -----------------------------------------------------
+
+    if selected_indices is not None:
+        filtered_fixes = []
+        for i in selected_indices:
+            if 0 <= i < len(proposed_fixes):
+                filtered_fixes.append(proposed_fixes[i])
+        proposed_fixes = filtered_fixes
 
     # -----------------------------------------------------
     # Get PR source branch

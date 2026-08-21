@@ -4,6 +4,7 @@ from app.services.approval_service import (
     create_approval_request,
 )
 
+from fastapi import Request, HTTPException
 from app.api.approval import (
     approve_changes,
 )
@@ -56,11 +57,14 @@ def test_approve_changes_applies_github_changes(
     # -----------------------------------------
 
     def mock_apply_approved_changes(
-        received_approval_id,
+        received_approval_id=None,
+        *args,
+        **kwargs,
     ):
 
+        target = received_approval_id or kwargs.get("approval_id")
         assert (
-            received_approval_id
+            target
             == approval_id
         )
 
@@ -88,9 +92,14 @@ def test_approve_changes_applies_github_changes(
     # Approve
     # -----------------------------------------
 
-    result = approve_changes(
-        approval_id
-    )
+    from unittest.mock import AsyncMock, MagicMock
+    mock_req = MagicMock(spec=Request)
+    mock_form_data = MagicMock()
+    mock_form_data.getlist.return_value = []
+    mock_req.form = AsyncMock(return_value=mock_form_data)
+
+    import asyncio
+    result = asyncio.run(approve_changes(approval_id, mock_req))
 
     # -----------------------------------------
     # Verify response
@@ -140,19 +149,18 @@ def test_github_apply_failure_keeps_request_approved(
         mock_apply_failure,
     )
 
-    # -----------------------------------------
-    # Approval should fail with HTTP 500
-    # -----------------------------------------
+    from unittest.mock import AsyncMock, MagicMock
+    mock_req = MagicMock(spec=Request)
+    mock_form_data = MagicMock()
+    mock_form_data.getlist.return_value = []
+    mock_req.form = AsyncMock(return_value=mock_form_data)
 
-    from fastapi import HTTPException
-
+    import asyncio
     with pytest.raises(
         HTTPException
     ) as exc_info:
 
-        approve_changes(
-            approval_id
-        )
+        asyncio.run(approve_changes(approval_id, mock_req))
 
     assert (
         exc_info.value.status_code
@@ -217,9 +225,14 @@ def test_already_applied_request(
     # Call endpoint
     # -----------------------------------------
 
-    result = approve_changes(
-        approval_id
-    )
+    from unittest.mock import AsyncMock, MagicMock
+    mock_req = MagicMock(spec=Request)
+    mock_form_data = MagicMock()
+    mock_form_data.getlist.return_value = []
+    mock_req.form = AsyncMock(return_value=mock_form_data)
+
+    import asyncio
+    result = asyncio.run(approve_changes(approval_id, mock_req))
 
     assert result[
         "approval_id"

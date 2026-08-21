@@ -9,7 +9,7 @@ from typing import Any
 # JSON approval storage for persistence across restarts
 # =========================================================
 
-APPROVALS_FILE = "approvals_db.json"
+APPROVALS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "approvals_db.json")
 
 def load_approvals() -> dict[str, dict[str, Any]]:
     if not os.path.exists(APPROVALS_FILE):
