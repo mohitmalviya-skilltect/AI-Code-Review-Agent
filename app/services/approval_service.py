@@ -1,20 +1,34 @@
+import json
+import os
 from datetime import datetime, timezone
 from uuid import uuid4
 from typing import Any
 
 
 # =========================================================
-# In-memory approval storage
+# JSON approval storage for persistence across restarts
 # =========================================================
-#
-# For now we use a dictionary.
-# Later, we can replace this with a database such as
-# PostgreSQL, Redis, or DynamoDB.
-#
-# approval_id -> approval request
-#
 
-_APPROVAL_REQUESTS: dict[str, dict[str, Any]] = {}
+APPROVALS_FILE = "approvals_db.json"
+
+def load_approvals() -> dict[str, dict[str, Any]]:
+    if not os.path.exists(APPROVALS_FILE):
+        return {}
+    try:
+        with open(APPROVALS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading approvals database: {e}")
+        return {}
+
+def save_approvals(approvals: dict[str, dict[str, Any]]):
+    try:
+        with open(APPROVALS_FILE, "w", encoding="utf-8") as f:
+            json.dump(approvals, f, indent=4)
+    except Exception as e:
+        print(f"Error saving approvals database: {e}")
+
+_APPROVAL_REQUESTS = load_approvals()
 
 
 # =========================================================
@@ -99,6 +113,7 @@ def create_approval_request(
     _APPROVAL_REQUESTS[
         approval_id
     ] = approval_request
+    save_approvals(_APPROVAL_REQUESTS)
 
     print("=" * 60)
     print("APPROVAL REQUEST CREATED")
@@ -213,6 +228,9 @@ def approve_request(
         ).isoformat()
     )
 
+    _APPROVAL_REQUESTS[approval_id] = approval_request
+    save_approvals(_APPROVAL_REQUESTS)
+
     print("=" * 60)
     print("CODE CHANGES APPROVED")
     print("=" * 60)
@@ -260,6 +278,9 @@ def cancel_request(
         )
 
     approval_request["status"] = "cancelled"
+
+    _APPROVAL_REQUESTS[approval_id] = approval_request
+    save_approvals(_APPROVAL_REQUESTS)
 
     return approval_request
 

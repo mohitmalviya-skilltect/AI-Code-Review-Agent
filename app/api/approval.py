@@ -694,6 +694,10 @@ def approve_changes(
         ).isoformat()
     )
 
+    from app.services.approval_service import save_approvals, _APPROVAL_REQUESTS
+    _APPROVAL_REQUESTS[approval_id] = approval_request
+    save_approvals(_APPROVAL_REQUESTS)
+
     print("=" * 60)
     print(
         "APPROVED CHANGES APPLIED"
@@ -814,6 +818,10 @@ def reject_changes(
             timezone.utc
         ).isoformat()
     )
+
+    from app.services.approval_service import save_approvals, _APPROVAL_REQUESTS
+    _APPROVAL_REQUESTS[approval_id] = approval_request
+    save_approvals(_APPROVAL_REQUESTS)
 
     print("=" * 60)
     print(

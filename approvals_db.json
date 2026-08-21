@@ -1,0 +1,364 @@
+{
+    "30b82146-aea9-4478-b41e-53a41a91bfc8": {
+        "approval_id": "30b82146-aea9-4478-b41e-53a41a91bfc8",
+        "owner": "mohitmalviya-skilltect",
+        "repository": "AI-Code-Review-Agent",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Replace division by zero with len(numbers)."
+                ],
+                "fixed_code": "def calculate_average(numbers):\n    return sum(numbers) / len(numbers)\n"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:12:14.358221+00:00",
+        "approved_at": null
+    },
+    "53037f07-f27c-4b47-a390-c6e07c225eeb": {
+        "approval_id": "53037f07-f27c-4b47-a390-c6e07c225eeb",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 1,
+        "commit_sha": "sha123",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the calculation."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:12:14.362475+00:00",
+        "approved_at": null
+    },
+    "7a275c07-6d3b-486c-b0b2-e4122caaaddc": {
+        "approval_id": "7a275c07-6d3b-486c-b0b2-e4122caaaddc",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 2,
+        "commit_sha": "sha456",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:12:14.376016+00:00",
+        "approved_at": "2026-08-21T07:12:14.394555+00:00"
+    },
+    "50c378f4-8964-4772-b81b-f532acedc7bb": {
+        "approval_id": "50c378f4-8964-4772-b81b-f532acedc7bb",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 3,
+        "commit_sha": "sha789",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "cancelled",
+        "created_at": "2026-08-21T07:12:14.407736+00:00",
+        "approved_at": null
+    },
+    "10ecbed8-fedc-4cc0-9dd9-732bf4482680": {
+        "approval_id": "10ecbed8-fedc-4cc0-9dd9-732bf4482680",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:12:14.434799+00:00",
+        "approved_at": null,
+        "applied_at": "2026-08-21T07:12:14.448437+00:00"
+    },
+    "808750c2-1378-40cb-b5f2-7aa79c581415": {
+        "approval_id": "808750c2-1378-40cb-b5f2-7aa79c581415",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:12:14.452664+00:00",
+        "approved_at": "2026-08-21T07:12:14.466289+00:00"
+    },
+    "1ad9421c-9daf-4212-b208-ed1c017e0fca": {
+        "approval_id": "1ad9421c-9daf-4212-b208-ed1c017e0fca",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:12:14.478768+00:00",
+        "approved_at": "2026-08-21T07:12:14.492143+00:00"
+    },
+    "72bae856-dc33-4bdf-a257-b542ed3dcef3": {
+        "approval_id": "72bae856-dc33-4bdf-a257-b542ed3dcef3",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:12:14.841406+00:00",
+        "approved_at": null
+    },
+    "4bc15219-418c-4e6e-b66d-1cdd52a4db24": {
+        "approval_id": "4bc15219-418c-4e6e-b66d-1cdd52a4db24",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:12:14.854127+00:00",
+        "approved_at": "2026-08-21T07:12:14.871483+00:00"
+    },
+    "071d5b3a-b988-4d64-b886-47f205e457e4": {
+        "approval_id": "071d5b3a-b988-4d64-b886-47f205e457e4",
+        "owner": "mohitmalviya-skilltect",
+        "repository": "AI-Code-Review-Agent",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Replace division by zero with len(numbers)."
+                ],
+                "fixed_code": "def calculate_average(numbers):\n    return sum(numbers) / len(numbers)\n"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:16:06.845413+00:00",
+        "approved_at": null
+    },
+    "6b3aad30-af27-43cc-afb0-3381d47988e4": {
+        "approval_id": "6b3aad30-af27-43cc-afb0-3381d47988e4",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 1,
+        "commit_sha": "sha123",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the calculation."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:16:06.851067+00:00",
+        "approved_at": null
+    },
+    "3804e162-b857-4621-af70-f9aef17189c3": {
+        "approval_id": "3804e162-b857-4621-af70-f9aef17189c3",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 2,
+        "commit_sha": "sha456",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:16:06.856748+00:00",
+        "approved_at": "2026-08-21T07:16:06.859192+00:00"
+    },
+    "5652700e-835c-44a4-885b-c1e538ad57c4": {
+        "approval_id": "5652700e-835c-44a4-885b-c1e538ad57c4",
+        "owner": "test-owner",
+        "repository": "test-repo",
+        "pull_request_number": 3,
+        "commit_sha": "sha789",
+        "proposed_fixes": [
+            {
+                "file": "test.py",
+                "summary": "Fix bug.",
+                "changes": [
+                    "Fix the bug."
+                ],
+                "fixed_code": "print('fixed')"
+            }
+        ],
+        "status": "cancelled",
+        "created_at": "2026-08-21T07:16:06.864590+00:00",
+        "approved_at": null
+    },
+    "976ba17c-9363-4ef9-94d9-db8ec92ddd21": {
+        "approval_id": "976ba17c-9363-4ef9-94d9-db8ec92ddd21",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:16:06.872391+00:00",
+        "approved_at": "2026-08-21T07:16:06.875040+00:00",
+        "applied_at": "2026-08-21T07:16:06.877054+00:00"
+    },
+    "f9691931-f93f-450c-ac97-428a89e4aac3": {
+        "approval_id": "f9691931-f93f-450c-ac97-428a89e4aac3",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:16:06.883816+00:00",
+        "approved_at": "2026-08-21T07:16:06.886284+00:00"
+    },
+    "ebf2b34a-8803-4455-8dc4-febbe63285e3": {
+        "approval_id": "ebf2b34a-8803-4455-8dc4-febbe63285e3",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "applied",
+        "created_at": "2026-08-21T07:16:06.890975+00:00",
+        "approved_at": null
+    },
+    "ad800dbc-5652-4ed2-8b1a-66d2d941d133": {
+        "approval_id": "ad800dbc-5652-4ed2-8b1a-66d2d941d133",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "pending",
+        "created_at": "2026-08-21T07:16:06.900839+00:00",
+        "approved_at": null
+    },
+    "0d3d3552-5387-4ac1-9aa7-13e0fe0e5c92": {
+        "approval_id": "0d3d3552-5387-4ac1-9aa7-13e0fe0e5c92",
+        "owner": "test-owner",
+        "repository": "test-repository",
+        "pull_request_number": 10,
+        "commit_sha": "abc123",
+        "proposed_fixes": [
+            {
+                "file": "tests/test_review.py",
+                "summary": "Fix division by zero.",
+                "changes": [
+                    "Use len(numbers) instead of 0."
+                ],
+                "fixed_code": "average = total / len(numbers)"
+            }
+        ],
+        "status": "approved",
+        "created_at": "2026-08-21T07:16:06.904793+00:00",
+        "approved_at": "2026-08-21T07:16:06.906403+00:00"
+    }
+}
