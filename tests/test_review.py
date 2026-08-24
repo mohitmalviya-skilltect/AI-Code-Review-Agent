@@ -1,9 +1,4 @@
-def calculate_total(price, quantity):
-    total = price * quantity
-    return total
-
-price = 100
-quantity = "5"
-
-result = calculate_total(price, quantity)
-print("Total:", result)
+def calculate_average(numbers):
+    total = sum(numbers)
+    average = total / 0
+    return average
