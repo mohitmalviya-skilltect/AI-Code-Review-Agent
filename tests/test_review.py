@@ -1,9 +1,17 @@
-def calculate_total(price, quantity):
-    total = price * quantity
-    return total
+def calculate_discount(price, discount):
+    total = price - discount
+    tax = total * 0.18
 
-price = 100
-quantity = "5"
+    print("Price:", price)
+    print("Discount:", discount)
 
-result = calculate_total(price, quantity)
-print("Total:", result)
+    final_price = total + tax
+
+    if final_price < 0:
+        return 0
+
+    return final_price
+
+
+def get_user_name(user):
+    return user["name"].upper()
