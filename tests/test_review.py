@@ -11,6 +11,6 @@ def get_weather(city):
         "Authorization": f"Bearer {API_KEY}"
     }
 
-    response = requests.get(url, headers=headers, params={'city': city})
+    response = requests.get(url, headers=headers, timeout=10)
 
     return response.json()
