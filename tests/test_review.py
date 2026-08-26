@@ -1,20 +1,16 @@
-from datetime import datetime, timedelta
+import requests
 
-def calculate_weekdays(start_date, end_date):
-    current_date = start_date
-    weekdays = 0
+API_KEY = "AIzaSyExample123456789"
+AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
+AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMIExampleSecretKey"
 
-    while current_date <= end_date:
-        if current_date.weekday() < 5:
-            weekdays += 1
+def get_weather(city):
+    url = "https://api.example.com/weather"
 
-        current_date += timedelta(days=1)
+    headers = {
+        "Authorization": f"Bearer {API_KEY}"
+    }
 
-    return weekdays
+    response = requests.get(url, headers=headers)
 
-
-start = datetime(2026, 5, 8)
-end = datetime(2026, 8, 31)
-
-result = calculate_weekdays(start, end)
-print(f"Working days: {result}")
+    return response.json()
