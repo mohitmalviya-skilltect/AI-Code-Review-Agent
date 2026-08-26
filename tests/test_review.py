@@ -11,6 +11,10 @@ def get_weather(city):
         "Authorization": f"Bearer {API_KEY}"
     }
 
-    response = requests.get(url, headers=headers, timeout=10)
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
 
-    return response.json()
+    try:
+        return response.json()
+    except ValueError:
+        raise ValueError("Response body is not valid JSON")
