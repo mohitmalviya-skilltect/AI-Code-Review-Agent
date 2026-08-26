@@ -1,6 +1,6 @@
 import requests
 
-API_KEY = "AIzaSyExample123456789"
+API_KEY = "AIzaSyExample12345687"
 AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
 AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMIExampleSecretKey"
 
