@@ -16,15 +16,27 @@ class ReviewFile:
 
 def prepare_review_files(
     file_diffs: list[dict],
+    max_patch_length: int = 20000,
+    max_patch_lines: int = 500,
 ) -> list[ReviewFile]:
 
     review_files = []
 
     for file in file_diffs:
+        patch = file.get("patch", "")
+
+        # Skip files with extremely large diffs to avoid excessive token costs
+        if len(patch) > max_patch_length or patch.count("\n") > max_patch_lines:
+            print(
+                f"Skipping file {file['path']} from review: "
+                f"diff size is too large ({len(patch)} characters, "
+                f"{patch.count(chr(10))} lines)."
+            )
+            continue
 
         review_file = ReviewFile(
             path=file["path"],
-            diff=file.get("patch", ""),
+            diff=patch,
         )
 
         review_files.append(review_file)

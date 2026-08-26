@@ -38,6 +38,15 @@ SPECIAL_FILES = {
     "Makefile",
 }
 
+IGNORED_FILES = {
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
+    "poetry.lock",
+    "Cargo.lock",
+    "composer.lock",
+}
+
 
 def get_changed_files(payload: dict[str, Any]) -> list[str]:
     changed_files = []
@@ -55,6 +64,10 @@ def filter_reviewable_files(files: list[str]) -> list[str]:
     for file in files:
         filename = Path(file).name
         extension = Path(file).suffix.lower()
+
+        # Skip common lock files and minified files to optimize costs
+        if filename in IGNORED_FILES or ".min." in filename:
+            continue
 
         if filename in SPECIAL_FILES or extension in SUPPORTED_EXTENSIONS:
             reviewable_files.append(file)
