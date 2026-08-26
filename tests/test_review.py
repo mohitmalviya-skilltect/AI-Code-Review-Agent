@@ -1,6 +1,6 @@
 import requests
 
-API_KEY = "AIzaSyExample12345687"
+API_KEY = "AIzaSyExample123456789"
 AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
 AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMIExampleSecretKey"
 
@@ -11,6 +11,6 @@ def get_weather(city):
         "Authorization": f"Bearer {API_KEY}"
     }
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, params={'city': city})
 
     return response.json()
