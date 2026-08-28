@@ -1,20 +1,9 @@
-import requests
+def calculate_total(price, quantity):
+    total = price * quantity
+    return total
 
-API_KEY = "AIzaSyExample123456789"
-AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
-AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMIExampleSecretKey"
+price = 100
+quantity = "5"
 
-def get_weather(city):
-    url = "https://api.example.com/weather"
-
-    headers = {
-        "Authorization": f"Bearer {API_KEY}"
-    }
-
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-
-    try:
-        return response.json()
-    except ValueError:
-        raise ValueError("Response body is not valid JSON")
+result = calculate_total(price, quantity)
+print("Total:", result)
