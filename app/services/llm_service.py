@@ -32,106 +32,48 @@ def review_code(review_context: str) -> dict:
     prompt = f"""
 Perform a comprehensive code review.
 
-Review the changes systematically across ALL applicable categories:
+Your primary focus is to identify and report issues in the following core areas:
+1. **Security & Vulnerabilities** (Assign `security` category)
+2. **Performance Bottlenecks** (Assign `performance` category)
+3. **Syntax Errors & Logic Bugs** (Assign `bug` category)
+4. **Detailed Comments & Code Quality** (Assign `quality` or `maintainability` category)
 
-Determine the file type from the file extension or filename and apply relevant specialized checks.
-
-For Python files:
-- Logic and runtime errors
-- Exception handling
-- Security issues
-- Performance
-- Maintainability
-- Python best practices
-
-For TypeScript/JavaScript files:
-- Type safety
-- Runtime errors
-- Async/await issues
-- Security
-- Performance
-- Maintainability
-
-For Terraform files:
-- Publicly exposed resources
-- IAM and permission issues
-- Missing encryption
-- Insecure network rules
-- Hardcoded secrets
-- Unsafe defaults
-- Resource configuration issues
-- Terraform best practices
-
-For Dockerfiles:
-- Running as root
-- Hardcoded secrets
-- Untrusted or unpinned base images
-- Unnecessary packages
-- Image size optimization
-- Layer optimization
-- Missing cleanup
-- Docker security best practices
-
-For JSON/YAML configuration:
-- Invalid or risky configuration
-- Hardcoded secrets
-- Security-sensitive settings
-- Incorrect or suspicious values
-- Maintainability issues
-
-For shell scripts:
-- Unsafe commands
-- Missing error handling
-- Injection risks
-- Permission issues
-- Reliability problems
-
-Only apply specialized checks that are relevant to the detected file type.
+Verify the changes systematically across all files. For each file type, make sure you:
+- Inspect Python, JS/TS, Shell, and configuration files for security vulnerabilities, hardcoded secrets, and unsafe execution models.
+- Inspect loops, API/database queries, and resource usage for performance inefficiencies.
+- Inspect syntax, imports, error handlers, and logic paths for bugs or syntax errors.
+- Ensure that the suggestions and explanations you write are clear, precise, and highly detailed.
+- Check if the code itself lacks necessary documentation/comments, or contains outdated/misleading comments.
 
 IMPORTANT REVIEW RULES:
-
 - Review ALL changed lines.
-- Do not stop after finding the first issue.
-- Identify every meaningful issue you can confidently find.
+- Do not stop after finding the first issue; report all findings.
 - Check each applicable review category before producing the final response.
 - Do not report duplicate issues.
-- Do not invent or speculate about problems.
+- Do not invent or speculate about problems. Only report realistic, meaningful issues.
 - Do not report issues unrelated to the changed code.
-- Prefer specific, actionable suggestions.
+- Prefer specific, actionable suggestions. Write DETAILED, descriptive comments for the suggestions and problems.
 - If a category has no issues, continue checking the remaining categories.
-
-Look for:
-
-1. Bugs and logical errors
-2. Security vulnerabilities
-3. Performance problems
-4. Code quality and maintainability
-5. Error handling
-6. Best practices
-7. Configuration issues
-8. Dependency issues
-9. Reliability issues
 
 Return ONLY valid JSON.
 
 Use exactly this structure:
 
 {{
-    "summary": "Short overall summary",
+    "summary": "Short overall summary focusing on the main findings around security, performance, syntax, and comment quality.",
     "issues": [
         {{
             "file": "path/to/file.py",
             "severity": "critical|high|medium|low",
             "category": "bug|security|performance|quality|maintainability",
             "line": 1,
-            "problem": "Explain the problem",
-            "suggestion": "Explain how to fix it"
+            "problem": "Detailed explanation of the issue, vulnerability, error, performance bottleneck, or documentation/comment gap.",
+            "suggestion": "Detailed step-by-step description of how to resolve the issue with clear recommendations."
         }}
     ]
 }}
 
 Rules:
-
 - Do not use Markdown.
 - Do not add text before or after the JSON.
 - The category field MUST strictly be one of: bug, security, performance, quality, maintainability. DO NOT output category values like reliability, correctness, architecture, style, or testing.
