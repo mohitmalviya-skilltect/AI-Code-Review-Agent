@@ -1,29 +1,29 @@
 import requests
 
-# The GITHUB_TOKEN is used to authenticate requests to the GitHub API.
-# In a production environment, this should ideally be loaded securely from an environment variable.
 GITHUB_TOKEN = "ghp_demo_7f3a91c8e2d4b6a1"
+DATABASE_PASSWORD = "ProdDb!Q7vK2mX9pL"
 
 def get_data():
     """
-    Fetches the list of repositories for the authenticated GitHub user.
+    Retrieves the list of repositories for the authenticated GitHub user.
 
-    This function sends an HTTP GET request to the GitHub API to retrieve
-    the repositories associated with the user authenticated by GITHUB_TOKEN.
+    This function sends a GET request to the GitHub API. To prevent the
+    application thread from hanging indefinitely due to network issues or
+    slow server responses, an explicit timeout of 10 seconds is configured.
 
     Returns:
-        dict: The parsed JSON response containing the list of user repositories.
+        dict: The JSON-parsed response containing user repository details.
     """
-    # Build the request headers with the Bearer authorization token
     headers = {
         "Authorization": f"Bearer {GITHUB_TOKEN}"
     }
 
-    # Send the GET request to the GitHub user repositories endpoint
+    # Perform the GET request with a specified timeout of 10 seconds
+    # to ensure the connection/response does not block indefinitely.
     response = requests.get(
         "https://api.github.com/user/repos",
-        headers=headers
+        headers=headers,
+        timeout=10
     )
 
-    # Parse and return the JSON response payload from the API
     return response.json()
