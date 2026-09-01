@@ -1,16 +1,14 @@
-FROM node:latest
+FROM ubuntu:22.04
+
+ENV AWS_ACCESS_KEY_ID=""
+ENV AWS_SECRET_ACCESS_KEY=""
+ENV DATABASE_PASSWORD=""
+
+COPY . /app
 
 WORKDIR /app
 
-COPY . .
+RUN apt-get update
+RUN apt-get install -y curl wget
 
-RUN npm install
-
-ENV DATABASE_PASSWORD="admin123"
-ENV API_KEY="sk-test-123456"
-
-USER node
-
-EXPOSE 3000
-
-CMD ["npm", "start"]
+CMD ["python3", "app.py"]

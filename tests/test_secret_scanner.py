@@ -1,6 +1,7 @@
 from app.services.secret_scanner import (
     extract_added_lines,
     scan_diff,
+    redact_secrets,
 )
 
 
@@ -76,3 +77,19 @@ def test_ignore_environment_variable():
     )
 
     assert len(findings) == 0
+
+
+def test_redact_secrets():
+    # Test Gemini API key redaction
+    assert redact_secrets('GEMINI_API_KEY = "AIza12345678901234567890"') == 'GEMINI_API_KEY = "[REDACTED_GEMINI_API_KEY]"'
+    
+    # Test Github token redaction
+    assert redact_secrets('GH_TOKEN = "ghp_123456789012345678901234567890"') == 'GH_TOKEN = "[REDACTED_GITHUB_TOKEN]"'
+    
+    # Test password redaction
+    assert redact_secrets('password: "mysecretpassword"') == 'password: "[REDACTED_PASSWORD]"'
+    assert redact_secrets("passwd = 'another_pass'") == "passwd = '[REDACTED_PASSWORD]'"
+    
+    # Test non-secrets are not redacted
+    assert redact_secrets("normal_var = 'value'") == "normal_var = 'value'"
+    assert redact_secrets('os.getenv("GEMINI_API_KEY")') == 'os.getenv("GEMINI_API_KEY")'

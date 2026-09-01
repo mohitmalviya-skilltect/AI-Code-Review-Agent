@@ -1,58 +1,51 @@
-def calculate_discount(price: float, discount_percent: float) -> float:
-    """Calculate the price after applying a percentage discount.
+def process_user_data(data):
+    """
+    Processes a collection of user data dictionaries and filters for eligible users.
+
+    An eligible user is defined as one who:
+    - Has an active status ('active' == True)
+    - Is 18 years of age or older ('age' >= 18)
+    - Has a non-null email address
 
     Args:
-        price: The original price of the item.
-        discount_percent: The percentage discount to apply.
+        data (iterable): An iterable containing dictionaries with user details.
+                         If data is None or not iterable, an empty list is returned.
 
     Returns:
-        The discounted price as a float.
+        list: A list of formatted dictionaries for each eligible user,
+              containing 'Name', 'Email', and 'Status'.
     """
-    discount = price * discount_percent / 100
-    return price - discount
+    # Validate that 'data' is a valid iterable and not a string/bytes object
+    if data is None or not hasattr(data, '__iter__') or isinstance(data, (str, bytes)):
+        return []
 
+    result = []
 
-def generate_bill(items: list[dict]) -> float:
-    """Generate the total bill for a list of items, applying discounts where applicable.
+    for item in data:
+        # Ensure that the item is a dictionary before using the .get() method
+        # to prevent AttributeError for non-dict items.
+        if not isinstance(item, dict):
+            continue
 
-    Args:
-        items: A list of dictionaries, where each dictionary contains item details
-               including 'price', 'quantity', and 'discount'.
+        # Extract fields safely using .get()
+        is_active = item.get("active")
+        age = item.get("age")
+        email = item.get("email")
 
-    Returns:
-        The calculated total bill amount.
-    """
-    total = 0
+        # Check eligibility criteria:
+        # - Status must be active (active == True)
+        # - Age must be a number and >= 18 (safeguards against TypeError)
+        # - Email must not be None
+        if (
+            is_active == True
+            and isinstance(age, (int, float))
+            and age >= 18
+            and email is not None
+        ):
+            result.append({
+                "Name": item.get("name"),
+                "Email": email,
+                "Status": "eligible"
+            })
 
-    for item in items:
-        item_total = item["price"] * item["quantity"]
-
-        if item["discount"] > 0:
-            item_total = calculate_discount(
-                item_total,
-                item["discount"]
-            )
-
-        total += item_total
-
-    return total
-
-
-items = [
-    {
-        "name": "Laptop",
-        "price": 60000,
-        "quantity": 1,
-        "discount": 10
-    },
-    {
-        "name": "Mouse",
-        "price": 1000,
-        "quantity": 2,
-        "discount": 5
-    }
-]
-
-total_bill = generate_bill(items)
-
-print("Total Bill:", total_bill)
+    return result

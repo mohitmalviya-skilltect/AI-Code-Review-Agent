@@ -205,17 +205,41 @@ def view_approval(
                 </label>
             </div>
             """
+
+        file_path = html.escape(str(fix.get("file", "unknown")))
+        summary = html.escape(str(fix.get("summary", "No summary provided.")))
+        problem = html.escape(str(fix.get("problem", "")))
+        suggestion = html.escape(str(fix.get("suggestion", "")))
+        line = html.escape(str(fix.get("line", "unknown")))
+        severity = html.escape(str(fix.get("severity", "medium")).upper())
+        category = html.escape(str(fix.get("category", "quality")).upper())
+        fixed_code = html.escape(str(fix.get("fixed_code", "")))
+
+        problem_html = f"<p><strong>Problem (Line {line}):</strong> {problem}</p>" if problem else ""
+        badge_color = "#cf222e" if severity in {"CRITICAL", "HIGH"} else "#0969da"
+        badge_html = f"""<span style="background: {badge_color}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px;">{severity} &bull; {category}</span>"""
+
+        changes_list = fix.get("changes", [])
+        if changes_list:
+            changes_html = "<ul>" + "".join(f"<li>{html.escape(str(c))}</li>" for c in changes_list) + "</ul>"
+        else:
+            changes_html = "<p>No detailed changes provided.</p>"
+
         fixes_list_html.append(
             f"""
             <div class="fix">
                 {checkbox_html}
-                <h3>Fix {index + 1}</h3>
-                <p><strong>File:</strong> <code>{html.escape(str(fix.get("file", "unknown")))}</code></p>
-                <p><strong>Summary:</strong> {html.escape(str(fix.get("summary", "No summary provided.")))}</p>
-                <p><strong>Changes:</strong></p>
-                {"<ul>" + "".join(f"<li>{html.escape(str(c))}</li>" for c in fix.get("changes", [])) + "</ul>" if fix.get("changes") else "<p>No detailed changes provided.</p>"}
-                <p><strong>Proposed Code:</strong></p>
-                <pre>{html.escape(str(fix.get("fixed_code", "")))}</pre>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin: 0;">Fix {index + 1}</h3>
+                    {badge_html}
+                </div>
+                <p><strong>File:</strong> <code>{file_path}</code></p>
+                {problem_html}
+                <p><strong>Summary:</strong> {summary}</p>
+                <p><strong>Detailed Changes:</strong></p>
+                {changes_html}
+                <p><strong>Proposed Code (with detailed comments & documentation):</strong></p>
+                <pre>{fixed_code}</pre>
             </div>
             """
         )

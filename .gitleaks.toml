@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Ignore mock test fixtures"
+paths = [
+    '''tests/.*''',
+]
