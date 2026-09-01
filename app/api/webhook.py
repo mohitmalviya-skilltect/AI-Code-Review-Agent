@@ -1041,6 +1041,13 @@ def process_pull_request_review(
                 ],
             )
 
+            # Preserve issue context for the approval page
+            proposed_fix["problem"] = issue.get("problem", "")
+            proposed_fix["suggestion"] = issue.get("suggestion", "")
+            proposed_fix["severity"] = issue.get("severity", "medium")
+            proposed_fix["category"] = issue.get("category", "quality")
+            proposed_fix["line"] = issue.get("line", "unknown")
+
             if not proposed_fix.get(
                 "fixed_code"
             ):

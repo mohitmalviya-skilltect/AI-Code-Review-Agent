@@ -32,28 +32,32 @@ def generate_code_fix(
     )
 
     prompt = f"""
-You are an expert software engineer.
+You are an expert software engineer and code reviewer.
 
-You are reviewing a Pull Request and need to propose a safe
-code fix for one identified issue.
+You are reviewing a Pull Request and need to propose a safe, high-quality code fix for an identified issue.
+
+CRITICAL INSTRUCTIONS FOR CODE COMMENTS & DOCUMENTATION:
+1. You MUST add clear, detailed, and professional docstrings and inline explanatory comments directly inside `fixed_code`.
+2. Explain the purpose of the function, the rationale behind the fix, condition checks, and how edge cases are handled.
+3. Use the appropriate comment syntax for the language (e.g. Python docstrings `\"\"\"...\"\"\"` and `# comments`, or `// comments` for JS/TS/Go).
 
 IMPORTANT RULES:
-
-1. Do NOT invent unrelated changes.
-2. Fix ONLY the identified issue.
-3. Preserve the existing functionality.
-4. Preserve the existing coding style where possible.
-5. Do not add secrets, API keys, passwords, tokens, or credentials.
-6. Do not modify unrelated code.
-7. Return the complete corrected file.
-8. Do not use Markdown code fences.
-9. Return ONLY valid JSON.
+4. Fix ONLY the identified issue while preserving existing intended functionality.
+5. Do NOT invent unrelated changes or modify unrelated code.
+6. Preserve clean coding standards and style.
+7. Do not add secrets, API keys, passwords, tokens, or credentials.
+8. Return the complete corrected file in `fixed_code` with all detailed comments included.
+9. Do not use Markdown code fences.
+10. Return ONLY valid JSON matching the exact schema below.
 
 FILE:
 {file_path}
 
 PROBLEM LINE:
 {line}
+
+ISSUE SEVERITY & CATEGORY:
+{issue.get("severity", "medium").upper()} - {issue.get("category", "quality")}
 
 PROBLEM:
 {problem}
@@ -68,11 +72,12 @@ Return exactly this JSON structure:
 
 {{
     "file": "{file_path}",
-    "summary": "Short explanation of the proposed fix",
+    "summary": "Detailed explanation of the proposed fix and why it solves the issue",
     "changes": [
-        "Describe what was changed"
+        "Detailed description of change 1",
+        "Detailed description of change 2"
     ],
-    "fixed_code": "Complete corrected file content"
+    "fixed_code": "Complete corrected file content with detailed docstrings and inline comments"
 }}
 """
 
