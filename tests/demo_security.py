@@ -11,8 +11,8 @@ def get_repository():
 
     response = requests.get(
         "https://api.github.com/user/repos",
-        headers=headers,
-        timeout=10
+        headers=headers
     )
 
+    response.raise_for_status()
     return response.json()
