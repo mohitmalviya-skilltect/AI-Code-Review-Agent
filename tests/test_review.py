@@ -5,25 +5,37 @@ DATABASE_PASSWORD = "ProdDb!Q7vK2mX9pL"
 
 def get_data():
     """
-    Retrieves the list of repositories for the authenticated GitHub user.
+    Fetches user repository data from the GitHub API.
 
-    This function sends a GET request to the GitHub API. To prevent the
-    application thread from hanging indefinitely due to network issues or
-    slow server responses, an explicit timeout of 10 seconds is configured.
+    This function performs a GET request to the GitHub API's user repositories endpoint.
+    It includes robust error handling to safely deal with HTTP errors (e.g., 401, 404, 500)
+    and JSON decoding failures if the server returns non-JSON content (like an HTML error page).
 
     Returns:
-        dict: The JSON-parsed response containing user repository details.
+        dict or list: The parsed JSON response from the API if successful.
+        None: If an HTTP error, network error, or JSON decoding failure occurs.
     """
     headers = {
         "Authorization": f"Bearer {GITHUB_TOKEN}"
     }
 
-    # Perform the GET request with a specified timeout of 10 seconds
-    # to ensure the connection/response does not block indefinitely.
-    response = requests.get(
-        "https://api.github.com/user/repos",
-        headers=headers,
-        timeout=10
-    )
+    try:
+        response = requests.get(
+            "https://api.github.com/user/repos",
+            headers=headers
+        )
+        # Verify if the HTTP request was successful (status code 2xx).
+        # This will raise an HTTPError for 4xx or 5xx status codes.
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        # Handle any connection, timeout, or HTTP errors gracefully
+        print(f"An error occurred during the API request: {e}")
+        return None
 
-    return response.json()
+    try:
+        # Safely parse the response payload as JSON
+        return response.json()
+    except ValueError as e:
+        # Handle cases where the response is not valid JSON (e.g., HTML error pages)
+        print(f"Failed to parse response as JSON: {e}")
+        return None
