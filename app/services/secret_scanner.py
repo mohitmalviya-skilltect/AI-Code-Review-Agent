@@ -52,9 +52,9 @@ SECRET_PATTERNS = [
     (
         "Private Key",
         re.compile(
-            r"-----BEGIN "
+            r"(-----BEGIN "
             r"(?:RSA |EC |OPENSSH |DSA )?"
-            r"PRIVATE KEY-----"
+            r"PRIVATE KEY-----)"
         ),
     ),
     (
@@ -62,7 +62,7 @@ SECRET_PATTERNS = [
         re.compile(
             r"(?:password|passwd|pwd)"
             r"\s*[:=]\s*['\"]"
-            r"[^'\"]{4,}"
+            r"([^'\"]{4,})"
             r"['\"]",
             re.IGNORECASE,
         ),
@@ -72,7 +72,7 @@ SECRET_PATTERNS = [
         re.compile(
             r"(?:api[_-]?key|apikey)"
             r"\s*[:=]\s*['\"]"
-            r"[^'\"]{10,}"
+            r"([^'\"]{10,})"
             r"['\"]",
             re.IGNORECASE,
         ),
@@ -82,7 +82,7 @@ SECRET_PATTERNS = [
         re.compile(
             r"(?:secret|client_secret)"
             r"\s*[:=]\s*['\"]"
-            r"[^'\"]{10,}"
+            r"([^'\"]{10,})"
             r"['\"]",
             re.IGNORECASE,
         ),
@@ -287,3 +287,41 @@ def scan_files(
         )
 
     return findings
+
+
+# =========================================================
+# Redact secrets from text
+# =========================================================
+
+def redact_secrets(text: str) -> str:
+    """
+    Scan text and replace sensitive values matched by SECRET_PATTERNS
+    with [REDACTED_SECRET].
+    """
+    if not text:
+        return text
+
+    redacted = text
+    for secret_type, pattern in SECRET_PATTERNS:
+        def repl(match):
+            if match.lastindex and match.lastindex >= 1:
+                full_match = match.group(0)
+                secret_val = match.group(1)
+                
+                # If it's already redacted, don't redact it again
+                if secret_val.startswith("[REDACTED_") and secret_val.endswith("]"):
+                    return full_match
+
+                # Find the location of secret_val inside full_match
+                start, end = match.span(1)
+                match_start, _ = match.span(0)
+                rel_start = start - match_start
+                rel_end = end - match_start
+                
+                label = f"[REDACTED_{secret_type.upper().replace(' ', '_')}]"
+                return full_match[:rel_start] + label + full_match[rel_end:]
+            return match.group(0)
+            
+        redacted = pattern.sub(repl, redacted)
+        
+    return redacted

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.services.llm_service import review_code
-from app.services.secret_scanner import scan_files
+from app.services.secret_scanner import scan_files, redact_secrets
 
 
 @dataclass
@@ -52,11 +52,13 @@ def create_review_context(
 
     for file in review_files:
 
+        redacted_diff = redact_secrets(file.diff)
+
         section = (
             f"FILE: {file.path}\n\n"
             f"STATUS: modified\n\n"
             "DIFF:\n"
-            f"{file.diff}\n"
+            f"{redacted_diff}\n"
         )
 
         sections.append(section)
@@ -302,6 +304,14 @@ def generate_code_review(
             f"Total findings: "
             f"{len(combined_issues)}"
         )
+
+        # Sanitize summary and issues before returning to ensure no secrets are posted back
+        final_summary = redact_secrets(final_summary)
+        for issue in combined_issues:
+            if "problem" in issue:
+                issue["problem"] = redact_secrets(issue["problem"])
+            if "suggestion" in issue:
+                issue["suggestion"] = redact_secrets(issue["suggestion"])
 
         return {
             "summary": final_summary,
