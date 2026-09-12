@@ -21,6 +21,46 @@ router = APIRouter(
 
 
 # =========================================================
+# Code Viewer Helper with Line Numbers
+# =========================================================
+
+def render_code_with_line_numbers(code_str: str, target_line: int | None = None) -> str:
+    """
+    Renders code in a modern GitHub/IDE-style viewer with line numbers
+    and highlights the line where the issue was reported.
+    """
+    if not code_str:
+        return "<p><em>No code available.</em></p>"
+
+    lines = code_str.split("\n")
+    rows = []
+
+    for idx, raw_line in enumerate(lines, start=1):
+        escaped_line = html.escape(raw_line)
+        if not escaped_line:
+            escaped_line = "&nbsp;"
+
+        is_target = (target_line is not None and idx == target_line)
+        row_cls = ' class="code-row highlight-line"' if is_target else ' class="code-row"'
+        badge = '<span class="line-flag">Issue Line</span>' if is_target else ''
+
+        rows.append(
+            f'<tr{row_cls}>'
+            f'<td class="line-num">{idx}</td>'
+            f'<td class="line-content">{escaped_line}{badge}</td>'
+            f'</tr>'
+        )
+
+    return (
+        '<div class="code-box">'
+        '<div class="code-scroll">'
+        '<table class="code-table"><tbody>'
+        + "".join(rows)
+        + '</tbody></table></div></div>'
+    )
+
+
+# =========================================================
 # View Approval Request
 # =========================================================
 
@@ -66,108 +106,6 @@ def view_approval(
         [],
     )
 
-    fix_sections = []
-
-    for index, fix in enumerate(
-        proposed_fixes,
-        start=1,
-    ):
-
-        # -------------------------------------------------
-        # Escape AI-generated content before inserting it
-        # into HTML.
-        # -------------------------------------------------
-
-        file_path = html.escape(
-            str(
-                fix.get(
-                    "file",
-                    "unknown",
-                )
-            )
-        )
-
-        summary = html.escape(
-            str(
-                fix.get(
-                    "summary",
-                    "No summary provided.",
-                )
-            )
-        )
-
-        changes = fix.get(
-            "changes",
-            [],
-        )
-
-        fixed_code = html.escape(
-            str(
-                fix.get(
-                    "fixed_code",
-                    "",
-                )
-            )
-        )
-
-        changes_html = ""
-
-        if changes:
-
-            change_items = []
-
-            for change in changes:
-
-                change_items.append(
-                    f"<li>{html.escape(str(change))}</li>"
-                )
-
-            changes_html = (
-                "<ul>"
-                + "".join(change_items)
-                + "</ul>"
-            )
-
-        else:
-
-            changes_html = (
-                "<p>No detailed changes provided.</p>"
-            )
-
-        fix_sections.append(
-            f"""
-            <div class="fix">
-
-                <h3>
-                    Fix {index}
-                </h3>
-
-                <p>
-                    <strong>File:</strong>
-                    <code>{file_path}</code>
-                </p>
-
-                <p>
-                    <strong>Summary:</strong>
-                    {summary}
-                </p>
-
-                <p>
-                    <strong>Changes:</strong>
-                </p>
-
-                {changes_html}
-
-                <p>
-                    <strong>Proposed Code:</strong>
-                </p>
-
-                <pre>{fixed_code}</pre>
-
-            </div>
-            """
-        )
-
     # -----------------------------------------------------
     # HTML Layout & Actions (Granular/Selectable check)
     # -----------------------------------------------------
@@ -187,7 +125,6 @@ def view_approval(
 
     fixes_list_html = []
     for index, fix in enumerate(proposed_fixes):
-        # build checkbox for pending/approved fixes
         checkbox_html = ""
         if status in {"pending", "approved"}:
             checkbox_html = f"""
@@ -213,7 +150,13 @@ def view_approval(
         line = html.escape(str(fix.get("line", "unknown")))
         severity = html.escape(str(fix.get("severity", "medium")).upper())
         category = html.escape(str(fix.get("category", "quality")).upper())
-        fixed_code = html.escape(str(fix.get("fixed_code", "")))
+
+        # Determine target line number for highlight
+        target_line_num = None
+        try:
+            target_line_num = int(fix.get("line"))
+        except (ValueError, TypeError):
+            pass
 
         problem_html = f"<p><strong>Problem (Line {line}):</strong> {problem}</p>" if problem else ""
         badge_color = "#cf222e" if severity in {"CRITICAL", "HIGH"} else "#0969da"
@@ -224,6 +167,11 @@ def view_approval(
             changes_html = "<ul>" + "".join(f"<li>{html.escape(str(c))}</li>" for c in changes_list) + "</ul>"
         else:
             changes_html = "<p>No detailed changes provided.</p>"
+
+        code_block_html = render_code_with_line_numbers(
+            fix.get("fixed_code", ""),
+            target_line=target_line_num,
+        )
 
         fixes_list_html.append(
             f"""
@@ -238,8 +186,8 @@ def view_approval(
                 <p><strong>Summary:</strong> {summary}</p>
                 <p><strong>Detailed Changes:</strong></p>
                 {changes_html}
-                <p><strong>Proposed Code (with detailed comments & documentation):</strong></p>
-                <pre>{fixed_code}</pre>
+                <p><strong>Proposed Code (with line numbers &amp; documentation):</strong></p>
+                {code_block_html}
             </div>
             """
         )
@@ -322,45 +270,113 @@ def view_approval(
         <title>AI Code Review Approval</title>
         <style>
             body {{
-                font-family: Arial, sans-serif;
-                max-width: 1000px;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                max-width: 1100px;
                 margin: 40px auto;
                 padding: 20px;
-                background: #f5f5f5;
+                background: #f6f8fa;
+                color: #24292f;
             }}
             .container {{
                 background: white;
                 padding: 30px;
                 border-radius: 10px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                border: 1px solid #d0d7de;
+                box-shadow: 0 3px 12px rgba(140, 149, 159, 0.15);
             }}
             h1 {{
                 margin-top: 0;
             }}
             .info {{
-                background: #f0f0f0;
+                background: #f6f8fa;
+                border: 1px solid #d0d7de;
                 padding: 15px;
                 border-radius: 6px;
                 margin-bottom: 20px;
             }}
             .fix {{
-                border: 1px solid #ddd;
-                padding: 20px;
-                margin-top: 20px;
+                border: 1px solid #d0d7de;
+                padding: 24px;
+                margin-top: 24px;
                 border-radius: 8px;
+                background: #ffffff;
             }}
-            pre {{
-                background: #272822;
-                color: white;
-                padding: 15px;
+            .code-box {{
+                background: #1e1e1e;
+                border: 1px solid #333333;
+                border-radius: 8px;
+                margin-top: 10px;
+                overflow: hidden;
+                box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+            }}
+            .code-scroll {{
                 overflow-x: auto;
-                border-radius: 6px;
-                white-space: pre-wrap;
+                max-height: 520px;
+                overflow-y: auto;
+            }}
+            .code-table {{
+                width: 100%;
+                border-collapse: collapse;
+                font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+                font-size: 13px;
+                line-height: 20px;
+                color: #e6edf3;
+            }}
+            .code-row {{
+                transition: background 0.1s ease;
+            }}
+            .code-row:hover {{
+                background: rgba(255, 255, 255, 0.05);
+            }}
+            .code-table td {{
+                padding: 0;
+                vertical-align: top;
+            }}
+            .line-num {{
+                width: 48px;
+                min-width: 48px;
+                padding: 1px 12px 1px 8px !important;
+                text-align: right;
+                color: #6e7681;
+                user-select: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                border-right: 1px solid #30363d;
+                background: #161b22;
+                font-size: 12px;
+            }}
+            .line-content {{
+                padding: 1px 14px !important;
+                white-space: pre;
+                word-break: normal;
+            }}
+            .highlight-line {{
+                background: rgba(234, 179, 8, 0.18) !important;
+            }}
+            .highlight-line .line-num {{
+                color: #facc15 !important;
+                font-weight: bold;
+                border-right: 2px solid #facc15 !important;
+                background: rgba(234, 179, 8, 0.3) !important;
+            }}
+            .highlight-line .line-content {{
+                background: rgba(234, 179, 8, 0.12) !important;
+            }}
+            .line-flag {{
+                background: #eab308;
+                color: #000;
+                font-size: 11px;
+                font-weight: bold;
+                padding: 1px 6px;
+                border-radius: 4px;
+                margin-left: 16px;
+                vertical-align: middle;
             }}
             code {{
-                background: #eee;
+                background: #afb8c133;
                 padding: 3px 6px;
                 border-radius: 4px;
+                font-size: 13px;
             }}
             button {{
                 border: none;
@@ -368,9 +384,10 @@ def view_approval(
                 border-radius: 6px;
                 cursor: pointer;
                 font-size: 15px;
+                font-weight: bold;
             }}
             .approve {{
-                background: #2da44e;
+                background: #1f883d;
                 color: white;
             }}
             .apply {{

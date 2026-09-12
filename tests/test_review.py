@@ -39,3 +39,35 @@ def get_data():
         # Handle cases where the response is not valid JSON (e.g., HTML error pages)
         print(f"Failed to parse response as JSON: {e}")
         return None
+
+
+def process_user_scores(scores):
+    """
+    Processes a list of user scores to calculate the total, average, and count.
+
+    This function takes a collection of numeric scores, calculates their total using the 
+    built-in Python `sum()` function, and computes the average score. It safely handles 
+    empty lists to prevent a ZeroDivisionError.
+
+    Args:
+        scores (list of num): List or iterable of numeric values representing scores.
+
+    Returns:
+        dict: A dictionary containing:
+            - 'total': The sum of all scores (int/float).
+            - 'average': The mean score (float). Returns 0.0 if the input list is empty.
+            - 'count': The total number of score elements (int).
+    """
+    # Use the built-in, C-optimized sum() function to calculate total score.
+    # This is more efficient and Pythonic than a manual 'for' loop.
+    total = sum(scores)
+    count = len(scores)
+    
+    # Avoid ZeroDivisionError by checking if the score count is greater than zero.
+    average = total / count if count > 0 else 0.0
+    
+    return {
+        "total": total,
+        "average": average,
+        "count": count
+    }
