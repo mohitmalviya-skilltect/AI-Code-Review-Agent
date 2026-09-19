@@ -5,8 +5,8 @@ def calculate_months(age)
     # Bug 2: Missing colon at the end of the function definition.
     return age * 12
 
-if user_name == "Alex":
-print("Hello, Alex!") 
+if user_name == "John":
+print("Hello, John!") 
 # Bug 3: This print statement is missing indentation.
 
 # Bug 4: The operator is wrong below. It divides instead of multiplying, causing an incorrect output.
